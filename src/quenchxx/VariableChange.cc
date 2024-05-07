@@ -5,6 +5,8 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
+#include "quenchxx/VariableChange.h"
+
 #include <map>
 #include <ostream>
 #include <string>
@@ -12,7 +14,7 @@
 
 #include <typeinfo>
 
-#include "oops/base/VariableChangeParametersBase.h"
+#include "oops/base/Variables.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/Logger.h"
 #include "oops/util/parameters/OptionalParameter.h"
@@ -21,81 +23,50 @@
 #include "oops/util/parameters/RequiredParameter.h"
 #include "oops/util/FieldSetHelpers.h"
 
-#include "src/Geometry.h"
-#include "src/ModelData.h"
-#include "src/State.h"
-#include "src/Constants.h"
-#include "src/VariableChange.h"
+#include "quenchxx/Geometry.h"
+#include "quenchxx/ModelData.h"
+#include "quenchxx/State.h"
+#include "quenchxx/Constants.h"
+#include "quenchxx/VaderCookbook.h"
+#include "quenchxx/VariableChangeParameters.h"
 
-namespace genint {
+namespace quenchxx {
 
 // -------------------------------------------------------------------------------------------------
 
 VariableChange::VariableChange(const eckit::Configuration & config, const Geometry & geometry)
-//VariableChange::VariableChange(const Parameters_ & params, const Geometry & geometry)
-    : mapVariables_(geometry.mapVariables()), vader_() {
-//  : mapVariables_(geometry.mapVariables()), inputParam_(), vader_() {
+  : quench::VariableChange(config, geometry), alias_(geometry.alias()), vader_() {
 
+  // Deserialize configuration
   VariableChangeParameters params;
   params.deserialize(config);
-  eckit::LocalConfiguration variableChangeConfig = params.toConfiguration();
-  ModelData modelData{geometry};
+
+  // Pass model data parameters to vader configuration
+  ModelData modelData(geometry);
   eckit::LocalConfiguration vaderConfig;
   vaderConfig.set(vader::configCookbookKey,
-                                variableChangeConfig.getSubConfiguration("vader custom cookbook"));
+    params.toConfiguration().getSubConfiguration("vader custom cookbook"));
   vaderConfig.set(vader::configModelVarsKey, modelData.modelData());
 
-  // Create vader with genint custom cookbook
-  vader_.reset(new vader::Vader(params.vaderParam,
-                                vaderConfig));
-  // Create the variable change
-  //variableChange_.reset(VariableChangeFactory::create(geometry,
-  //                                                    params.variableChangeParameters.value()));
+  // Create vader with quenchxx custom cookbook
+  vader_.reset(new vader::Vader(params.vaderParam, vaderConfig));
 }
 
 // -------------------------------------------------------------------------------------------------
 
-VariableChange::~VariableChange() {}
-
-// -------------------------------------------------------------------------------------------------
-
 void VariableChange::changeVar(State & x, const oops::Variables & vars_out) const {
-  // Trace
   oops::Log::trace() << "VariableChange::changeVar starting" << std::endl;
 
-  // Needed Variables and fieldsets copies
-  oops::Variables varsCha = vars_out;
-  oops::Variables varsState =  x.variables();
-  oops::Variables varsAdd = x.variables();
-  atlas::FieldSet xfs;
-  x.toFieldSet(xfs);
+  // State to FieldSet
+  atlas::FieldSet fset;
+  x.toFieldSet(fset);
 
-  // Convert to jedi names using geometry map for variables.
-  // *FIXME* due to current atlas bug the fiedset rename method
-  // is not updating the index map, for this reason we need to create
-  // a new fieldset xfsVarder to get the index map updated
-  // https://github.com/ecmwf/atlas/issues/147
-  std::map<std::string,std::string> mapVars = mapVariables_;
-  const std::vector<std::string>& varsVec = xfs.field_names();
-  for (auto &var : varsVec) {
-    xfs.field(var).rename(mapVars[var]);
-  }
+  // Call vader
+  oops::Variables varsCha(vars_out);
+  vader_->changeVar(fset, varsCha);
 
-  // Call vader and get the out variables names
-  varsAdd += vader_->changeVar(xfs, varsCha);
-  varsAdd -= varsState;
-
-  // Create and update the output fieldset
-  // *FIXME* this step is also necessary because of rename bug
-  // in atlas. Once fixed state should use rename and jedi var names
-  // should be used in the entire application
-  atlas::FieldSet xfsOut;
-  x.toFieldSet(xfsOut);
-  util::removeFieldsFromFieldSet(xfsOut, varsAdd.variables());
-  for (auto &var : varsAdd.variables()) {
-    xfsOut.add(xfs.field(var));
-  }
-  x.fromFieldSet(xfsOut);
+  // FieldSet to State
+  x.fromFieldSet(fset);
 
   oops::Log::trace() << "VariableChange::changeVar done" << std::endl;
 }
@@ -106,50 +77,21 @@ void VariableChange::changeVarInverse(State & x, const oops::Variables & vars_ou
   // Trace
   oops::Log::trace() << "VariableChange::changeVarInverse starting" << std::endl;
 
-  // Needed Variables and fieldsets copies
-  oops::Variables varsCha = vars_out;
-  oops::Variables varsState =  x.variables();
-  oops::Variables varsAdd = x.variables();
-  atlas::FieldSet xfs;
-  x.toFieldSet(xfs);
+  // State to FieldSet
+  atlas::FieldSet fset;
+  x.toFieldSet(fset);
 
-  // Convert to jedi names using geometry map for variables.
-  // *FIXME* due to current atlas bug the fiedset rename method
-  // is not updating the index map, for this reason we need to create
-  // a new fieldset xfsVarder to get the index map updated
-  // https://github.com/ecmwf/atlas/issues/147
-  std::map<std::string,std::string> mapVars = mapVariables_;
-  const std::vector<std::string>& varsVec = xfs.field_names();
-  for (auto &var : varsVec) {
-    xfs.field(var).rename(mapVars[var]);
-  }
+  // Call vader
+  oops::Variables varsCha(vars_out);
+  vader_->changeVar(fset, varsCha);
 
-  // Call vader and get the out variables names
-  varsAdd += vader_->changeVar(xfs, varsCha);
-  varsAdd -= varsState;
-
-  // Create and update the output fieldset
-  // *FIXME* this step is also necessary because of rename bug
-  // in atlas. Once fixed state should use rename and jedi var names
-  // should be used in the entire application
-  atlas::FieldSet xfsOut;
-  x.toFieldSet(xfsOut);
-  util::removeFieldsFromFieldSet(xfsOut, varsAdd.variables());
-  for (auto &var : varsAdd.variables()) {
-    xfsOut.add(xfs.field(var));
-  }
-  x.fromFieldSet(xfsOut);
+  // FieldSet to State
+  x.fromFieldSet(fset);
 
   oops::Log::trace() << "VariableChange::changeVarInverse done" << std::endl;
 }
 
 // -------------------------------------------------------------------------------------------------
 
-void VariableChange::print(std::ostream & os) const {
-  os << *vader_;
-}
 
-// -------------------------------------------------------------------------------------------------
-
-
-}  // namespace genint
+}  // namespace quenchxx

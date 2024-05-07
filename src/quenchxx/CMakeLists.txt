@@ -17,14 +17,16 @@ LinearVariableChange.h
 ModelData.h
 State.cc
 State.h
+VariableChange.cc
 VariableChange.h
+VariableChangeParameters.h
 
 
 )
 
 ecbuild_add_library( TARGET   quenchxx
                      SOURCES  ${quenchxx_src_files}
-                     PUBLIC_LIBS  oops saber ufo quench
+                     PUBLIC_LIBS  oops quench saber ufo vader
                      HEADER_DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/quenchxx
                      INSTALL_HEADERS LISTED
                      LINKER_LANGUAGE CXX )

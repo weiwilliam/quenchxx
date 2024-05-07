@@ -18,7 +18,7 @@ class VariableChangeParameters : public quench::VariableChangeParameters {
   OOPS_CONCRETE_PARAMETERS(VariableChangeParameters, quench::VariableChangeParameters)
  public:
    oops::Parameter<std::map<std::string, std::vector<std::string>>> vaderCustomCookbook{
-     "vader custom cookbook", vaderGenintCustomCookbook(), this};
+     "vader custom cookbook", vaderQuenchxxCustomCookbook(), this};
    oops::Parameter<vader::VaderParameters> vaderParam{"vader", {}, this};
 };
 
