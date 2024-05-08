@@ -5,14 +5,21 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
+#include "oops/generic/instantiateModelFactory.h"
 #include "oops/runs/Run.h"
+#include "oops/runs/Variational.h"
 #include "quenchxx/Traits.h"
 #include "saber/oops/instantiateCovarFactory.h"
-#include "saber/oops/ProcessPerts.h"
+#include "ufo/instantiateObsErrorFactory.h"
+#include "ufo/instantiateObsFilterFactory.h"
+#include "ufo/ObsTraits.h"
 
 int main(int argc,  char ** argv) {
   oops::Run run(argc, argv);
   saber::instantiateCovarFactory<quenchxx::Traits>();
-  saber::ProcessPerts<quenchxx::Traits> processperts;
-  return run.execute(processperts);
+  ufo::instantiateObsErrorFactory();
+  ufo::instantiateObsFilterFactory();
+  oops::instantiateModelFactory<quenchxx::Traits>();
+  oops::Variational<quenchxx::Traits, ufo::ObsTraits> var;
+  return run.execute(var);
 }

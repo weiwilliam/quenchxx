@@ -40,3 +40,11 @@ ecbuild_add_executable( TARGET  quenchxx_hofx3d.x
                         LIBS    quenchxx
                                 ${vader_LIBRARIES}
                                 ufo )
+
+ecbuild_add_executable( TARGET  quenchxx_variational.x
+                        SOURCES quenchxxVariational.cc
+                        LIBS    quenchxx
+                                ${vader_LIBRARIES}
+                                ${gsibec_LIBRARIES}
+                                saber
+                                ufo )

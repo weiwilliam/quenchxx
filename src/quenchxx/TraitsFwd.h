@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2022 UCAR.
+ * (C) Copyright 2024 Meteorologisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -10,6 +10,8 @@
 #include <string>
 
 namespace quenchxx {
+
+// -------------------------------------------------------------------------------------------------
 
 class Covariance;
 class Geometry;
@@ -27,9 +29,14 @@ struct Traits {
   typedef quenchxx::Geometry             Geometry;
   typedef quenchxx::Increment            Increment;
   typedef quenchxx::LinearVariableChange LinearVariableChange;
+  typedef quenchxx::ModelAuxControl      ModelAuxControl;
+  typedef quenchxx::ModelAuxIncrement    ModelAuxIncrement;
+  typedef quenchxx::ModelAuxCovariance   ModelAuxCovariance;
   typedef quenchxx::ModelData            ModelData;
   typedef quenchxx::State                State;
   typedef quenchxx::VariableChange       VariableChange;
 };
+
+// -------------------------------------------------------------------------------------------------
 
 }  // namespace quenchxx

@@ -1,5 +1,6 @@
 /*
- * (C) Copyright 2021-2023 UCAR.
+ * (C) Copyright 2021-2023 UCAR
+ * (C) Copyright 2024 Meteorologisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -15,18 +16,12 @@
 #include <typeinfo>
 
 #include "oops/base/Variables.h"
-#include "oops/mpi/mpi.h"
-#include "oops/util/Logger.h"
-#include "oops/util/parameters/OptionalParameter.h"
-#include "oops/util/parameters/Parameter.h"
-#include "oops/util/parameters/Parameters.h"
-#include "oops/util/parameters/RequiredParameter.h"
 #include "oops/util/FieldSetHelpers.h"
+#include "oops/util/Logger.h"
 
 #include "quenchxx/Geometry.h"
 #include "quenchxx/ModelData.h"
 #include "quenchxx/State.h"
-#include "quenchxx/Constants.h"
 #include "quenchxx/VaderCookbook.h"
 #include "quenchxx/VariableChangeParameters.h"
 
@@ -34,8 +29,10 @@ namespace quenchxx {
 
 // -------------------------------------------------------------------------------------------------
 
-VariableChange::VariableChange(const eckit::Configuration & config, const Geometry & geometry)
+VariableChange::VariableChange(const eckit::Configuration & config,
+                               const Geometry & geometry)
   : quench::VariableChange(config, geometry), alias_(geometry.alias()), vader_() {
+  oops::Log::trace() << "VariableChange::VariableChange starting" << std::endl;
 
   // Deserialize configuration
   VariableChangeParameters params;
@@ -50,11 +47,14 @@ VariableChange::VariableChange(const eckit::Configuration & config, const Geomet
 
   // Create vader with quenchxx custom cookbook
   vader_.reset(new vader::Vader(params.vaderParam, vaderConfig));
+
+  oops::Log::trace() << "VariableChange::VariableChange done" << std::endl;
 }
 
 // -------------------------------------------------------------------------------------------------
 
-void VariableChange::changeVar(State & x, const oops::Variables & vars_out) const {
+void VariableChange::changeVar(State & x,
+                               const oops::Variables & vars_out) const {
   oops::Log::trace() << "VariableChange::changeVar starting" << std::endl;
 
   // State to FieldSet
@@ -73,8 +73,8 @@ void VariableChange::changeVar(State & x, const oops::Variables & vars_out) cons
 
 // -------------------------------------------------------------------------------------------------
 
-void VariableChange::changeVarInverse(State & x, const oops::Variables & vars_out) const {
-  // Trace
+void VariableChange::changeVarInverse(State & x,
+                                      const oops::Variables & vars_out) const {
   oops::Log::trace() << "VariableChange::changeVarInverse starting" << std::endl;
 
   // State to FieldSet

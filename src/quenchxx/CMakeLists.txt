@@ -8,19 +8,19 @@ list( APPEND quenchxx_src_files
 Constants.h
 Constants.cc
 Covariance.h
-Fields.cc
 Fields.h
 Geometry.h
-Increment.cc
 Increment.h
 LinearVariableChange.h
+Model.h
+Model.cc
+ModelAuxControl.h
+ModelAuxCovariance.h
+ModelAuxIncrement.h
 ModelData.h
-State.cc
 State.h
 VariableChange.cc
 VariableChange.h
-VariableChangeParameters.h
-
 
 )
 
