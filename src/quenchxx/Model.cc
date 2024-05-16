@@ -44,7 +44,7 @@ ModelPseudo::ModelPseudo(const Geometry & resol,
 void ModelPseudo::step(State & xx,
                        const ModelAuxControl &) const {
   // Update validTime
-  xx.validTime() += tstep_;
+  xx.updateTime(tstep_);
 
   // Do nothing and print message
   if (oops::mpi::world().rank() == 0) {

@@ -9,6 +9,10 @@
 
 #include <string>
 
+#include "oops/base/LocalIncrement.h"
+
+#include "quenchxx/GeometryIterator.h"
+
 #include "src/Increment.h"
 
 namespace quenchxx {
@@ -21,6 +25,11 @@ class Increment : public quench::Increment {
 
  public:
   static const std::string classname() {return "quenchxx::Increment";}
+
+  void ones();
+  oops::LocalIncrement getLocal(const GeometryIterator & geometryIterator) const;
+  void setLocal(const oops::LocalIncrement & localIncrement,
+                const GeometryIterator & geometryIterator);
 };
 
 // -----------------------------------------------------------------------------

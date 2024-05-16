@@ -15,6 +15,7 @@ namespace quenchxx {
 
 class Covariance;
 class Geometry;
+class GeometryIterator;
 class Increment;
 class LinearVariableChange;
 class ModelData;
@@ -27,6 +28,7 @@ struct Traits {
 
   typedef quenchxx::Covariance           Covariance;
   typedef quenchxx::Geometry             Geometry;
+  typedef quenchxx::GeometryIterator     GeometryIterator;
   typedef quenchxx::Increment            Increment;
   typedef quenchxx::LinearVariableChange LinearVariableChange;
   typedef quenchxx::ModelAuxControl      ModelAuxControl;
