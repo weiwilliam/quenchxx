@@ -33,23 +33,21 @@ Geometry::Geometry(const eckit::Configuration & config,
   // Averaged vertical coordinate
   const auto ghostView = atlas::array::make_view<int, 1>(functionSpace().ghost());
   const auto vert_coordView = atlas::array::make_view<double, 2>(fields().field("vert_coord"));
-  vert_coord_avg_.resize(nlevs_);
-  std::fill(vert_coord_avg_.begin(), vert_coord_avg_.end(), 0.0);
-  std::vector<double> counter(nlevs_, 0.0);
   for (atlas::idx_t jlevel = 0; jlevel < nlevs_; ++jlevel) {
+    double vert_coord_avg = 0.0;
+    double counter = 0.0;
     for (atlas::idx_t jnode = 0; jnode < nnodes_; ++jnode) {
       if (ghostView(jnode) == 0) {
-        vert_coord_avg_[jlevel] += vert_coordView(jnode, jlevel);
-        counter[jlevel] += 1.0;
+        vert_coord_avg += vert_coordView(jnode, jlevel);
+        counter += 1.0;
       }
     }
-  }
-  comm.allReduceInPlace(vert_coord_avg_, eckit::mpi::sum());
-  comm.allReduceInPlace(counter, eckit::mpi::sum());
-  for (atlas::idx_t jlevel = 0; jlevel < nlevs_; ++jlevel) {
-    if (counter[jlevel] > 0.0) {
-      vert_coord_avg_[jlevel] /= counter[jlevel];
+    comm.allReduceInPlace(vert_coord_avg, eckit::mpi::sum());
+    comm.allReduceInPlace(counter, eckit::mpi::sum());
+    if (counter > 0.0) {
+      vert_coord_avg /= counter;
     }
+    vert_coord_avg_.push_back(vert_coord_avg);
   }  
 }
 
