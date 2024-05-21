@@ -47,7 +47,7 @@ eckit::geometry::Point3 GeometryIterator::operator*() const {
   if (geom_.iteratorDimension() == 2) {
     return eckit::geometry::Point3(lonLatView(jnode_, 0), lonLatView(jnode_, 1), 0.0);
   } else {
-    const auto vcView = atlas::array::make_view<double, 2>(geom_.fields().field("vert_coord"));
+    const auto vcView = atlas::array::make_view<double, 2>(geom_.fields().field("vert_coord_0"));
     return eckit::geometry::Point3(lonLatView(jnode_, 0), lonLatView(jnode_, 1),
       vcView(jnode_, jlevel_));
   }
@@ -57,8 +57,11 @@ eckit::geometry::Point3 GeometryIterator::operator*() const {
 
 GeometryIterator& GeometryIterator::operator++() {
   ++jnode_;
-  if (geom_.iteratorDimension() == 3) {
-    if (jnode_ == geom_.nnodes()) {
+  if (jnode_ == geom_.nnodes()) {
+    // End of horizontal counter
+    if (geom_.iteratorDimension() == 2) {
+      jlevel_ = geom_.nlevs();
+    } else {
       ++jlevel_;
       if (jlevel_ < geom_.nlevs()) {
         jnode_ = 0;

@@ -27,12 +27,12 @@ Geometry::Geometry(const eckit::Configuration & config,
   ASSERT((iteratorDimension_ == 2) || (iteratorDimension_ == 3));
 
   // Domain size
-  nnodes_ = fields().field("vert_coord").shape(0);
-  nlevs_ = fields().field("vert_coord").shape(1);
+  nnodes_ = fields().field("vert_coord_0").shape(0);
+  nlevs_ = fields().field("vert_coord_0").shape(1);
 
   // Averaged vertical coordinate
   const auto ghostView = atlas::array::make_view<int, 1>(functionSpace().ghost());
-  const auto vert_coordView = atlas::array::make_view<double, 2>(fields().field("vert_coord"));
+  const auto vert_coordView = atlas::array::make_view<double, 2>(fields().field("vert_coord_0"));
   for (atlas::idx_t jlevel = 0; jlevel < nlevs_; ++jlevel) {
     double vert_coord_avg = 0.0;
     double counter = 0.0;

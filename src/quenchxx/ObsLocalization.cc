@@ -39,7 +39,12 @@ ObsLocalization::ObsLocalization(const eckit::Configuration & config,
   // Read observations coordinates
   obsSpace.get_db("MetaData", "longitude", obsLon_);
   obsSpace.get_db("MetaData", "latitude",obsLat_);
-  obsSpace.get_db("MetaData", "height", obsHeight_);
+  if (obsSpace.has("MetaData", "height")) {
+    obsSpace.get_db("MetaData", "height", obsHeight_);
+  } else {
+    obsHeight_.resize(obsLon_.size());
+    std::fill(obsLon_.begin(), obsLon_.end(), 0.0);
+  }
 
   oops::Log::trace() << "ObsLocalization::ObsLocalization done" << std::endl;
 }
