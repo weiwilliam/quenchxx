@@ -48,3 +48,10 @@ ecbuild_add_executable( TARGET  quenchxx_variational.x
                                 ${gsibec_LIBRARIES}
                                 saber
                                 ufo )
+
+ecbuild_add_executable( TARGET  quenchxx_letkf.x
+                        SOURCES quenchxxLETKF.cc
+                        LIBS    quenchxx
+                                ${vader_LIBRARIES}
+                                ${gsibec_LIBRARIES}
+                                ufo )

@@ -9,6 +9,7 @@
 
 #include "quenchxx/Covariance.h"
 #include "quenchxx/Geometry.h"
+#include "quenchxx/GeometryIterator.h"
 #include "quenchxx/Increment.h"
 #include "quenchxx/LinearVariableChange.h"
 #include "quenchxx/ModelAuxControl.h"
