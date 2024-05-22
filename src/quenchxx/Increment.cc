@@ -52,7 +52,6 @@ oops::LocalIncrement Increment::getLocal(const GeometryIterator & geometryIterat
 
 void Increment::setLocal(const oops::LocalIncrement & localIncrement,
                          const GeometryIterator & geometryIterator) {
-  std::cout << "geometryIterator: " << geometryIterator.jnode() << " / " << geometryIterator.jlevel() << std::endl;
   std::vector<double> values = localIncrement.getVals();
   size_t index = 0;
   if (this->geometry()->iteratorDimension() == 2) {
