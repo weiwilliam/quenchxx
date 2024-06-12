@@ -24,7 +24,8 @@ namespace quenchxx {
 
 // -----------------------------------------------------------------------------
 
-static oops::ObsLocalizationMaker<Traits, ufo::ObsTraits, ObsLocalization> makerObsLocalization_("default");
+static oops::ObsLocalizationMaker<Traits, ufo::ObsTraits, ObsLocalization>
+  makerObsLocalization_("default");
 
 // -----------------------------------------------------------------------------
 
@@ -38,7 +39,7 @@ ObsLocalization::ObsLocalization(const eckit::Configuration & config,
 
   // Read observations coordinates
   obsSpace.get_db("MetaData", "longitude", obsLon_);
-  obsSpace.get_db("MetaData", "latitude",obsLat_);
+  obsSpace.get_db("MetaData", "latitude", obsLat_);
   if (obsSpace.has("MetaData", "height")) {
     obsSpace.get_db("MetaData", "height", obsHeight_);
   } else {

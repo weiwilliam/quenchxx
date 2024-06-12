@@ -37,7 +37,7 @@ class GeometryIterator: public util::Printable,
   GeometryIterator(const Geometry &,
                    const size_t & jnode,
                    const size_t & jlevel);
-  ~GeometryIterator() {};
+  ~GeometryIterator() {}
 
   bool operator==(const GeometryIterator &) const;
   bool operator!=(const GeometryIterator &) const;

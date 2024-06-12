@@ -8,6 +8,8 @@
 
 #include "quenchxx/Increment.h"
 
+#include <vector>
+
 namespace quenchxx {
 
 // -----------------------------------------------------------------------------
@@ -22,14 +24,14 @@ oops::LocalIncrement Increment::getLocal(const GeometryIterator & geometryIterat
   int index = 0;
   if (this->geometry()->iteratorDimension() == 2) {
     std::vector<int> variableSizes;
-    for (const auto & variableSize : this->geometry()->variableSizes(this->variables())) {
-      variableSizes.push_back(static_cast<int>(variableSize));
+    for (const auto & var : this->variables()) {
+      variableSizes.push_back(static_cast<int>(var.getLevels()));
     }
     size_t valuesSize = std::accumulate(variableSizes.begin(), variableSizes.end(), 0);
     std::vector<double> values(valuesSize);
-    for (const auto & var : this->variables().variables()) {
-      const auto view = atlas::array::make_view<double, 2>(this->fields().fields().field(var));
-      for (size_t jlevel = 0; jlevel < this->geometry()->nlevs(); ++jlevel) {
+    for (const auto & var : this->variables()) {
+      const auto view = atlas::array::make_view<double, 2>(this->fields().fieldSet()[var.name()]);
+      for (size_t jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
         values[index] = view(geometryIterator.jnode(), jlevel);
         ++index;
       }
@@ -37,10 +39,10 @@ oops::LocalIncrement Increment::getLocal(const GeometryIterator & geometryIterat
     return oops::LocalIncrement(this->variables(), values, variableSizes);
   } else {
     std::vector<int> variableSizes(this->variables().size(), 1);
-    size_t valuesSize = std::accumulate(variableSizes.begin(), variableSizes.end(), 0);
+    size_t valuesSize = this->variables().size();
     std::vector<double> values(valuesSize);
-    for (const auto & var : this->variables().variables()) {
-      const auto view = atlas::array::make_view<double, 2>(this->fields().fields().field(var));
+    for (const auto & var : this->variables()) {
+      const auto view = atlas::array::make_view<double, 2>(this->fields().fieldSet()[var.name()]);
       values[index] = view(geometryIterator.jnode(), geometryIterator.jlevel());
       ++index;
     }
@@ -55,16 +57,16 @@ void Increment::setLocal(const oops::LocalIncrement & localIncrement,
   std::vector<double> values = localIncrement.getVals();
   size_t index = 0;
   if (this->geometry()->iteratorDimension() == 2) {
-    for (const auto & var : this->variables().variables()) {
-      auto view = atlas::array::make_view<double, 2>(this->fields().fields().field(var));
-      for (size_t jlevel = 0; jlevel < this->geometry()->nlevs(); ++jlevel) {
+    for (const auto & var : this->variables()) {
+      auto view = atlas::array::make_view<double, 2>(this->fields().fieldSet()[var.name()]);
+      for (size_t jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
         view(geometryIterator.jnode(), jlevel) = values[index];
         ++index;
       }
     }
   } else {
-    for (const auto & var : this->variables().variables()) {
-      auto view = atlas::array::make_view<double, 2>(this->fields().fields().field(var));
+    for (const auto & var : this->variables()) {
+      auto view = atlas::array::make_view<double, 2>(this->fields().fieldSet()[var.name()]);
       view(geometryIterator.jnode(), geometryIterator.jlevel()) = values[index];
       ++index;
     }

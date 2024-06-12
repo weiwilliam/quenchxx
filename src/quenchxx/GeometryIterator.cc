@@ -28,14 +28,14 @@ GeometryIterator::GeometryIterator(const Geometry & geom,
 // -----------------------------------------------------------------------------
 
 bool GeometryIterator::operator==(const GeometryIterator & other) const {
-  // TODO: check geometry consistency
+  // TODO(Benjamin): check geometry consistency
   return ((jnode_ == other.jnode_) && (jlevel_ == other.jlevel_));
 }
 
 // -----------------------------------------------------------------------------
 
 bool GeometryIterator::operator!=(const GeometryIterator & other) const {
-  // TODO: check geometry consistency
+  // TODO(Benjamin): check geometry consistency
   return ((jnode_ != other.jnode_) || (jlevel_ != other.jlevel_));
 }
 

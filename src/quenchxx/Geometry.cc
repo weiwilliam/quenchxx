@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2024 Meteorologisk Institutt
- * 
+ *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
@@ -48,14 +48,14 @@ Geometry::Geometry(const eckit::Configuration & config,
       vert_coord_avg /= counter;
     }
     vert_coord_avg_.push_back(vert_coord_avg);
-  }  
+  }
 }
 
 // -----------------------------------------------------------------------------
 
 Geometry::Geometry(const Geometry & other)
   : quench::Geometry(other), iteratorDimension_(other.iteratorDimension_), nnodes_(other.nnodes_),
-  nlevs_(other.nlevs_), vert_coord_avg_(other.vert_coord_avg_) 
+  nlevs_(other.nlevs_), vert_coord_avg_(other.vert_coord_avg_)
 {}
 
 // -----------------------------------------------------------------------------

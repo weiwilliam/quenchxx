@@ -72,7 +72,7 @@ find_package( oops 1.10.0 REQUIRED )
 find_package( saber 1.10.0 REQUIRED )
 
 # crtm
-find_package( crtm 2.2.3 REQUIRED )
+find_package( crtm 2.2.3 QUIET )
 
 # ufo
 find_package( ufo 1.10.0 REQUIRED )
