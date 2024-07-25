@@ -33,7 +33,7 @@ static std::map<std::string, std::vector<std::string>> vaderQuenchxxCustomCookbo
     // sulfmf:
     {"mass_fraction_of_sulfate_in_air",  {"SulfateMassFraction_A"}},
     // spfh: from mr
-    {"specific_humidity",            {"SpecificHumidity_A"}},
+    {"specific_humidity",            {"WaterVaporMixingRatioWrtMoistAir_A"}},
     // ln(p) from pe
     {"ln_air_pressure_at_interface", {"LnAirPressureAtInterface_A"}},
     // qsat
