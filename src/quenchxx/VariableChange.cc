@@ -19,9 +19,9 @@
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
 
+#include "quenchxx/Constants.h"
 #include "quenchxx/Geometry.h"
 #include "quenchxx/ModelData.h"
-#include "quenchxx/Constants.h"
 #include "quenchxx/State.h"
 #include "quenchxx/VaderCookbook.h"
 #include "quenchxx/VariableChangeParameters.h"
