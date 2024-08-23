@@ -21,6 +21,7 @@ namespace quenchxx {
 static const double grav           = 9.80665;
 static const double airmw          = 28.965;
 static const double h2omw          = 18.015;
+static const double sulfmw         = 96.06;
 static const double runiv          = 8314.47;
 static const double rdry           = runiv/airmw;
 static const double cpdry          = 3.5*rdry;
@@ -41,6 +42,7 @@ static const std::unordered_map<std::string, double> constants = {
   {"grav", grav},
   {"airmw", airmw},
   {"h2omw", h2omw},
+  {"sulfmw", sulfmw},
   {"runiv", runiv},
   {"rdry", rdry},
   {"cpdry", cpdry},

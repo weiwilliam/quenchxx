@@ -21,6 +21,7 @@
 
 #include "quenchxx/Geometry.h"
 #include "quenchxx/ModelData.h"
+#include "quenchxx/Constants.h"
 #include "quenchxx/State.h"
 #include "quenchxx/VaderCookbook.h"
 #include "quenchxx/VariableChangeParameters.h"
@@ -40,10 +41,17 @@ VariableChange::VariableChange(const eckit::Configuration & config,
 
   // Pass model data parameters to vader configuration
   ModelData modelData(geometry);
+  // Add all constants to modelData config
+  std::vector<std::string> allConstantsNames = getAllConstantsNames();
+  eckit::LocalConfiguration modelDataObject = modelData.modelData();
+  for (std::string& ConstantName : allConstantsNames) {
+      modelDataObject.set(ConstantName, getConstant(ConstantName));
+  }
+
   eckit::LocalConfiguration vaderConfig;
   vaderConfig.set(vader::configCookbookKey,
     params.toConfiguration().getSubConfiguration("vader custom cookbook"));
-  vaderConfig.set(vader::configModelVarsKey, modelData.modelData());
+  vaderConfig.set(vader::configModelVarsKey, modelDataObject);
 
   // Create vader with quenchxx custom cookbook
   vader_.reset(new vader::Vader(params.vaderParam, vaderConfig));
