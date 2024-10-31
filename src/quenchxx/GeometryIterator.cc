@@ -15,18 +15,6 @@ namespace quenchxx {
 
 // -----------------------------------------------------------------------------
 
-GeometryIterator::GeometryIterator(const GeometryIterator & other)
-  : geom_(other.geom_), jnode_(other.jnode_), jlevel_(other.jlevel_) {}
-
-// -----------------------------------------------------------------------------
-
-GeometryIterator::GeometryIterator(const Geometry & geom,
-                                   const size_t & jnode,
-                                   const size_t & jlevel)
-  : geom_(geom), jnode_(jnode), jlevel_(jlevel) {}
-
-// -----------------------------------------------------------------------------
-
 bool GeometryIterator::operator==(const GeometryIterator & other) const {
   // TODO(Benjamin): check geometry consistency
   return ((jnode_ == other.jnode_) && (jlevel_ == other.jlevel_));
@@ -56,7 +44,16 @@ eckit::geometry::Point3 GeometryIterator::operator*() const {
 // -----------------------------------------------------------------------------
 
 GeometryIterator& GeometryIterator::operator++() {
-  ++jnode_;
+  const auto ownedView = atlas::array::make_view<int, 2>(geom_.fields().field("owned"));
+  bool ownedPoint = false;
+  do {
+    ++jnode_;
+    if (jnode_ < geom_.nnodes()) {
+      ownedPoint = (ownedView(jnode_, 0) == 1);
+    } else {
+      ownedPoint = true;
+    }
+  } while (!ownedPoint);
   if (jnode_ == geom_.nnodes()) {
     // End of horizontal counter
     if (geom_.iteratorDimension() == 2) {
@@ -65,6 +62,9 @@ GeometryIterator& GeometryIterator::operator++() {
       ++jlevel_;
       if (jlevel_ < geom_.nlevs()) {
         jnode_ = 0;
+        do {
+          ++jnode_;
+        } while (ownedView(jnode_, 0) == 0);
       }
     }
   }

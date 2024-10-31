@@ -33,10 +33,13 @@ class GeometryIterator: public util::Printable,
 
   static const std::string classname() {return "quenchxx::GeometryIterator";}
 
-  GeometryIterator(const GeometryIterator &);
-  GeometryIterator(const Geometry &,
+  GeometryIterator(const GeometryIterator & other)
+    : geom_(other.geom_), iteratorDimension_(other.iteratorDimension_), jnode_(other.jnode_),
+    jlevel_(other.jlevel_) {}
+  GeometryIterator(const Geometry & geom,
                    const size_t & jnode,
-                   const size_t & jlevel);
+                   const size_t & jlevel)
+    : geom_(geom), iteratorDimension_(geom.iteratorDimension()), jnode_(jnode), jlevel_(jlevel) {}
   ~GeometryIterator() {}
 
   bool operator==(const GeometryIterator &) const;
@@ -44,15 +47,18 @@ class GeometryIterator: public util::Printable,
   eckit::geometry::Point3 operator*() const;
   GeometryIterator& operator++();
 
-  size_t jnode() const
+  const size_t & iteratorDimension() const
+    {return iteratorDimension_;}
+  const size_t jnode() const
     {return jnode_;}
-  size_t jlevel() const
+  const size_t jlevel() const
     {return jlevel_;}
 
  private:
   void print(std::ostream & os) const override;
 
   const  Geometry & geom_;
+  size_t iteratorDimension_;
   size_t jnode_;
   size_t jlevel_;
 };

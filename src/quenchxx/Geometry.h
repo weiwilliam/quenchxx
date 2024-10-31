@@ -32,9 +32,12 @@ class Geometry : public quench::Geometry {
   GeometryIterator end() const;
   std::vector<double> verticalCoord(std::string &) const;
 
-  const size_t & iteratorDimension() const {return iteratorDimension_;}
-  const size_t & nnodes() const {return nnodes_;}
-  const size_t & nlevs() const {return nlevs_;}
+  const size_t & iteratorDimension() const
+    {return iteratorDimension_;}
+  const size_t & nnodes() const
+    {return nnodes_;}
+  const size_t & nlevs() const
+    {return nlevs_;}
 
  private:
   size_t iteratorDimension_;

@@ -76,7 +76,10 @@ void ObsLocalization::computeLocalization(const GeometryIterator & geometryItera
     }
 
     // Compute normalized vertical distance
-    double verDist = std::abs(gridPoint[2] - obsHeight_[jloc]);
+    double verDist = 0.0;
+    if (geometryIterator.iteratorDimension() == 3) {
+      verDist = std::abs(gridPoint[2] - obsHeight_[jloc]);
+    }
     if (verDist > 0.0) {
       if (verScale_ > 0.0) {
         verDist /= verScale_;
