@@ -7,9 +7,43 @@
 # QUENCHXX
 ################################################################################
 
-cmake_minimum_required( VERSION 3.3.2 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.23 )
 
 project( quenchxx VERSION 0.0.1 LANGUAGES C CXX Fortran )
+
+################################################################################
+# Update source from saber/quench
+################################################################################
+
+# Update flag
+set( QUENCHXX_UPDATE OFF )
+if( DEFINED ENV{QUENCHXX_UPDATE} )
+    set( QUENCHXX_UPDATE $ENV{QUENCHXX_UPDATE} )
+endif()
+
+if( QUENCHXX_UPDATE )
+    message( STATUS "Update QUENCHXX source from saber/quench" )
+
+    # Remove update script
+    file( REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+
+    # Create update script
+    file( WRITE "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" "#!/usr/bin/env bash\n" )
+
+    # Run check_diff_recursively script
+    execute_process( COMMAND bash "${CMAKE_SOURCE_DIR}/quenchxx/script/check_diff_recursively.sh" "${CMAKE_CURRENT_SOURCE_DIR}/../saber/quench/src" "${CMAKE_CURRENT_SOURCE_DIR}/src/quenchxx" "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+
+    # Run update script
+    execute_process( COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh"
+                     COMMAND_ERROR_IS_FATAL ANY )
+
+    # Remove update script
+    file( REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+else()
+    message( STATUS "Do not update QUENCHXX source from saber/quench" )
+endif()
+
+################################################################################
 
 option(OPENMP "Build quenchxx with OpenMP support" ON)
 

@@ -1,0 +1,15 @@
+--- src/quenchxx/Traits.h.tmp	2024-11-15 14:40:51.028885901 +0100
++++ src/quenchxx/Traits.h	2024-11-15 14:43:08.789533873 +0100
+@@ -10,8 +10,12 @@
+ 
+ #include "quenchxx/Covariance.h"
+ #include "quenchxx/Geometry.h"
++#include "quenchxx/GeometryIterator.h"
+ #include "quenchxx/Increment.h"
+ #include "quenchxx/LinearVariableChange.h"
++#include "quenchxx/ModelAuxControl.h"
++#include "quenchxx/ModelAuxCovariance.h"
++#include "quenchxx/ModelAuxIncrement.h"
+ #include "quenchxx/ModelData.h"
+ #include "quenchxx/State.h"
+ #include "quenchxx/TraitsFwd.h"

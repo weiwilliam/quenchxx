@@ -1,0 +1,72 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/CMakeLists.txt.tmp	2024-11-15 14:59:58.508184769 +0100
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/CMakeLists.txt	2024-11-15 15:00:54.711441306 +0100
+@@ -4,43 +4,50 @@
+ # This software is licensed under the terms of the Apache Licence Version 2.0
+ # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
+ 
+-list( APPEND quench_src_files
++list( APPEND quenchxx_src_files
+ 
++Constants.cc
++Constants.h
+ Covariance.h
+ Fields.cc
+ Fields.h
+ Geometry.cc
+ Geometry.h
++GeometryIterator.cc
++GeometryIterator.h
+ Increment.cc
+ Increment.h
+ Interpolation.cc
+ Interpolation.h
+-LinearVariableChange.h
+ LinearVariableChange.cc
++LinearVariableChange.h
++LinearVariableChangeParameters.h
++Model.cc
++Model.h
++ModelAuxControl.h
++ModelAuxCovariance.h
++ModelAuxIncrement.h
+ ModelData.h
++ObsLocalization.cc
++ObsLocalization.h
+ State.cc
+ State.h
++Traits.h
++TraitsFwd.h
++VaderCookbook.h
++VariableChange.cc
+ VariableChange.h
++VariableChangeParameters.h
+ 
+ )
+ 
+-ecbuild_add_library( TARGET   quench
+-                     SOURCES  ${quench_src_files}
+-                     PUBLIC_LIBS  oops saber
+-                     HEADER_DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/quench
++ecbuild_add_library( TARGET   quenchxx
++                     SOURCES  ${quenchxx_src_files}
++                     PUBLIC_LIBS  oops saber ufo vader
++                     HEADER_DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/quenchxx
+                      INSTALL_HEADERS LISTED
+                      LINKER_LANGUAGE CXX )
+ 
+-target_link_libraries( quench PUBLIC NetCDF::NetCDF_Fortran NetCDF::NetCDF_C )
+-if( eccodes_FOUND )
+-    target_link_libraries( quench PUBLIC eccodes )
+-endif()
+-
+-#Configure include directory layout for build-tree to match install-tree
+-set(QUENCH_BUILD_DIR_INCLUDE_PATH ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/include)
+-add_custom_target(quench_headers ALL COMMAND ${CMAKE_COMMAND} -E make_directory "${QUENCH_BUILD_DIR_INCLUDE_PATH}/saber"
+-                                     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR} ${QUENCH_BUILD_DIR_INCLUDE_PATH}/saber/quench)
+-add_dependencies(quench quench_headers)
+-target_include_directories(quench PUBLIC $<BUILD_INTERFACE:${QUENCH_BUILD_DIR_INCLUDE_PATH}>
+-                                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+-                                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../..>)
++target_include_directories( quenchxx PUBLIC "$<BUILD_INTERFACE:${QUENCHXX_INCLUDE_DIRS}>" "$<BUILD_INTERFACE:${QUENCHXX_EXTRA_INCLUDE_DIRS}>" )
++
++target_link_libraries( quenchxx PUBLIC NetCDF::NetCDF_Fortran NetCDF::NetCDF_C )

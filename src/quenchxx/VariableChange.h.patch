@@ -1,0 +1,52 @@
+--- src/quenchxx/VariableChange.h.tmp	2024-11-15 14:40:50.922885400 +0100
++++ src/quenchxx/VariableChange.h	2024-11-15 14:34:00.514906662 +0100
+@@ -8,13 +8,21 @@
+ 
+ #pragma once
+ 
++#include <memory>
+ #include <ostream>
+ #include <string>
++#include <vector>
+ 
+ #include "eckit/config/Configuration.h"
+ 
+ #include "oops/util/Printable.h"
+ 
++#include "vader/vader.h"
++
++namespace oops {
++  class Variables;
++}
++
+ namespace quenchxx {
+   class Geometry;
+   class State;
+@@ -28,21 +36,18 @@
+ 
+   // Constructor/destructor
+   VariableChange(const eckit::Configuration &,
+-                 const Geometry &) {}
+-  ~VariableChange() {}
++                 const Geometry &);
+ 
+-  // Variable changes: direct and inverse
+   void changeVar(State &,
+-                 const oops::Variables &) const
+-    {throw eckit::NotImplemented(Here());}
++                 const oops::Variables &) const;
+   void changeVarInverse(State &,
+-                        const oops::Variables &) const
+-    {throw eckit::NotImplemented(Here());}
++                        const oops::Variables &) const;
+ 
+  private:
+-  // Print
+   void print(std::ostream & os) const override
+-    {os << "VariableChange";};
++    {os << *vader_;};
++  std::vector<eckit::LocalConfiguration> alias_;
++  std::unique_ptr<vader::Vader> vader_;
+ };
+ 
+ // -----------------------------------------------------------------------------

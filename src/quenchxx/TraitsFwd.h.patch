@@ -1,0 +1,23 @@
+--- src/quenchxx/TraitsFwd.h.tmp	2024-11-15 14:40:50.946885514 +0100
++++ src/quenchxx/TraitsFwd.h	2024-11-15 14:42:35.941379885 +0100
+@@ -14,6 +14,7 @@
+ 
+ class Covariance;
+ class Geometry;
++class GeometryIterator;
+ class Increment;
+ class LinearVariableChange;
+ class ModelData;
+@@ -28,8 +29,12 @@
+ 
+   typedef quenchxx::Covariance           Covariance;
+   typedef quenchxx::Geometry             Geometry;
++  typedef quenchxx::GeometryIterator     GeometryIterator;
+   typedef quenchxx::Increment            Increment;
+   typedef quenchxx::LinearVariableChange LinearVariableChange;
++  typedef quenchxx::ModelAuxControl      ModelAuxControl;
++  typedef quenchxx::ModelAuxIncrement    ModelAuxIncrement;
++  typedef quenchxx::ModelAuxCovariance   ModelAuxCovariance;
+   typedef quenchxx::ModelData            ModelData;
+   typedef quenchxx::State                State;
+   typedef quenchxx::VariableChange       VariableChange;

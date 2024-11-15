@@ -1,5 +1,6 @@
 /*
- * (C) Copyright 2024 Meteorologisk Institutt
+ * (C) Copyright 2022 UCAR.
+ * (C) Copyright 2023-2024 Meteorologisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -11,8 +12,6 @@
 
 namespace quenchxx {
 
-// -------------------------------------------------------------------------------------------------
-
 class Covariance;
 class Geometry;
 class GeometryIterator;
@@ -23,8 +22,10 @@ class State;
 class VariableChange;
 
 struct Traits {
-  static std::string name() {return "quenchxx";}
-  static std::string nameCovar() {return "quenchxxCovariance";}
+  static std::string name()
+    {return "quenchxx";}
+  static std::string nameCovar()
+    {return "quenchxxCovariance";}
 
   typedef quenchxx::Covariance           Covariance;
   typedef quenchxx::Geometry             Geometry;
@@ -38,7 +39,5 @@ struct Traits {
   typedef quenchxx::State                State;
   typedef quenchxx::VariableChange       VariableChange;
 };
-
-// -------------------------------------------------------------------------------------------------
 
 }  // namespace quenchxx

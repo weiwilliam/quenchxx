@@ -1,0 +1,35 @@
+--- src/quenchxx/Increment.h.tmp	2024-11-15 14:40:51.095886218 +0100
++++ src/quenchxx/Increment.h	2024-11-15 09:14:14.947906774 +0100
+@@ -22,7 +22,10 @@
+ #include "oops/util/Printable.h"
+ #include "oops/util/Serializable.h"
+ 
++#include "oops/base/LocalIncrement.h"
++
+ #include "quenchxx/Fields.h"
++#include "quenchxx/GeometryIterator.h"
+ #include "quenchxx/State.h"
+ 
+ namespace quenchxx {
+@@ -53,6 +56,8 @@
+   void zero()
+     {fields_->zero();}
+   void zero(const util::DateTime &);
++  void ones()
++    {this->fields().constantValue(1.0);}
+   void dirac(const eckit::Configuration & config)
+     {fields_->dirac(config);}
+   Increment & operator =(const Increment &);
+@@ -111,6 +116,12 @@
+                    size_t & index)
+     {fields_->deserialize(vect, index);}
+ 
++  // Local increment
++  oops::LocalIncrement getLocal(const GeometryIterator & geometryIterator) const;
++  void setLocal(const oops::LocalIncrement & localIncrement,
++                const GeometryIterator & geometryIterator);
++
++
+  private:
+   // Print
+   void print(std::ostream &) const;

@@ -1,0 +1,24 @@
+--- src/quenchxx/VariableChangeParameters.h.tmp	2024-11-15 14:43:45.692706532 +0100
++++ src/quenchxx/VariableChangeParameters.h	2024-11-15 14:44:33.221928363 +0100
+@@ -8,6 +8,10 @@
+ 
+ #pragma once
+ 
++#include <map>
++#include <string>
++#include <vector>
++
+ #include "oops/base/VariableChangeParametersBase.h"
+ 
+ namespace quenchxx {
+@@ -17,6 +21,10 @@
+ 
+ class VariableChangeParameters : public oops::VariableChangeParametersBase {
+   OOPS_CONCRETE_PARAMETERS(VariableChangeParameters, oops::VariableChangeParametersBase)
++ public:
++  oops::Parameter<std::map<std::string, std::vector<std::string>>> vaderCustomCookbook{
++    "vader custom cookbook", vaderQuenchxxCustomCookbook(), this};
++  oops::Parameter<vader::VaderParameters> vaderParam{"vader", {}, this};
+ };
+ 
+ // -------------------------------------------------------------------------------------------------

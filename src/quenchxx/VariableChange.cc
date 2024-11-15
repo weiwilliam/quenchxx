@@ -32,7 +32,7 @@ namespace quenchxx {
 
 VariableChange::VariableChange(const eckit::Configuration & config,
                                const Geometry & geometry)
-  : quench::VariableChange(config, geometry), alias_(geometry.alias()), vader_() {
+  : alias_(geometry.alias()), vader_() {
   oops::Log::trace() << "VariableChange::VariableChange starting" << std::endl;
 
   // Deserialize configuration
