@@ -1,0 +1,127 @@
+cost function:
+  cost type: 4D-Ens-Var
+  time window:
+    begin: 2010-01-01T06:00:00Z
+    length: PT12H
+  subwindow: PT6H
+  parallel subwindows: false
+  analysis variables: [temperature]
+  geometry: &geom
+    function space: StructuredColumns
+    grid:
+      type: regional
+      nx: 71
+      ny: 53
+      dx: 2.5e3
+      dy: 2.5e3
+      lonlat(centre): [9.9, 56.3]
+      projection:
+        type: lambert_conformal_conic
+        latitude0: 56.3
+        longitude0: 0.0
+      y_numbering: 1
+    partitioner: checkerboard
+    groups:
+    - variables:
+       - temperature
+      levels: 2
+    halo: 1
+  background:
+    states:
+    - date: 2010-01-01T06:00:00Z
+      state variables:
+      - temperature
+      filepath: Data/synthetic/reg_bkg_06_000001
+    - date: 2010-01-01T12:00:00Z
+      state variables:
+      - temperature
+      filepath: Data/synthetic/reg_bkg_12_000001
+    - date: 2010-01-01T18:00:00Z
+      state variables:
+      - temperature
+      filepath: Data/synthetic/reg_bkg_18_000001
+  background error:
+    covariance model: ensemble
+    localization:
+      localization method: SABER
+      saber central block:
+        saber block name: BUMP_NICAS
+        calibration:
+          general:
+            default seed: 12
+          drivers:
+            multivariate strategy: univariate
+            compute nicas: true
+          nicas:
+            resolution: 4.0
+            explicit length-scales: true
+            horizontal length-scale:
+            - groups:
+              - temperature
+              value: 3.0e4
+            vertical length-scale:
+            - groups:
+              - temperature
+              value: 3.0
+    members from template:
+      template:
+        states:
+        - date: 2010-01-01T06:00:00Z
+          state variables:
+          - temperature
+          filename: Data/synthetic/reg_ens_06_%mem%
+        - date: 2010-01-01T12:00:00Z
+          state variables:
+          - temperature
+          filename: Data/synthetic/reg_ens_12_%mem%
+        - date: 2010-01-01T18:00:00Z
+          state variables:
+          - temperature
+          filename: Data/synthetic/reg_ens_18_%mem%
+      pattern: %mem%
+      zero padding: 6
+      nmembers: 10
+  observations:
+    observers:
+    - obs space:
+        name: temperature
+        simulated variables: [temperature]
+        obsdatain:
+          engine:
+            type: H5File
+            obsfile: Data/synthetic/reg_obs_12.nc
+        obsdataout:
+          engine:
+            type: H5File
+            obsfile: Data/synthetic/reg_obs_4densvar.nc
+      obs operator:
+        name: Identity
+      obs error:
+        covariance model: diagonal
+variational:
+  minimizer:
+    algorithm: DRIPCG
+  iterations:
+  - diagnostics:
+      departures: ombg0
+    gradient norm reduction: 1.0e-10
+    ninner: 10
+    geometry: *geom
+final:
+  diagnostics:
+    departures: oman
+  increment:
+    geometry: *geom
+    output:
+      state component:
+        states:
+        - date: 2010-01-01T06:00:00Z
+          filepath: Data/synthetic/reg_4densvar_incr_06
+        - date: 2010-01-01T12:00:00Z
+          filepath: Data/synthetic/reg_4densvar_incr_12
+        - date: 2010-01-01T18:00:00Z
+          filepath: Data/synthetic/reg_4densvar_incr_18
+output:
+  filepath: Data/synthetic/reg_4densvar_analysis
+test:
+  reference filename: testoutput/synthetic/reg_4densvar.ref

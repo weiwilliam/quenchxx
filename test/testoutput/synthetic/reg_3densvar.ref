@@ -1,0 +1,26 @@
+CostJb   : Nonlinear Jb = 0.0000000000000000e+00
+CostJo   : Nonlinear Jo(temperature) = 4.7452981538857557e+00, nobs = 3, Jo/n = 1.5817660512952518e+00, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 4.7452981538857557e+00
+DRIPCGMinimizer: reduction in residual norm = 9.8999483978115001e-18
+CostFunction::addIncrement: Analysis: 
+  Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 6.9163760888489861e+01
+CostJb   : Nonlinear Jb = 1.1674933456257628e+00
+CostJo   : Nonlinear Jo(temperature) = 1.1104410753662106e+00, nobs = 3, Jo/n = 3.7014702512207021e-01, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 2.2779344209919734e+00

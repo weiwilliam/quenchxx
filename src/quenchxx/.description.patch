@@ -1,5 +1,0 @@
---- src/quenchxx/.description.tmp	2024-11-15 14:32:48.682549236 +0100
-+++ src/quenchxx/.description	2024-11-15 14:31:32.809166641 +0100
-@@ -1 +1 @@
--executables sources
-+QUENCH testbed - pseudo-model to test SABER blocks with any ATLAS grid

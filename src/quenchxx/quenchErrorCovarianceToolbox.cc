@@ -6,9 +6,9 @@
  */
 
 #include "oops/runs/Run.h"
+#include "quenchxx/Traits.h"
 #include "saber/oops/ErrorCovarianceToolbox.h"
 #include "saber/oops/instantiateCovarFactory.h"
-#include "quenchxx/Traits.h"
 
 int main(int argc,  char ** argv) {
   oops::Run run(argc, argv);

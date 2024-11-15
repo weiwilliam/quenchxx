@@ -1,0 +1,22 @@
+input geometry: &geom
+  function space: StructuredColumns
+  grid:
+    type: regular_lonlat
+    N: 10
+  groups:
+  - variables:
+    - temperature
+    levels: 2
+  halo: 1
+output geometry: *geom
+states:
+- input:
+    date: 2010-01-01T12:00:00Z
+    state variables:
+    - temperature
+    constant value: 0.8
+  output:
+    date: 2010-01-01T12:00:00Z
+    filepath: Data/synthetic/glb_truth_12
+test:
+  reference filename: testoutput/synthetic/glb_truth_12.ref

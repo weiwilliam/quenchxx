@@ -1,0 +1,26 @@
+Norm of input parameter StdDev: 4.0987803063838184e+00
+CostJb   : Nonlinear Jb = 0.0000000000000000e+00
+CostJo   : Nonlinear Jo(temperature) = 8.6291587269800303e+00, nobs = 9, Jo/n = 9.5879541410889224e-01, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 8.6291587269800303e+00
+DRIPCGMinimizer: reduction in residual norm = 4.8669467279273540e-11
+CostFunction::addIncrement: Analysis: 
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.2761526030232538e+01
+CostJb   : Nonlinear Jb = 2.0679784030079489e+00
+CostJo   : Nonlinear Jo(temperature) = 2.6213090903413523e+00, nobs = 9, Jo/n = 2.9125656559348356e-01, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 4.6892874933493012e+00
