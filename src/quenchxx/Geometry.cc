@@ -104,7 +104,7 @@ Geometry::Geometry(const eckit::Configuration & config,
       // From a file
       const std::vector<std::string> vert_coordVars =
         vert_coordParamsFromFile->getStringVector("variables");
-      const oops::Variables vert_coordVar(vert_coordVars);
+      const varns::Variables vert_coordVar(vert_coordVars);
       eckit::LocalConfiguration fileGeomConfig(config);
       std::vector<eckit::LocalConfiguration> groupsConfig(1);
       groupsConfig[0].set("variables", vert_coordVars);
@@ -380,7 +380,7 @@ Geometry::Geometry(const Geometry & other)
 
 // -----------------------------------------------------------------------------
 
-std::vector<size_t> Geometry::variableSizes(const oops::Variables & vars) const {
+std::vector<size_t> Geometry::variableSizes(const varns::Variables & vars) const {
   oops::Log::trace() << classname() << "::variableSizes starting" << std::endl;
 
   std::vector<size_t> sizes;

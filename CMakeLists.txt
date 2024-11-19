@@ -31,7 +31,7 @@ if( QUENCHXX_UPDATE )
     file( WRITE "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" "#!/usr/bin/env bash\n" )
 
     # Run check_diff_recursively script
-    execute_process( COMMAND bash "${CMAKE_SOURCE_DIR}/quenchxx/script/check_diff_recursively.sh" "${CMAKE_CURRENT_SOURCE_DIR}/../saber/quench/src" "${CMAKE_CURRENT_SOURCE_DIR}/src/quenchxx" "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+    execute_process( COMMAND bash "${CMAKE_SOURCE_DIR}/quenchxx/tools/check_diff_recursively.sh" "${CMAKE_CURRENT_SOURCE_DIR}/../saber/quench/src" "${CMAKE_CURRENT_SOURCE_DIR}/src/quenchxx" "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
 
     # Run update script
     execute_process( COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh"
@@ -100,16 +100,23 @@ find_package( NetCDF REQUIRED COMPONENTS C Fortran )
 find_package( atlas 0.35.0 REQUIRED )
 
 # oops
-find_package( oops 1.10.0 REQUIRED )
+if( ECSABER )
+    find_package( oops REQUIRED )
+    find_package( oops_patch REQUIRED )
+else()
+    find_package( oops 1.10.0 REQUIRED )
+endif()
 
 # saber
 find_package( saber 1.10.0 REQUIRED )
 
-# crtm
-find_package( crtm 2.2.3 QUIET )
+if( NOT ECSABER )
+    # crtm
+    find_package( crtm 2.2.3 QUIET )
 
-# ufo
-find_package( ufo 1.10.0 REQUIRED )
+    # ufo
+    find_package( ufo 1.10.0 REQUIRED )
+endif()
 
 # vader
 find_package( vader 1.7.0 REQUIRED )
@@ -121,6 +128,13 @@ endif()
 
 # MPI
 ecbuild_find_mpi( COMPONENTS CXX Fortran REQUIRED )
+
+# QUENCHXX required public libraries
+if( ECSABER )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "oops_patch" "saber" )
+else()
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "saber" "ufo" "vader" )
+endif()
 
 ################################################################################
 # Export package info
@@ -149,6 +163,11 @@ endforeach()
 # Sources
 ################################################################################
 
+if( ECSABER )
+    add_definitions(-DECSABER)
+endif()
+
+add_subdirectory( tools )
 add_subdirectory( src )
 add_subdirectory( test )
 

@@ -1,0 +1,335 @@
+Initial state for member 1:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 6.9866933046596884e+01
+Initial state for member 2:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 6.7967863263002542e+01
+Initial state for member 3:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 7.2806380896176847e+01
+Initial state for member 4:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 6.9306828104557781e+01
+Initial state for member 5:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 7.0554762234014675e+01
+Initial state for member 6:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 7.0641515723494891e+01
+Initial state for member 7:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 7.1426945410887541e+01
+Initial state for member 8:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 6.9459708422901585e+01
+Initial state for member 9:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 6.9115465255575984e+01
+Initial state for member 10:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 7.0336184871467424e+01
+H(x) for member 1:
+temperature nobs= 15 Min=4.2513118707038561e-01, Max=1.0937671572275063e+00, RMS=7.7586905597794342e-01
+H(x) for member 2:
+temperature nobs= 15 Min=5.2979690410704261e-01, Max=1.0019002336232099e+00, RMS=8.0602386403354387e-01
+H(x) for member 3:
+temperature nobs= 15 Min=4.9008397781386082e-01, Max=1.0651761966038653e+00, RMS=8.2925682447605087e-01
+H(x) for member 4:
+temperature nobs= 15 Min=5.7195901902222523e-01, Max=1.0208088766534504e+00, RMS=7.6744271256353791e-01
+H(x) for member 5:
+temperature nobs= 15 Min=6.2567916278838553e-01, Max=1.0350501911351200e+00, RMS=8.5220921987578457e-01
+H(x) for member 6:
+temperature nobs= 15 Min=6.2359624854859130e-01, Max=1.0195586305620588e+00, RMS=8.1489661614584585e-01
+H(x) for member 7:
+temperature nobs= 15 Min=5.5136460307454016e-01, Max=1.0993216924659743e+00, RMS=8.2620937511813408e-01
+H(x) for member 8:
+temperature nobs= 15 Min=5.1661717664023199e-01, Max=8.8356699099480185e-01, RMS=7.6973083676900478e-01
+H(x) for member 9:
+temperature nobs= 15 Min=5.8265240692024711e-01, Max=1.0010377398611561e+00, RMS=7.7504126973905918e-01
+H(x) for member 10:
+temperature nobs= 15 Min=6.7223042725065585e-01, Max=9.6974065179287627e-01, RMS=7.9177785827608527e-01
+H(x) ensemble background mean: 
+temperature nobs= 15 Min=6.5491276849351854e-01, Max=9.6909836804654026e-01, RMS=7.9588155907857394e-01
+background y - H(x): 
+temperature nobs= 15 Min=-2.7392873412827157e-01, Max=2.3326871385275338e-01, RMS=1.6230757235276166e-01
+Background mean :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 6.9648884145014350e+01
+Analysis mean :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 6.8102881253422453e+01
+Analysis mean increment :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 6.3092673471839564e+00
+Forecast variance :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 1.0019172322294481e+00
+Analysis variance :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: structured
+- size: 3763
+Regional grid detected
+Partitioner:
+- type: checkerboard
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 8.6324123013039888e-01
+H(x) for member 1:
+temperature nobs= 15 Min=4.8722657422310034e-01, Max=9.6122731415241003e-01, RMS=7.3674380009932239e-01
+H(x) for member 2:
+temperature nobs= 15 Min=6.1295322569603172e-01, Max=8.9656351223831010e-01, RMS=7.6500816464500376e-01
+H(x) for member 3:
+temperature nobs= 15 Min=5.2934259997399091e-01, Max=9.6623257586433442e-01, RMS=7.8459939186396055e-01
+H(x) for member 4:
+temperature nobs= 15 Min=5.6324153576366764e-01, Max=9.1817441875875927e-01, RMS=7.3099347518477464e-01
+H(x) for member 5:
+temperature nobs= 15 Min=6.0371749662158136e-01, Max=9.0405381448812605e-01, RMS=8.0521628048057758e-01
+H(x) for member 6:
+temperature nobs= 15 Min=6.0402866284079826e-01, Max=9.2629583091690715e-01, RMS=7.7138494129232338e-01
+H(x) for member 7:
+temperature nobs= 15 Min=5.2520023581303232e-01, Max=9.6949353670202876e-01, RMS=7.8682679144674350e-01
+H(x) for member 8:
+temperature nobs= 15 Min=4.9588759646057418e-01, Max=8.3694391796828871e-01, RMS=7.3563536578233213e-01
+H(x) for member 9:
+temperature nobs= 15 Min=5.0216820436686949e-01, Max=9.3253926924500830e-01, RMS=7.4290744682324550e-01
+H(x) for member 10:
+temperature nobs= 15 Min=5.9126418931486735e-01, Max=9.4062968504847377e-01, RMS=7.5613051569973233e-01
+H(x) ensemble analysis mean: 
+temperature nobs= 15 Min=6.2077949541256261e-01, Max=8.7160027380906835e-01, RMS=7.5741387822376649e-01
+analysis y - H(x): 
+temperature nobs= 15 Min=-2.1622947483458421e-01, Max=2.2797104785982125e-01, RMS=1.2114667180451603e-01
+ombg RMS: 1.6230757235276166e-01
+oman RMS: 1.2114667180451603e-01

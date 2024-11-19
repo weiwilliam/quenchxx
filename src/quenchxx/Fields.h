@@ -8,21 +8,36 @@
 
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <ostream>
 #include <string>
 #include <vector>
 
 #include "atlas/field.h"
+#include "atlas/grid.h"
+#include "atlas/mesh.h"
+#include "atlas/meshgenerator.h"
 
-#include "oops/base/Variables.h"
+#include "eckit/serialisation/Stream.h"
+
 #include "oops/util/abor1_cpp.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 #include "oops/util/Serializable.h"
 
+#include "quenchxx/GeoVaLs.h"
 #include "quenchxx/Interpolation.h"
+#include "quenchxx/Locations.h"
+
+#ifdef ECSABER
+#include "quenchxx/Variables.h"
+namespace varns = quenchxx;
+#else
+#include "oops/base/Variables.h"
+namespace varns = oops;
+#endif
 
 namespace quenchxx {
   class Geometry;
@@ -39,7 +54,7 @@ class Fields : public util::Printable,
 
   // Constructors/destructor
   Fields(const Geometry &,
-         const oops::Variables &,
+         const varns::Variables &,
          const util::DateTime &);
   Fields(const Fields &,
          const Geometry &);
@@ -65,6 +80,14 @@ class Fields : public util::Printable,
   void random();
   void diff(const Fields &,
             const Fields &);
+  double min(const varns::Variables &) const;
+  double max(const varns::Variables &) const;
+  void interpolate(const Locations &,
+                   GeoVaLs &) const;
+  void interpolateAD(const Locations &,
+                     const GeoVaLs &);
+  void forceWith(const Fields &,
+                 const varns::Variables &);
 
   // ATLAS FieldSet
   void toFieldSet(atlas::FieldSet &) const;
@@ -73,6 +96,7 @@ class Fields : public util::Printable,
     {return fset_;}
   atlas::FieldSet & fieldSet()
     {return fset_;}
+  void synchronizeFields();
 
   // Utilities
   void read(const eckit::Configuration &);
@@ -80,7 +104,7 @@ class Fields : public util::Printable,
   double norm() const;
   std::shared_ptr<const Geometry> geometry() const
     {return geom_;}
-  const oops::Variables & variables() const
+  const varns::Variables & variables() const
     {return vars_;}
   const util::DateTime & time() const
     {return time_;}
@@ -94,6 +118,10 @@ class Fields : public util::Printable,
   void serialize(std::vector<double> &) const;
   void deserialize(const std::vector<double> &,
                    size_t &);
+  friend eckit::Stream & operator<<(eckit::Stream &,
+                                    const Fields &);
+  friend eckit::Stream & operator>>(eckit::Stream &,
+                                    Fields &);
 
   // Grid interpolations
   static std::vector<quenchxx::Interpolation>& interpolations();
@@ -108,11 +136,17 @@ class Fields : public util::Printable,
   // Return grid interpolation
   std::vector<quenchxx::Interpolation>::iterator setupGridInterpolation(const Geometry &) const;
 
+  // Return observations interpolation
+  std::vector<quenchxx::Interpolation>::iterator setupObsInterpolation(const Locations &) const;
+
+  // Reduce duplicate points
+  void reduceDuplicatePoints();
+
   // Geometry
   std::shared_ptr<const Geometry> geom_;
 
   // Variables
-  oops::Variables vars_;
+  varns::Variables vars_;
 
   // Time
   util::DateTime time_;

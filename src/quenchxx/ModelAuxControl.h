@@ -29,19 +29,30 @@ class ModelAuxControl : public util::Printable,
                         private eckit::NonCopyable,
                         private util::ObjectCounter<ModelAuxControl> {
  public:
-  static const std::string classname() {return "quenchxx::ModelAuxControl";}
+  static const std::string classname()
+    {return "quench::ModelAuxControl";}
 
+// Constructors/destructor
   ModelAuxControl(const Geometry &,
-                  const eckit::Configuration &) {}
+                  const Model &,
+                  const eckit::Configuration &)
+    {}
   ModelAuxControl(const Geometry &,
-                  const ModelAuxControl &) {}
+                  const eckit::Configuration &)
+    {}
+  ModelAuxControl(const Geometry &,
+                  const ModelAuxControl &)
+    {}
   ModelAuxControl(const ModelAuxControl &,
-                  const bool) {}
-  ~ModelAuxControl() {}
+                  const bool)
+    {}
+  ~ModelAuxControl()
+    {}
 
+// Basic operator
   ModelAuxControl & operator+=(const ModelAuxIncrement &) {return *this;}
 
-/// I/O and diagnostics
+// I/O and diagnostics
   void read(const eckit::Configuration &) {}
   void write(const eckit::Configuration &) const {}
   double norm() const {return 0.0;}

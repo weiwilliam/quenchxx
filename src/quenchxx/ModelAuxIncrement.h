@@ -8,6 +8,8 @@
 #pragma once
 
 #include <iostream>
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "oops/util/Printable.h"
@@ -25,26 +27,41 @@ namespace quenchxx {
 
 class ModelAuxIncrement : public util::Printable {
  public:
-/// Constructor, destructor
-  ModelAuxIncrement(const Geometry &,
-                    const eckit::Configuration &) {}
-  ModelAuxIncrement(const ModelAuxIncrement &,
-                    const bool) {}
-  ModelAuxIncrement(const ModelAuxIncrement &,
-                    const eckit::Configuration &) {}
-  ~ModelAuxIncrement() {}
+  static const std::string classname()
+    {return "quenchxx::ModelAuxIncrement";}
 
-/// Linear algebra operators
+// Constructors/destructor
+  ModelAuxIncrement(const Geometry &,
+                    const eckit::Configuration &)
+    {}
+  ModelAuxIncrement(const ModelAuxIncrement &,
+                    const bool = true)
+    {}
+  ModelAuxIncrement(const ModelAuxIncrement &,
+                    const eckit::Configuration &)
+    {}
+  ~ModelAuxIncrement()
+    {}
+
+// Linear algebra operators
   void diff(const ModelAuxControl &,
-            const ModelAuxControl &) {}
-  void zero() {}
-  ModelAuxIncrement & operator=(const ModelAuxIncrement &) {return *this;}
-  ModelAuxIncrement & operator+=(const ModelAuxIncrement &) {return *this;}
-  ModelAuxIncrement & operator-=(const ModelAuxIncrement &) {return *this;}
-  ModelAuxIncrement & operator*=(const double) {return *this;}
+            const ModelAuxControl &)
+    {}
+  void zero()
+    {}
+  ModelAuxIncrement & operator=(const ModelAuxIncrement &)
+    {return *this;}
+  ModelAuxIncrement & operator+=(const ModelAuxIncrement &)
+    {return *this;}
+  ModelAuxIncrement & operator-=(const ModelAuxIncrement &)
+    {return *this;}
+  ModelAuxIncrement & operator*=(const double &)
+    {return *this;}
   void axpy(const double,
-            const ModelAuxIncrement &) {}
-  double dot_product_with(const ModelAuxIncrement &) const {return 0.0;}
+            const ModelAuxIncrement &)
+    {}
+  double dot_product_with(const ModelAuxIncrement &) const
+    {return 0.0;}
 
 /// Serialize-Deserialize
   size_t serialSize() {return 0;}
@@ -52,14 +69,17 @@ class ModelAuxIncrement : public util::Printable {
   void deserialize(const std::vector<double> &,
                    size_t & index) {}
 
-/// I/O and diagnostics
-  void read(const eckit::Configuration &) {}
-  void write(const eckit::Configuration &) const {}
-  double norm() const {return 0.0;}
+// I/O and diagnostics
+  void read(const eckit::Configuration &)
+    {}
+  void write(const eckit::Configuration &) const
+    {}
+  double norm() const
+    {return 0.0;}
 
  private:
-  explicit ModelAuxIncrement(const ModelAuxCovariance &);
-  void print(std::ostream & os) const {}
+  void print(std::ostream & os) const
+    {}
 };
 
 // -----------------------------------------------------------------------------

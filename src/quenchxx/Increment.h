@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <ostream>
 #include <string>
@@ -28,6 +29,14 @@
 #include "quenchxx/GeometryIterator.h"
 #include "quenchxx/State.h"
 
+#ifdef ECSABER
+#include "quenchxx/Variables.h"
+namespace varns = quenchxx;
+#else
+#include "oops/base/Variables.h"
+namespace varns = oops;
+#endif
+
 namespace quenchxx {
   class Geometry;
 
@@ -43,7 +52,11 @@ class Increment : public util::Printable,
 
   // Constructors/destructor
   Increment(const Geometry &,
-            const oops::Variables &,
+            const varns::Variables &,
+            const util::DateTime &);
+  Increment(const Geometry &,
+            const varns::Variables &,
+            const util::DateTime &,
             const util::DateTime &);
   Increment(const Geometry &,
             const Increment &);
@@ -73,6 +86,10 @@ class Increment : public util::Printable,
     {fields_->schur_product_with(*dx.fields_);}
   void random()
     {fields_->random();}
+  double max(const varns::Variables & var) const
+    {return fields_->max(var);}
+  double min(const varns::Variables & var) const
+    {return fields_->min(var);}
 
   // I/O and diagnostics
   void read(const eckit::Configuration & config)
@@ -91,6 +108,12 @@ class Increment : public util::Printable,
     {fields_->toFieldSet(fset);}
   void fromFieldSet(const atlas::FieldSet & fset)
     {fields_->fromFieldSet(fset);}
+  const atlas::FieldSet & fieldSet() const
+    {return fields_->fieldSet();}
+  atlas::FieldSet & fieldSet()
+    {return fields_->fieldSet();}
+  void synchronizeFields()
+    {fields_->synchronizeFields();}
 
   // Access to fields
   Fields & fields()
@@ -104,8 +127,14 @@ class Increment : public util::Printable,
   void accumul(const double & zz,
                const State & xx)
     {fields_->axpy(zz, xx.fields());}
-  const oops::Variables & variables() const
+  const varns::Variables & variables() const
     {return fields_->variables();}
+  void interpolateTL(const Locations & locs,
+                     GeoVaLs & gv) const
+    {fields_->interpolate(locs, gv);}
+  void interpolateAD(const Locations & locs,
+                     const GeoVaLs & gv)
+    {fields_->interpolateAD(locs, gv);}
 
   // Serialization
   size_t serialSize() const
@@ -115,12 +144,15 @@ class Increment : public util::Printable,
   void deserialize(const std::vector<double> & vect,
                    size_t & index)
     {fields_->deserialize(vect, index);}
+  friend eckit::Stream & operator<<(eckit::Stream &,
+                                    const Increment &);
+  friend eckit::Stream & operator>>(eckit::Stream &,
+                                    Increment &);
 
   // Local increment
   oops::LocalIncrement getLocal(const GeometryIterator & geometryIterator) const;
   void setLocal(const oops::LocalIncrement & localIncrement,
                 const GeometryIterator & geometryIterator);
-
 
  private:
   // Print

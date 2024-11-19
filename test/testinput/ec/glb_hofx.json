@@ -1,0 +1,44 @@
+{
+  "Geometry": {
+    "function space": "StructuredColumns",
+    "grid": {
+      "type": "regular_lonlat",
+      "N": "10"
+    },
+    "groups": [
+      {
+        "variables": ["temperature"],
+        "levels": "2"
+      }
+    ],
+    "halo": "1"
+  },
+  "Model": {},
+  "Initial Condition": {
+    "date": "2010-01-01T12:00:00Z",
+    "variables": ["temperature"],
+    "filepath": "testdata/glb_truth_12"
+  },
+  "forecast_length": "PT0S",
+  "Observations": {
+    "ObsTypes": [
+      {
+        "ObsType": "default",
+        "ObsData": {
+          "ObsDataIn": {
+            "filepath": "testdata/glb_obs_12"
+          },
+          "ObsDataOut": {
+            "filepath": "testdata/glb_hofx_12"
+          },
+          "obsvalue": "hofx"
+        },
+        "variables": ["temperature"]
+      }
+    ]
+  },
+  "Assimilation Window": {
+    "Begin": "2010-01-01T12:00:00Z",
+    "Length": "PT0S"
+  }
+}

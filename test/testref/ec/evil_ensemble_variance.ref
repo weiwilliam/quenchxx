@@ -1,0 +1,198 @@
+Write variance of background: 51.2085
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 51.2085
+Write variance of evil_assim_ensemble: 7.73559
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 7.73559
+Write variance of evil_control_ens_D: 28.0783
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 28.0783
+Write variance of evil_control_ens_R: 48.3243
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 48.3243
+Write variance of evil_control_ens_S: 28.0706
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 28.0706
+Write variance of evil_dual_ens_D: 28.0759
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 28.0759
+Write variance of evil_dual_ens_R: 48.4969
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 48.4969
+Write variance of evil_dual_ens_S: 28.0706
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 28.0706
+Write variance of evil_primal_ens_D: 28.0759
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 28.0759
+Write variance of evil_primal_ens_R: 48.4969
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 48.4969
+Write variance of evil_primal_ens_S: 28.0706
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1,2,3]
+  Mask size: 100%
+Fields:
+  temperature: 28.0706

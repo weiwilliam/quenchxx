@@ -1,0 +1,63 @@
+{
+  "Geometry": {
+    "function space": "StructuredColumns",
+    "grid": {
+      "type": "regional",
+      "nx": "71",
+      "ny": "53",
+      "dx": "2.5e3",
+      "dy": "2.5e3",
+      "lonlat(centre)": ["9.9", "56.3"],
+      "projection": {
+        "type" : "lambert_conformal_conic",
+        "latitude0"  : "56.3",
+        "longitude0" : "0.0"
+      },
+      "y_numbering": "1"
+    },
+    "partitioner": "checkerboard",
+    "groups": [
+      {
+        "variables": ["temperature"],
+        "levels": "2"
+      }
+    ],
+    "halo": "1"
+  },
+  "Observations": {
+    "ObsTypes": [
+      {
+        "ObsType": "default",
+        "ObsData": {
+          "ObsDataOut": {
+            "filepath": "testdata/reg_obs_06"
+          },
+          "obsvalue": "ObsValue"
+        },
+        "variables": ["temperature"],
+        "Generate": {
+          "density": "20",
+          "error": "0.1",
+          "variable": "temperature",
+          "obserror": "ObsError"
+        },
+        "Covariance": {
+          "ObsErrorCovariance": {
+            "covariance": "diagonal",
+            "obserror": "ObsError"
+          }
+        }
+      }
+    ]
+  },
+  "Model": {},
+  "Initial Condition": {
+    "date": "2010-01-01T06:00:00Z",
+    "variables": ["temperature"],
+    "filepath": "testdata/reg_truth_06"
+  },
+  "Assimilation Window": {
+    "Begin": "2010-01-01T06:00:00Z",
+    "End": "2010-01-01T06:00:00Z"
+  }
+}

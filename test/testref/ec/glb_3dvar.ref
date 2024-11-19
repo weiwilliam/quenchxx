@@ -1,0 +1,12 @@
+CostJo   : Nonlinear Jo = 18.8047, nobs = 20, Jo/n = 0.940235, err = 0.1
+Norm of input parameter StdDev: 4.09878
+CostJb   : Nonlinear Jb = 0
+CostFunction: Nonlinear J = 18.8047
+DRIPCGMinimizer: reduction in residual norm = 6.40005e-11
+CostFunction::addIncrement: Analysis norm: 41.0964
+CostJo   : Nonlinear Jo = 6.77195, nobs = 20, Jo/n = 0.338597, err = 0.1
+CostJb   : Nonlinear Jb = 4.36847
+CostFunction: Nonlinear J = 11.1404
+DRIPCGMinimizer: reduction in residual norm = 6.65324e-11
+CostFunction::addIncrement: Analysis norm: 41.0882
+CostJo   : Nonlinear Jo = 2.61896, nobs = 20, Jo/n = 0.130948, err = 0.1

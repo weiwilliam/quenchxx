@@ -1,0 +1,84 @@
+time window:
+  begin: 2010-01-01T11:59:59Z
+  length: PT2S
+geometry:
+  function space: StructuredColumns
+  grid:
+    type: regional
+    nx: 71
+    ny: 53
+    dx: 2.5e3
+    dy: 2.5e3
+    lonlat(centre): [9.9, 56.3]
+    projection:
+      type: lambert_conformal_conic
+      latitude0: 56.3
+      longitude0: 0.0
+    y_numbering: 1
+  partitioner: checkerboard
+  groups:
+  - variables:
+     - temperature
+    levels: 2
+  halo: 1
+background:
+  members from template:
+    template:
+      date: 2010-01-01T12:00:00Z
+      state variables:
+      - temperature
+      filepath: testdata/reg_ens_12_%mem%
+    pattern: %mem%
+    zero padding: 6
+    nmembers: 10
+observations:
+  observers:
+  - obs space:
+      name: temperature
+      distribution:
+        name: Halo
+        halo size: 1000.0e3
+      simulated variables: [temperature]
+      obsdatain:
+        engine:
+          type: H5File
+          obsfile: testdata/reg_obs_12.nc
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: testdata/reg_obs_letkf.nc
+    obs operator:
+      name: Identity
+    obs error:
+      covariance model: diagonal
+    obs localizations:
+    - localization method: default
+      horizontal length-scale: 1000.0e3
+driver:
+  save prior mean: true
+  save posterior mean: true
+  save posterior mean increment: true
+  save posterior ensemble increments: true
+  save prior variance: true
+  save posterior variance: true
+  update obs config with geometry info: false
+local ensemble DA:
+  solver: LETKF
+  inflation:
+    rtps: 0.5
+    rtpp: 0.5
+    mult: 1.1
+output:
+  filepath: testdata/reg_letkf_state
+output increment:
+  filepath: testdata/reg_letkf_increment
+output ensemble increments:
+  filepath: testdata/reg_letkf_increment
+output mean prior:
+  filepath: testdata/reg_letkf_mean_prior
+output variance prior:
+  filepath: testdata/reg_letkf_var_prior
+output variance posterior:
+  filepath: testdata/reg_letkf_var_posterior
+test:
+  reference filename: testref/jedi/reg_letkf.ref

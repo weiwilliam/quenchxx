@@ -19,6 +19,13 @@
 #include "oops/util/Printable.h"
 
 #include "quenchxx/Increment.h"
+#include "quenchxx/IncrModCtlVec.h"
+
+#ifdef ECSABER
+namespace varns = quenchxx;
+#else
+namespace varns = oops;
+#endif
 
 namespace quenchxx {
   class Geometry;
@@ -36,21 +43,39 @@ class Covariance : public util::Printable,
 
   // Constructor/destructor
   Covariance(const Geometry &,
-             const oops::Variables &,
+             const varns::Variables &,
              const eckit::Configuration &,
              const State &,
+             const State &)
+    {}
+  Covariance(const Geometry &,
+             const varns::Variables &,
+             const eckit::Configuration &,
              const State &)
     {}
   ~Covariance()
     {}
 
-  // Multiply and inverse multiply (identity)
-  void multiply(const Increment & dxi,
-                Increment & dxo) const
-    {dxo = dxi;}
-  void inverseMultiply(const Increment & dxi,
-                       Increment & dxo) const
-    {dxo = dxi;}
+  // Multiply and inverse multiply
+  void multiply(const Increment &,
+                Increment &) const
+    {throw eckit::NotImplemented(Here());}
+  void inverseMultiply(const Increment &,
+                       Increment &) const
+    {throw eckit::NotImplemented(Here());}
+
+  // Square-root and adjoint
+  void multiplySqrt(const IncrModCtlVec &,
+                    Increment &) const
+    {throw eckit::NotImplemented(Here());}
+  void multiplySqrtTrans(const Increment &,
+                         IncrModCtlVec &) const
+    {throw eckit::NotImplemented(Here());}
+
+  // Linearize
+  void linearize(const State &,
+                 const Geometry &)
+    {}
 
   // Randomization
   void randomize(Increment & dxo) const

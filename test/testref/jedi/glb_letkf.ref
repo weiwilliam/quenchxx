@@ -1,0 +1,320 @@
+Initial state for member 1:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.3681575665418507e+01
+Initial state for member 2:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.3006009596174678e+01
+Initial state for member 3:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.3522941011507093e+01
+Initial state for member 4:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.3721739910464962e+01
+Initial state for member 5:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.3650811291585789e+01
+Initial state for member 6:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.4092383090360570e+01
+Initial state for member 7:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.3069269642490305e+01
+Initial state for member 8:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.2515494991161859e+01
+Initial state for member 9:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.2392417973877222e+01
+Initial state for member 10:
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.1864209705967966e+01
+H(x) for member 1:
+temperature nobs= 30 Min=5.5920511098632453e-01, Max=1.1598830295476692e+00, RMS=8.2385788248641068e-01
+H(x) for member 2:
+temperature nobs= 30 Min=6.6645896547477723e-01, Max=1.0764396634938469e+00, RMS=8.2861726702223926e-01
+H(x) for member 3:
+temperature nobs= 30 Min=5.6673453428972953e-01, Max=1.1890707836154546e+00, RMS=8.3408959688671025e-01
+H(x) for member 4:
+temperature nobs= 30 Min=5.1919364606811036e-01, Max=1.1385177809450218e+00, RMS=8.3828010834264299e-01
+H(x) for member 5:
+temperature nobs= 30 Min=4.6024168916923547e-01, Max=1.0791712922016294e+00, RMS=8.2257297732515178e-01
+H(x) for member 6:
+temperature nobs= 30 Min=6.0772141069212693e-01, Max=1.1500051492738455e+00, RMS=8.2320131344653147e-01
+H(x) for member 7:
+temperature nobs= 30 Min=5.9035154156470449e-01, Max=1.1305889749843629e+00, RMS=8.2051191445213534e-01
+H(x) for member 8:
+temperature nobs= 30 Min=5.7337259783933592e-01, Max=1.1756728572319310e+00, RMS=8.4825984467075477e-01
+H(x) for member 9:
+temperature nobs= 30 Min=5.2097434833490497e-01, Max=1.0397301777249632e+00, RMS=7.8663926315990029e-01
+H(x) for member 10:
+temperature nobs= 30 Min=4.7827267381633354e-01, Max=1.0804634605013481e+00, RMS=7.6791844619349103e-01
+H(x) ensemble background mean: 
+temperature nobs= 30 Min=6.2787742824514181e-01, Max=1.0450860685686338e+00, RMS=8.1482752605152198e-01
+background y - H(x): 
+temperature nobs= 30 Min=-4.1126999946601206e-01, Max=3.5068331747095316e-01, RMS=1.6258481109689635e-01
+Background mean :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.2930511355693888e+01
+Analysis mean :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.2899760421362373e+01
+Analysis mean increment :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 4.1512833441963343e-01
+Forecast variance :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 4.4893555640399380e-01
+Analysis variance :
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 4.3852247712848935e-01
+H(x) for member 1:
+temperature nobs= 30 Min=5.8548808827638676e-01, Max=1.1316880205911193e+00, RMS=8.1051657631464002e-01
+H(x) for member 2:
+temperature nobs= 30 Min=6.6124598645298738e-01, Max=1.0012292166505752e+00, RMS=8.1666940899478424e-01
+H(x) for member 3:
+temperature nobs= 30 Min=6.1010151219417497e-01, Max=1.1603256067710901e+00, RMS=8.2235620909555496e-01
+H(x) for member 4:
+temperature nobs= 30 Min=5.1237556081581170e-01, Max=1.1108162874694711e+00, RMS=8.2687860800921242e-01
+H(x) for member 5:
+temperature nobs= 30 Min=5.4201194042142742e-01, Max=1.0253577640157236e+00, RMS=8.1052337177647005e-01
+H(x) for member 6:
+temperature nobs= 30 Min=6.4258022542291104e-01, Max=9.8831064249513079e-01, RMS=8.1078483146969715e-01
+H(x) for member 7:
+temperature nobs= 30 Min=6.0949737862153108e-01, Max=9.7111906861895025e-01, RMS=8.0959905245870012e-01
+H(x) for member 8:
+temperature nobs= 30 Min=6.7928789082053653e-01, Max=1.0965154902641117e+00, RMS=8.3595939516214601e-01
+H(x) for member 9:
+temperature nobs= 30 Min=5.2759980452566579e-01, Max=1.0127776284052832e+00, RMS=7.7765991654458289e-01
+H(x) for member 10:
+temperature nobs= 30 Min=4.7469010520906535e-01, Max=1.0164949747498007e+00, RMS=7.5809528600702347e-01
+H(x) ensemble analysis mean: 
+temperature nobs= 30 Min=6.6614198543873515e-01, Max=1.0182683552091043e+00, RMS=8.0346704207511033e-01
+analysis y - H(x): 
+temperature nobs= 30 Min=-2.9587962885301811e-01, Max=2.1653549605215316e-01, RMS=1.2198416667325163e-01
+ombg RMS: 1.6258481109689635e-01
+oman RMS: 1.2198416667325163e-01

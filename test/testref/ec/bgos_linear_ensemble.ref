@@ -1,0 +1,5 @@
+CostJo   : Nonlinear Jo = 331188, nobs = 100, Jo/n = 3311.88, err = 0.01
+Norm of input parameter StdDev: 50.1996
+CostJb   : Nonlinear Jb = 0
+CostFunction: Nonlinear J = 331188
+Variance in observation space norm: 8.54335

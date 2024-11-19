@@ -1,0 +1,51 @@
+{
+  "resolution": {
+    "function space": "StructuredColumns",
+    "grid": {
+      "type": "regular_lonlat",
+      "N": "10"
+     },
+    "groups": [
+      {
+        "variables": ["temperature"],
+        "levels": "3"
+      }
+    ],
+    "halo": "1"
+  },
+  "Background": {
+    "state": [{
+      "date": "2010-01-01T12:00:00Z",
+      "variables": ["temperature"],
+      "filepath": "testdata/bgos_bkg_000001"
+    }]
+  },
+  "Covariance": {
+    "covariance": "SABER",
+    "saber central block": {
+      "saber block name": "BUMP_NICAS",
+      "read": {
+        "drivers": {
+          "multivariate strategy": "univariate",
+          "read local nicas": "true"
+        },
+        "io": {
+           "overriding nicas file": "testdata/bgos_nicas"
+        }
+      }
+    },
+    "saber outer blocks": [{
+      "saber block name": "StdDev",
+      "read": {
+        "model file": {
+          "filepath": "testdata/bgos_stddev"
+        }
+      }
+    }],
+    "randomization size": "50"
+  },
+  "output states": {
+    "filepath": "testdata/bgos_ens",
+    "date": "2010-01-01T12:00:00Z"
+  }
+}

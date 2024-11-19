@@ -19,7 +19,6 @@
 
 #include "eckit/mpi/Comm.h"
 
-#include "oops/base/Variables.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/parameters/OptionalParameter.h"
@@ -27,6 +26,14 @@
 #include "oops/util/parameters/Parameters.h"
 #include "oops/util/parameters/RequiredParameter.h"
 #include "oops/util/Printable.h"
+
+#ifdef ECSABER
+#include "quenchxx/Variables.h"
+namespace varns = quenchxx;
+#else
+#include "oops/base/Variables.h"
+namespace varns = oops;
+#endif
 
 namespace eckit {
   class Configuration;
@@ -172,7 +179,7 @@ class Geometry : public util::Printable,
   Geometry(const Geometry &);
 
   // Variables sizes
-  std::vector<size_t> variableSizes(const oops::Variables & vars) const;
+  std::vector<size_t> variableSizes(const varns::Variables & vars) const;
 
   // Levels direction
   bool levelsAreTopDown() const
@@ -213,6 +220,10 @@ class Geometry : public util::Printable,
     {return interpolation_;}
   bool duplicatePoints() const
     {return duplicatePoints_;}
+  const eckit::mpi::Comm & timeComm() const
+    {return eckit::mpi::self();}
+  const std::vector<double> & vert_coord_avg(const std::string & var) const
+    {return groups_[groupIndex_.at(var)].vert_coord_avg_;}
 
   // Geometry iterator
   GeometryIterator begin() const;

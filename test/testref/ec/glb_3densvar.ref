@@ -1,0 +1,11 @@
+CostJo   : Nonlinear Jo = 18.8047, nobs = 20, Jo/n = 0.940235, err = 0.1
+CostJb   : Nonlinear Jb = 0
+CostFunction: Nonlinear J = 18.8047
+DRIPCGMinimizer: reduction in residual norm = 4.71869e-10
+CostFunction::addIncrement: Analysis norm: 41.1457
+CostJo   : Nonlinear Jo = 7.89298, nobs = 20, Jo/n = 0.394649, err = 0.1
+CostJb   : Nonlinear Jb = 4.1024
+CostFunction: Nonlinear J = 11.9954
+DRIPCGMinimizer: reduction in residual norm = 5.25563e-10
+CostFunction::addIncrement: Analysis norm: 41.1656
+CostJo   : Nonlinear Jo = 3.57847, nobs = 20, Jo/n = 0.178924, err = 0.1

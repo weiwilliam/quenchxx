@@ -1,0 +1,56 @@
+time window:
+  begin: 2010-01-01T05:59:59Z
+  length: PT2S
+geometry:
+  function space: StructuredColumns
+  grid:
+    type: regional
+    nx: 71
+    ny: 53
+    dx: 2.5e3
+    dy: 2.5e3
+    lonlat(centre): [9.9, 56.3]
+    projection:
+      type: lambert_conformal_conic
+      latitude0: 56.3
+      longitude0: 0.0
+    y_numbering: 1
+  partitioner: checkerboard
+  groups:
+  - variables:
+    - temperature
+    levels: 2
+  halo: 1
+state:
+  date: 2010-01-01T06:00:00Z
+  state variables:
+  - temperature
+  filepath: testdata/reg_truth_06
+observations:
+  obs perturbations: true
+  observers:
+  - obs space:
+      name: temperature
+      simulated variables: [temperature]
+      observed variables: [temperature]
+      obsdatain:
+        engine:
+          type: GenList
+          lats: [55.3,55.8,56.3,56.8,57.3,55.3,55.8,56.3,56.8,57.3,55.3,55.8,56.3,56.8,57.3,55.3,55.8,56.3,56.8,57.3,55.3,55.8,56.3,56.8,57.3]
+          lons: [8.9,8.9,8.9,8.9,8.9,9.4,9.4,9.4,9.4,9.4,9.9,9.9,9.9,9.9,9.9,10.4,10.4,10.4,10.4,10.4,10.9,10.9,10.9,10.9,10.9]
+          dateTimes: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+          vert coord type: height
+          vert coords: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+          epoch: seconds since 2010-01-01T06:00:00Z
+          obs errors: [0.1]
+      obsdataout:
+        engine:
+          type: H5File
+          obsfile: testdata/reg_obs_06.nc
+    obs operator:
+      name: Identity
+    obs error:
+      covariance model: diagonal
+make obs: true
+test:
+  reference filename: testref/jedi/reg_makeobs_06.ref

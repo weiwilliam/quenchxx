@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <memory>
 #include <ostream>
 #include <string>
 
@@ -18,35 +19,53 @@
 
 namespace quenchxx {
   class ModelAuxControl;
+  class ModelAuxCtlVec;
   class ModelAuxIncrement;
   class Geometry;
 
 // -----------------------------------------------------------------------------
 
 class ModelAuxCovariance : public util::Printable,
-                       private eckit::NonCopyable,
-                       private util::ObjectCounter<ModelAuxCovariance> {
+                           private eckit::NonCopyable,
+                           private util::ObjectCounter<ModelAuxCovariance> {
  public:
-  static const std::string classname() {return "quenchxx::ModelAuxCovariance";}
+  static const std::string classname()
+    {return "quenchxx::ModelAuxCovariance";}
 
-/// Constructor, destructor
+// Constructor/destructor
   ModelAuxCovariance(const eckit::Configuration & conf,
-                     const Geometry &): conf_(conf) {}
-  ~ModelAuxCovariance() {}
+                     const Geometry &): conf_(conf)
+    {}
+  ~ModelAuxCovariance()
+    {}
 
-/// Linear algebra operators
+// Linear algebra operators
   void linearize(const ModelAuxControl &,
-                 const Geometry &) {}
+                 const Geometry &)
+    {}
   void multiply(const ModelAuxIncrement &,
-                ModelAuxIncrement &) const {}
+                ModelAuxIncrement &) const
+    {}
   void inverseMultiply(const ModelAuxIncrement &,
-                       ModelAuxIncrement &) const {}
-  void randomize(ModelAuxIncrement &) const {}
+                       ModelAuxIncrement &) const
+    {}
+  void multiplySqrt(const ModelAuxCtlVec &,
+                    ModelAuxIncrement &) const
+    {}
+  void multiplySqrtTrans(const ModelAuxIncrement &,
+                         ModelAuxCtlVec &) const
+    {}
+  void randomize(ModelAuxIncrement &) const
+    {}
 
-  const eckit::Configuration & config() const {return conf_;}
+// Return configuration
+  const eckit::Configuration & config() const
+    {return conf_;}
 
  private:
-  void print(std::ostream & os) const {}
+  void print(std::ostream & os) const
+    {}
+
   const eckit::LocalConfiguration conf_;
 };
 

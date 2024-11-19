@@ -1,0 +1,57 @@
+geometry:
+  function space: StructuredColumns
+  grid:
+    type: regional
+    nx: 71
+    ny: 53
+    dx: 2.5e3
+    dy: 2.5e3
+    lonlat(centre): [9.9, 56.3]
+    projection:
+      type: lambert_conformal_conic
+      latitude0: 56.3
+      longitude0: 0.0
+    y_numbering: 1
+  partitioner: checkerboard
+  groups:
+  - variables:
+    - temperature
+    levels: 2
+  halo: 1
+background:
+  date: 2010-01-01T06:00:00Z
+  state variables:
+  - temperature
+  filepath: testdata/reg_truth_06
+background error:
+  covariance model: SABER
+  saber central block:
+    saber block name: BUMP_NICAS
+    calibration:
+      general:
+        default seed: 6
+      drivers:
+        multivariate strategy: univariate
+        compute nicas: true
+      nicas:
+        resolution: 8.0
+        explicit length-scales: true
+        horizontal length-scale:
+        - groups:
+          - temperature
+          value: 3.0e4
+        vertical length-scale:
+        - groups:
+          - temperature
+          value: 3.0
+  saber outer blocks:
+  - saber block name: StdDev
+    read:
+      model file:
+        filepath: testdata/reg_stddev
+  randomization size: 1
+output states:
+  filepath: testdata/reg_bkg_06
+  date: 2010-01-01T06:00:00Z
+test:
+  reference filename: testref/jedi/reg_background_06.ref

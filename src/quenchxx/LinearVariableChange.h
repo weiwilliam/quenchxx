@@ -21,6 +21,14 @@
 #include "quenchxx/Increment.h"
 #include "quenchxx/State.h"
 
+#ifdef ECSABER
+#include "quenchxx/Variables.h"
+namespace varns = quenchxx;
+#else
+#include "oops/base/Variables.h"
+namespace varns = oops;
+#endif
+
 namespace quenchxx {
 
 // -----------------------------------------------------------------------------
@@ -38,17 +46,17 @@ class LinearVariableChange: public util::Printable {
 
   // Linear variable changes: TL, inverseTL, AD and inverseAD
   void changeVarTL(Increment &,
-                   const oops::Variables &) const;
+                   const varns::Variables &) const;
   void changeVarInverseTL(Increment &,
-                          const oops::Variables &) const;
+                          const varns::Variables &) const;
   void changeVarAD(Increment &,
-                   const oops::Variables &) const;
+                   const varns::Variables &) const;
   void changeVarInverseAD(Increment &,
-                          const oops::Variables &) const;
+                          const varns::Variables &) const;
 
   // Trajectory setup
   void changeVarTraj(const State &,
-                     const oops::Variables &) {}
+                     const varns::Variables &) {}
 
  private:
   // Print

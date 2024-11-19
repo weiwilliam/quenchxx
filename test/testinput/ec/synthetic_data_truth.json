@@ -1,0 +1,41 @@
+{
+  "input geometry": {
+    "function space": "StructuredColumns",
+    "grid": {
+      "type": "regular_lonlat",
+      "N": "10"
+    },
+    "groups": [
+      {
+        "variables": ["temperature"],
+        "levels": "3"
+      }
+    ],
+    "halo": "1"
+  },
+  "output geometry": {
+    "function space": "StructuredColumns",
+    "grid": {
+      "type": "regular_lonlat",
+      "N": "10"
+    },
+    "groups": [
+      {
+        "variables": ["temperature"],
+        "levels": "3"
+      }
+    ],
+    "halo": "1"
+  },
+  "states": [{
+    "input": {
+      "date": "2010-01-01T12:00:00Z",
+      "variables": ["temperature"],
+      "constant value": "1.0"
+    },
+    "output": {
+      "date": "2010-01-01T12:00:00Z",
+      "filepath": "testdata/synthetic_data_truth"
+    }
+  }]
+}

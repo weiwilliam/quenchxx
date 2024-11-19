@@ -19,9 +19,13 @@
 
 #include "vader/vader.h"
 
-namespace oops {
-  class Variables;
-}
+#ifdef ECSABER
+#include "quenchxx/Variables.h"
+namespace varns = quenchxx;
+#else
+#include "oops/base/Variables.h"
+namespace varns = oops;
+#endif
 
 namespace quenchxx {
   class Geometry;
@@ -39,9 +43,9 @@ class VariableChange : public util::Printable {
                  const Geometry &);
 
   void changeVar(State &,
-                 const oops::Variables &) const;
+                 const varns::Variables &) const;
   void changeVarInverse(State &,
-                        const oops::Variables &) const;
+                        const varns::Variables &) const;
 
  private:
   void print(std::ostream & os) const override

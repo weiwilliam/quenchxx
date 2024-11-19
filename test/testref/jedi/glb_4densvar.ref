@@ -1,0 +1,63 @@
+CostJb   : Nonlinear Jb = 0.0000000000000000e+00
+CostJo   : Nonlinear Jo(temperature_06) = 2.6127826039342342e+01, nobs = 30, Jo/n = 8.7092753464474471e-01, err = 1.0000000149011612e-01
+CostJo   : Nonlinear Jo(temperature_12) = 3.2085369370141919e+01, nobs = 30, Jo/n = 1.0695123123380639e+00, err = 1.0000000149011612e-01
+CostJo   : Nonlinear Jo(temperature_18) = 1.8841428483351560e+01, nobs = 30, Jo/n = 6.2804761611171867e-01, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 7.7054623892835821e+01
+DRIPCGMinimizer: reduction in residual norm = 2.4610767097679257e-06
+CostFunction::addIncrement: Analysis: 
+Valid time:2010-01-01T06:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.4334390399516849e+01
+Valid time:2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.2750663336251918e+01
+Valid time:2010-01-01T18:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  temperature: 3.4077385610938400e+01
+CostJb   : Nonlinear Jb = 1.5459722484340293e+01
+CostJo   : Nonlinear Jo(temperature_06) = 7.9552677924366906e+00, nobs = 30, Jo/n = 2.6517559308122302e-01, err = 1.0000000149011612e-01
+CostJo   : Nonlinear Jo(temperature_12) = 1.1472766348568344e+01, nobs = 30, Jo/n = 3.8242554495227815e-01, err = 1.0000000149011612e-01
+CostJo   : Nonlinear Jo(temperature_18) = 8.3166200711316982e+00, nobs = 30, Jo/n = 2.7722066903772330e-01, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 4.3204376696477027e+01

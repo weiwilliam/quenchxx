@@ -18,6 +18,18 @@
 #include "oops/util/Printable.h"
 
 #include "quenchxx/Fields.h"
+#include "quenchxx/GeoVaLs.h"
+#include "quenchxx/LinearModel.h"
+#include "quenchxx/Locations.h"
+#include "quenchxx/Model.h"
+
+#ifdef ECSABER
+#include "quenchxx/Variables.h"
+namespace varns = quenchxx;
+#else
+#include "oops/base/Variables.h"
+namespace varns = oops;
+#endif
 
 namespace eckit {
   class Configuration;
@@ -38,18 +50,35 @@ class State : public util::Printable,
 
   // Constructors
   State(const Geometry &,
-        const oops::Variables &,
+        const varns::Variables &,
         const util::DateTime &);
   State(const Geometry &,
         const eckit::Configuration &);
   State(const Geometry & resol,
         const State & other)
     : fields_(new Fields(*other.fields_, resol)) {}
-  State(const oops::Variables & vars,
+  State(const varns::Variables & vars,
         const State & other)
     : fields_(new Fields(*other.fields_)) {}
   State(const State & other)
     : fields_(new Fields(*other.fields_)) {}
+  State(const Geometry & resol,
+        const Model &,
+        const eckit::Configuration & conf)
+    : State(resol, conf) {}
+  State(const Geometry & resol,
+        const LinearModel &,
+        const eckit::Configuration & conf)
+    : State(resol, conf) {}
+  State(const Geometry & resol,
+        const Model &,
+        const State & other)
+    : State(resol, other) {}
+  State(const Geometry & resol,
+        const Model &,
+        const State & other,
+        const eckit::Configuration &)
+    : State(resol, other) {}
 
   // Assignment
   State & operator=(const State &);
@@ -84,6 +113,12 @@ class State : public util::Printable,
     {fields_->toFieldSet(fset);}
   void fromFieldSet(const atlas::FieldSet & fset)
     {fields_->fromFieldSet(fset);}
+  const atlas::FieldSet & fieldSet() const
+    {return fields_->fieldSet();}
+  atlas::FieldSet & fieldSet()
+    {return fields_->fieldSet();}
+  void synchronizeFields()
+    {fields_->synchronizeFields();}
 
   // Other
   void zero()
@@ -91,8 +126,14 @@ class State : public util::Printable,
   void accumul(const double & zz,
                const State & xx)
     {fields_->axpy(zz, xx.fields());}
-  const oops::Variables & variables() const
+  const varns::Variables & variables() const
     {return fields_->variables();}
+  void interpolate(const Locations & locs,
+                   GeoVaLs & gv) const
+    {fields_->interpolate(locs, gv);}
+  void forceWith(const State & other,
+                 const varns::Variables & vars)
+    {fields_->forceWith(*(other.fields_), vars);}
 
   // Serialization
   size_t serialSize() const

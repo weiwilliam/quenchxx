@@ -1,0 +1,56 @@
+{
+  "Geometry": {
+    "function space": "StructuredColumns",
+    "grid": {
+      "type": "regular_lonlat",
+      "N": "10"
+    },
+    "groups": [
+      {
+        "variables": ["temperature"],
+        "levels": "3"
+      }
+    ],
+    "halo": "1"
+  },
+  "Observations": {
+    "members": "50",
+    "pattern": "%member%",
+    "zero padding": "6",
+    "ObsTypes": [
+      {
+        "ObsType": "default",
+        "ObsData": {
+          "ObsDataOut": {
+            "filepath": "testdata/bgos_obs"
+          },
+          "obserror": "ObsError",
+          "obsvalue": "ObsValue.%member%"
+        },
+        "variables": ["temperature"],
+        "Generate": {
+          "density": "100",
+          "error": "0.01",
+          "variable": "temperature",
+          "obserror": "ObsError"
+        },
+        "Covariance": {
+          "ObsErrorCovariance": {
+            "covariance": "diagonal",
+            "obserror": "ObsError"
+          }
+        }
+      }
+    ]
+  },
+  "Model": {},
+  "Initial Condition": {
+    "date": "2010-01-01T12:00:00Z",
+    "variables": ["temperature"],
+    "filepath": "testdata/bgos_truth"
+  },
+  "Assimilation Window": {
+    "Begin": "2010-01-01T12:00:00Z",
+    "End": "2010-01-01T12:00:00Z"
+  }
+}

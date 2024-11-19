@@ -15,11 +15,29 @@ namespace quenchxx {
 class Covariance;
 class Geometry;
 class GeometryIterator;
+class GeoVaLs;
+class HorizScaleDecomposition;
 class Increment;
+class IncrEnsCtlVec;
+class IncrModCtlVec;
+class Interpolator;
 class LinearVariableChange;
+class LocalizationMatrix;
+class Locations;
+class Model;
+class ModelAuxControl;
+class ModelAuxControlEstimator;
+class ModelAuxCovariance;
+class ModelAuxCtlVec;
+class ModelAuxIncrement;
 class ModelData;
+class ObsSpace;
+class ObsVector;
 class State;
 class VariableChange;
+#ifdef ECSABER
+class Variables;
+#endif
 
 struct Traits {
   static std::string name()
@@ -27,17 +45,33 @@ struct Traits {
   static std::string nameCovar()
     {return "quenchxxCovariance";}
 
-  typedef quenchxx::Covariance           Covariance;
-  typedef quenchxx::Geometry             Geometry;
-  typedef quenchxx::GeometryIterator     GeometryIterator;
-  typedef quenchxx::Increment            Increment;
-  typedef quenchxx::LinearVariableChange LinearVariableChange;
-  typedef quenchxx::ModelAuxControl      ModelAuxControl;
-  typedef quenchxx::ModelAuxIncrement    ModelAuxIncrement;
-  typedef quenchxx::ModelAuxCovariance   ModelAuxCovariance;
-  typedef quenchxx::ModelData            ModelData;
-  typedef quenchxx::State                State;
-  typedef quenchxx::VariableChange       VariableChange;
+  using Covariance = quenchxx::Covariance;
+  using Geometry = quenchxx::Geometry;
+  using GeometryIterator = quenchxx::GeometryIterator;
+  using GeoVaLs = quenchxx::GeoVaLs;
+  using HorizScaleDecomposition = quenchxx::HorizScaleDecomposition;
+  using Increment = quenchxx::Increment;
+  using IncrEnsCtlVec = quenchxx::IncrEnsCtlVec;
+  using IncrModCtlVec = quenchxx::IncrModCtlVec;
+  using Interpolator = quenchxx::Interpolator;
+  using LinearVariableChange = quenchxx::LinearVariableChange;
+  using LocalizationMatrix = quenchxx::LocalizationMatrix;
+  using Locations = quenchxx::Locations;
+  using Model = quenchxx::Model;
+  using ModelAuxControl = quenchxx::ModelAuxControl;
+  using ModelAuxControlEstimator = quenchxx::ModelAuxControlEstimator;
+  using ModelAuxCovariance = quenchxx::ModelAuxCovariance;
+  using ModelAuxCtlVec = quenchxx::ModelAuxCtlVec;
+  using ModelAuxIncrement = quenchxx::ModelAuxIncrement;
+  using ModelData = quenchxx::ModelData;
+  using ObsSpace = quenchxx::ObsSpace;
+  using ObsVector = quenchxx::ObsVector;
+  using State = quenchxx::State;
+  using VariableChange = quenchxx::VariableChange;
+#ifdef ECSABER
+  using Variables = quenchxx::Variables;
+#endif
 };
 
 }  // namespace quenchxx
+
