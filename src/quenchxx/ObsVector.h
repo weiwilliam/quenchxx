@@ -5,14 +5,25 @@
 
 #pragma once
 
+#include <Eigen/Dense>
 #include <ostream>
 #include <string>
 #include <vector>
+
+#include "atlas/field.h"
 
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
 #include "quenchxx/ObsSpace.h"
+
+#ifdef ECSABER
+#include "quenchxx/Variables.h"
+namespace varns = quenchxx;
+#else
+#include "oops/base/Variables.h"
+namespace varns = oops;
+#endif
 
 namespace quenchxx {
 
@@ -27,7 +38,7 @@ class ObsVector : public util::Printable,
 
   explicit ObsVector(const ObsSpace & obsSpace);
   ObsVector(const ObsVector &,
-         const bool copy = true);
+            const bool copy = true);
   ~ObsVector()
     {}
 
@@ -39,31 +50,49 @@ class ObsVector : public util::Printable,
   ObsVector & operator/= (const ObsVector &);
 
   void zero();
+  void ones();
   void axpy(const double &,
             const ObsVector &);
   void invert();
   void random();
   double dot_product_with(const ObsVector &) const;
   double rms() const;
+  void mask(const ObsVector &);
+  void sqrt();
 
   size_t size() const
-    {return obsSpace_.size();}
-  double & operator() (const size_t ii)
-    {return data_[ii];}
-  const double & operator() (const size_t ii) const
-    {return data_[ii];}
+    {return obsSpace_.sizeGlb();}
+  size_t sizeLoc() const
+    {return obsSpace_.sizeLoc();}
+  size_t nvars() const
+    {return vars_.size();}
+  void get(const size_t &,
+           const size_t &,
+           double &) const;
+  void set(const size_t &,
+           const size_t &,
+           const double &);
+  const double operator() (const size_t & jvar,
+                           const size_t & jo) const
+    {double value; this->get(jvar, jo, value); return value;}
 
   void read(const std::string & name)
-    {obsSpace_.getdb(name, data_);}
+    {data_.name() = name; obsSpace_.getdb(data_);}
   void save(const std::string & name) const
-    {obsSpace_.putdb(name, data_);}
+    {data_.name() = name; obsSpace_.putdb(data_);}
+
+  Eigen::VectorXd packEigen(const ObsVector &) const;
+  size_t packEigenSize(const ObsVector &) const;
 
  private:
+  void fillHalo();
   void print(std::ostream &) const;
 
   const eckit::mpi::Comm & comm_;
   const ObsSpace & obsSpace_;
-  std::vector<double> data_;
+  const varns::Variables & vars_;
+  mutable atlas::FieldSet data_;
+  const double missing_;
 };
 
 //-----------------------------------------------------------------------------

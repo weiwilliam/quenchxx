@@ -15,13 +15,13 @@ geometry:
   partitioner: checkerboard
   groups:
   - variables:
-    - temperature
+    - air_temperature
     levels: 2
   halo: 1
 background:
   date: 2010-01-01T18:00:00Z
   state variables:
-  - temperature
+  - air_temperature
   filepath: testdata/reg_truth_18
 background error:
   covariance model: SABER
@@ -38,11 +38,11 @@ background error:
         explicit length-scales: true
         horizontal length-scale:
         - groups:
-          - temperature
+          - air_temperature
           value: 3.0e4
         vertical length-scale:
         - groups:
-          - temperature
+          - air_temperature
           value: 3.0
   saber outer blocks:
   - saber block name: StdDev

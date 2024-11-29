@@ -46,15 +46,19 @@ State::State(const Geometry & resol,
   if (file.has("filepath")) {
     oops::Log::info() << "Info     : Create state from file" << std::endl;
     fields_->read(file);
+  } else if (file.has("constant value")) {
+    oops::Log::info() << "Info     : Create state with a constant value" << std::endl;
+    fields_->constantValue(file.getDouble("constant value"));
+  } else if (file.has("constant profile")) {
+    oops::Log::info() << "Info     : Create state with a constant profile" << std::endl;
+    fields_->constantValue(file.getDoubleVector("constant profile"));
+  } else if (file.has("constant group-specific value")) {
+    oops::Log::info() << "Info     : Create state with a constant group-specific value"
+                      << std::endl;
+    fields_->constantValue(file);
   } else {
     oops::Log::info() << "Info     : Create empty state" << std::endl;
-    if (file.has("constant value")) {
-      fields_->constantValue(file.getDouble("constant value"));
-    } else if (file.has("constant group-specific value")) {
-      fields_->constantValue(file);
-    } else {
-      fields_->zero();
-    }
+    fields_->zero();
   }
   const util::DateTime vt(file.getString("date"));
   fields_->time() = vt;

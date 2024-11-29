@@ -18,7 +18,7 @@
     "partitioner": "checkerboard",
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
@@ -27,7 +27,7 @@
   "model": {},
   "initial": {
     "date": "2010-01-01T12:00:00Z",
-    "variables": ["temperature"],
+    "variables": ["air_temperature"],
     "filepath": "testdata/reg_truth_12"
   },
   "forecast_length": "PT0S",
@@ -43,7 +43,7 @@
         },
         "obsvalue": "hofx"
       },
-      "variables": ["temperature"]
+      "variables": ["air_temperature"]
     }]
   },
   "Assimilation Window": {

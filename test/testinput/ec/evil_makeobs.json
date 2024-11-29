@@ -7,7 +7,7 @@
     },
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "3"
       }
     ],
@@ -27,11 +27,11 @@
           "obserror": "ObsError",
           "obsvalue": "ObsValue.%member%"
         },
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "Generate": {
           "density": "100",
-          "error": "0.01",
-          "variable": "temperature",
+          "error": [0.01],
+          "variable": "air_temperature",
           "obserror": "ObsError"
         },
         "Covariance": {
@@ -46,7 +46,7 @@
   "Model": {},
   "Initial Condition": {
     "date": "2010-01-01T12:00:00Z",
-    "variables": ["temperature"],
+    "variables": ["air_temperature"],
     "filepath": "testdata/evil_truth"
   },
   "Assimilation Window": {

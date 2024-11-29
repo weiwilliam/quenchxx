@@ -2,6 +2,8 @@ CostJo   : Nonlinear Jo = 59.7909, nobs = 100, Jo/n = 0.597909, err = 0.01
 Norm of input parameter StdDev: 50.1996
 CostJb   : Nonlinear Jb = 0
 CostFunction: Nonlinear J = 59.7909
-H(xt): quenchxx[100]: Min=1, Max=1, Average=1
-H(xt)+Eo: quenchxx[100]: Min=0.977541, Max=1.02835, Average=1.00081
+H(xt): quenchxx[100]:
+- air_temperature: Min=1, Max=1, Average=1
+H(xt)+Eo: quenchxx[100]:
+- air_temperature: Min=0.977541, Max=1.02835, Average=1.00081
 CostJo   : Nonlinear Jo = 331188, nobs = 100, Jo/n = 3311.88, err = 0.01

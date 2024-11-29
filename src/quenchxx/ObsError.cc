@@ -49,28 +49,29 @@ void ObsError::setupWeights(const ObsVector & dy) {
 
   if (lvarqc_) {
     // Setup W^1/2
-    for (size_t jo = 0; jo < dy.size(); ++jo) {
-      // Initialization
-      (*wghtsqrt_)(jo) = 1.0;
+    for (size_t jvar = 0; jvar < dy.nvars(); ++jvar) {
+      for (size_t jo = 0; jo < dy.sizeLoc(); ++jo) {
+        // Initialization
+        wghtsqrt_->set(jvar, jo, 1.0);
 
-      if (dy(jo) < cleft_ || dy(jo) > cright_) {
-        // rho(x) = x^2/sigma^2         if |x|<=c
-        // rho(x) = (2c|x|-c^2)/sigma^2 if |x|>c
-        // W(x) = J_QC/J_N
-        double rhoNorm = dy(jo)*dy(jo)/((*stddev_)(jo)*(*stddev_)(jo));
-        if (dy(jo) < cleft_) {
-          double rhoHuber = (2.0*std::abs(cleft_*dy(jo))-cleft_*cleft_)
-            /((*stddev_)(jo)*(*stddev_)(jo));
-          (*wghtsqrt_)(jo) = rhoHuber/rhoNorm;
-        } else if (dy(jo) > cright_) {
-          double rhoHuber = (2.0*cright_*dy(jo)-cright_*cright_)
-            /((*stddev_)(jo)*(*stddev_)(jo));
-          (*wghtsqrt_)(jo) = rhoHuber/rhoNorm;
+        if (dy(jvar, jo) < cleft_ || dy(jvar, jo) > cright_) {
+          // rho(x) = x^2/sigma^2         if |x|<=c
+          // rho(x) = (2c|x|-c^2)/sigma^2 if |x|>c
+          // W(x) = J_QC/J_N
+          double rhoNorm = dy(jvar, jo)*dy(jvar, jo)/((*stddev_)(jvar, jo)*(*stddev_)(jvar, jo));
+          if (dy(jvar, jo) < cleft_) {
+            double rhoHuber = (2.0*std::abs(cleft_*dy(jvar, jo))-cleft_*cleft_)
+              /((*stddev_)(jvar, jo)*(*stddev_)(jvar, jo));
+            wghtsqrt_->set(jvar, jo, rhoHuber/rhoNorm);
+          } else if (dy(jvar, jo) > cright_) {
+            double rhoHuber = (2.0*cright_*dy(jvar, jo)-cright_*cright_)
+              /((*stddev_)(jvar, jo)*(*stddev_)(jvar, jo));
+            wghtsqrt_->set(jvar, jo, rhoHuber/rhoNorm);
+          }
         }
       }
-
-      (*wghtsqrt_)(jo) = std::sqrt((*wghtsqrt_)(jo));
     }
+    wghtsqrt_->sqrt();
   }
 
   oops::Log::trace() << classname() << "::setupWeights done" << std::endl;

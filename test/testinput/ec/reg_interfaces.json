@@ -19,17 +19,17 @@
     "partitioner": "checkerboard",
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
     "halo": "1"
   },
-  "Variables": ["temperature"],
+  "Variables": ["air_temperature"],
   "TestDate": "2010-01-01T06:00:00Z",
   "State": {
     "date": "2010-01-01T06:00:00Z",
-    "variables": ["temperature"],
+    "variables": ["air_temperature"],
     "filepath": "testdata/reg_truth_06"
   },
   "StateTest": {
@@ -66,7 +66,7 @@
     "trajectory": {
       "tstep": "PT6H",
       "forcing": {
-        "variables": ["temperature"]
+        "variables": ["air_temperature"]
       }
     }
   },
@@ -109,7 +109,7 @@
             "obserror": "ObsErr"
           }
         },
-        "variables": ["temperature"]
+        "variables": ["air_temperature"]
       },
       "Covariance": {
         "ObsErrorCovariance": {

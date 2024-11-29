@@ -18,7 +18,7 @@
     "partitioner": "checkerboard",
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
@@ -27,7 +27,7 @@
   "Background": {
     "state": [{
       "date": "2010-01-01T12:00:00Z",
-      "variables": ["temperature"],
+      "variables": ["air_temperature"],
       "filepath": "testdata/reg_truth_12"
     }]
   },
@@ -47,11 +47,11 @@
           "resolution": "4.0",
           "explicit length-scales": "true",
           "horizontal length-scale": [{
-            "groups": ["temperature"],
+            "groups": ["air_temperature"],
             "value": "4.0e6"
           }],
           "vertical length-scale": [{
-            "groups": ["temperature"],
+            "groups": ["air_temperature"],
             "value": "3.0"
           }]
         }

@@ -18,15 +18,16 @@ geometry:
   partitioner: checkerboard
   groups:
   - variables:
-     - temperature
+     - air_temperature
     levels: 2
+    vert_coord: &vert_coord [1,2]
   halo: 1
 background:
   members from template:
     template:
       date: 2010-01-01T12:00:00Z
       state variables:
-      - temperature
+      - air_temperature
       filepath: testdata/reg_ens_12_%mem%
     pattern: %mem%
     zero padding: 6
@@ -34,11 +35,11 @@ background:
 observations:
   observers:
   - obs space:
-      name: temperature
+      name: air_temperature
       distribution:
         name: Halo
         halo size: 1000.0e3
-      simulated variables: [temperature]
+      simulated variables: [air_temperature]
       obsdatain:
         engine:
           type: H5File

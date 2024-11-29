@@ -4,14 +4,14 @@ CostJo   : Nonlinear Jo = 17.4527, nobs = 20, Jo/n = 0.872633, err = 0.1
 CostJb   : Nonlinear Jb = 0
 CostFunction: Nonlinear J = 52.1519
 DRIPCGMinimizer: reduction in residual norm = 3.21979e-08
-CostFunction::addIncrement: Analysis norm: 73.3892
+CostFunction::addIncrement: Analysis norm: 73.0139
 CostJo   : Nonlinear Jo = 7.53992, nobs = 20, Jo/n = 0.376996, err = 0.1
 CostJo   : Nonlinear Jo = 7.67325, nobs = 20, Jo/n = 0.383662, err = 0.1
 CostJo   : Nonlinear Jo = 6.97441, nobs = 20, Jo/n = 0.348721, err = 0.1
 CostJb   : Nonlinear Jb = 10.7495
 CostFunction: Nonlinear J = 32.9371
 DRIPCGMinimizer: reduction in residual norm = 3.01499e-08
-CostFunction::addIncrement: Analysis norm: 73.3356
+CostFunction::addIncrement: Analysis norm: 72.9592
 CostJo   : Nonlinear Jo = 3.81513, nobs = 20, Jo/n = 0.190757, err = 0.1
 CostJo   : Nonlinear Jo = 3.40006, nobs = 20, Jo/n = 0.170003, err = 0.1
 CostJo   : Nonlinear Jo = 3.28408, nobs = 20, Jo/n = 0.164204, err = 0.1

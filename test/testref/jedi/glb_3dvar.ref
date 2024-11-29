@@ -1,8 +1,8 @@
 Norm of input parameter StdDev: 4.0987803063838184e+00
 CostJb   : Nonlinear Jb = 0.0000000000000000e+00
-CostJo   : Nonlinear Jo(temperature) = 3.2085369370141912e+01, nobs = 30, Jo/n = 1.0695123123380637e+00, err = 1.0000000149011612e-01
-CostFunction: Nonlinear J = 3.2085369370141912e+01
-DRIPCGMinimizer: reduction in residual norm = 1.5288120878694180e-11
+CostJo   : Nonlinear Jo(air_temperature) = 2.7740200539843009e+01, nobs = 30, Jo/n = 9.2467335132810036e-01, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 2.7740200539843009e+01
+DRIPCGMinimizer: reduction in residual norm = 7.0509548780653559e-11
 CostFunction::addIncrement: Analysis: 
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -20,7 +20,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.2637211380404139e+01
-CostJb   : Nonlinear Jb = 7.6710920919239065e+00
-CostJo   : Nonlinear Jo(temperature) = 9.6498975727923320e+00, nobs = 30, Jo/n = 3.2166325242641108e-01, err = 1.0000000149011612e-01
-CostFunction: Nonlinear J = 1.7320989664716237e+01
+  air_temperature: 4.1069169699334111e+01
+CostJb   : Nonlinear Jb = 6.5396417762854027e+00
+CostJo   : Nonlinear Jo(air_temperature) = 9.7616654001232721e+00, nobs = 30, Jo/n = 3.2538884667077572e-01, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 1.6301307176408674e+01

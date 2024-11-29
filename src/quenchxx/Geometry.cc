@@ -182,7 +182,8 @@ Geometry::Geometry(const eckit::Configuration & config,
       // No mask
     } else if (groupParams.maskType.value() == "sea") {
       // Read sea mask
-      readSeaMask(groupParams.maskPath.value(), group.levels_, group.lev2d_, gmask);
+      ASSERT(groupParams.maskPath.value());
+      readSeaMask(*groupParams.maskPath.value(), group.levels_, group.lev2d_, gmask);
     } else {
       throw eckit::UserError("Wrong mask type", Here());
     }

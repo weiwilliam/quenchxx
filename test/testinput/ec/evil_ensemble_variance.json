@@ -7,31 +7,31 @@
     },
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "3"
       }
     ],
     "halo": "1"
   },
   "model": {},
-  "variables": ["temperature"],
+  "variables": ["air_temperature"],
   "ensembles": [
     {
       "name": "background",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_ens_%member%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -45,18 +45,18 @@
       "name": "evil_assim_ensemble",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_eda_%member%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -70,19 +70,19 @@
       "name": "evil_control_ens_D",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_control_ens_D_%member%_%mpi%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -96,19 +96,19 @@
       "name": "evil_control_ens_R",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_control_ens_R_%member%_%mpi%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -122,19 +122,19 @@
       "name": "evil_control_ens_S",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_control_ens_S_%member%_%mpi%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -148,19 +148,19 @@
       "name": "evil_dual_ens_D",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_dual_ens_D_%member%_%mpi%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -174,19 +174,19 @@
       "name": "evil_dual_ens_R",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_dual_ens_R_%member%_%mpi%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -200,19 +200,19 @@
       "name": "evil_dual_ens_S",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_dual_ens_S_%member%_%mpi%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -226,19 +226,19 @@
       "name": "evil_primal_ens_D",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_primal_ens_D_%member%_%mpi%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -252,19 +252,19 @@
       "name": "evil_primal_ens_R",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_primal_ens_R_%member%_%mpi%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"
@@ -278,19 +278,19 @@
       "name": "evil_primal_ens_S",
       "state": {
         "date": "2010-01-01T12:00:00Z",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "filepath": "testdata/evil_bkg_000001"
       },
       "ensemble": {
         "members": "50",
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "state from template": {
           "template": {
             "date": "2010-01-01T12:00:00Z",
             "filepath": "testdata/evil_primal_ens_S_%member%_%mpi%",
-            "state variables": ["temperature"]
+            "state variables": ["air_temperature"]
           },
           "pattern": "%member%",
           "zero padding": "6"

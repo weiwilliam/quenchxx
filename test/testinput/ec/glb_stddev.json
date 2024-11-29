@@ -7,7 +7,7 @@
     },
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
@@ -21,7 +21,7 @@
     },
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
@@ -30,7 +30,7 @@
   "states": [{
     "input": {
       "date": "2010-01-01T12:00:00Z",
-      "variables": ["temperature"],
+      "variables": ["air_temperature"],
       "constant value": "0.1"
     },
     "output": {

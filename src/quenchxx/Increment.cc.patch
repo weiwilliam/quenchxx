@@ -1,9 +1,57 @@
---- src/quenchxx/Increment.cc.tmp	2024-11-15 14:40:51.084886166 +0100
-+++ src/quenchxx/Increment.cc	2024-11-15 09:14:14.946906769 +0100
-@@ -134,6 +134,61 @@
- 
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Increment.cc.tmp.bak	2024-11-27 13:23:55.586743866 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Increment.cc	2024-11-26 14:58:10.122932578 +0100
+@@ -19,7 +19,21 @@
  // -----------------------------------------------------------------------------
  
+ Increment::Increment(const Geometry & resol,
+-                     const oops::Variables & vars,
++                     const varns::Variables & vars,
++                     const util::DateTime & vt)
++  : fields_(new Fields(resol, vars, vt)) {
++  oops::Log::trace() << classname() << "::Increment starting" << std::endl;
++
++  fields_->zero();
++
++  oops::Log::trace() << classname() << "::Increment done" << std::endl;
++}
++
++// -----------------------------------------------------------------------------
++
++Increment::Increment(const Geometry & resol,
++                     const varns::Variables & vars,
++                     const util::DateTime &,
+                      const util::DateTime & vt)
+   : fields_(new Fields(resol, vars, vt)) {
+   oops::Log::trace() << classname() << "::Increment starting" << std::endl;
+@@ -133,6 +147,85 @@
+ }
+ 
+ // -----------------------------------------------------------------------------
++
++eckit::Stream & operator<<(eckit::Stream & s,
++                           const Increment & dx) {
++  oops::Log::trace() << "Increment::operator<< starting" << std::endl;
++
++  s << dx.fields();
++
++  oops::Log::trace() << "Increment::operator<< done" << std::endl;
++  return s;
++}
++
++// -----------------------------------------------------------------------------
++
++eckit::Stream & operator>>(eckit::Stream & s,
++                           Increment & dx) {
++  oops::Log::trace() << "Increment::operator>> starting" << std::endl;
++
++  s >> dx.fields();
++
++  oops::Log::trace() << "Increment::operator>> done" << std::endl;
++  return s;
++}
++
++// -----------------------------------------------------------------------------
++
 +oops::LocalIncrement Increment::getLocal(const GeometryIterator & geometryIterator) const {
 +  int index = 0;
 +  if (this->geometry()->iteratorDimension() == 2) {
@@ -58,7 +106,6 @@
 +}
 +
 +// -----------------------------------------------------------------------------
-+
+ 
  void Increment::print(std::ostream & os) const {
    oops::Log::trace() << classname() << "::print starting" << std::endl;
- 

@@ -5,16 +5,16 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-#include "quenchxx/ObsLocalization.h"
+#include "quenchxx/ObsLocalizationEC.h"
 
 #include <algorithm>
 #include <cmath>
 #include <vector>
 
 #include "eckit/config/Configuration.h"
-#include "eckit/geometry/Point3.h"
 
 #include "oops/generic/gc99.h"
+#include "oops/util/missingValues.h"
 
 #include "quenchxx/GeometryIterator.h"
 
@@ -24,36 +24,22 @@ namespace quenchxx {
 
 // -----------------------------------------------------------------------------
 
-static oops::ObsLocalizationMaker<Traits, ufo::ObsTraits, ObsLocalization>
-  makerObsLocalization_("default");
+static oops::ObsLocalizationMaker<Traits, ObsLocalization>
+  makerObsLocalizationEC_("default");
 
 // -----------------------------------------------------------------------------
 
 ObsLocalization::ObsLocalization(const eckit::Configuration & config,
-                                 const ioda::ObsSpace & obsSpace)
-  : obsLon_(obsSpace.nlocs()), obsLat_(obsSpace.nlocs()),  obsHeight_(obsSpace.nlocs()),
+                                 const ObsSpace & obsSpace)
+  : locs_(obsSpace.locations()),
   locFunc_(config.getString("localization function", "gc99")),
   horScale_(config.getDouble("horizontal length-scale", 0.0)),
-  verScale_(config.getDouble("vertical length-scale", 0.0)) {
-  oops::Log::trace() << "ObsLocalization::ObsLocalization starting" << std::endl;
-
-  // Read observations coordinates
-  obsSpace.get_db("MetaData", "longitude", obsLon_);
-  obsSpace.get_db("MetaData", "latitude", obsLat_);
-  if (obsSpace.has("MetaData", "height")) {
-    obsSpace.get_db("MetaData", "height", obsHeight_);
-  } else {
-    obsHeight_.resize(obsLon_.size());
-    std::fill(obsLon_.begin(), obsLon_.end(), 0.0);
-  }
-
-  oops::Log::trace() << "ObsLocalization::ObsLocalization done" << std::endl;
-}
+  verScale_(config.getDouble("vertical length-scale", 0.0)) {}
 
 // -----------------------------------------------------------------------------
 
 void ObsLocalization::computeLocalization(const GeometryIterator & geometryIterator,
-                                          ioda::ObsVector & obsVector) const {
+                                          ObsVector & obsVector) const {
   oops::Log::trace() << "ObsLocalization::computeLocalization starting" << std::endl;
 
   // Get grid point coordinates
@@ -61,11 +47,10 @@ void ObsLocalization::computeLocalization(const GeometryIterator & geometryItera
   const atlas::PointLonLat horGridPoint({gridPoint[0], gridPoint[1]});
 
   // Loop over observations
-  const size_t nvars = obsVector.nvars();
   const double missing = util::missingValue<double>();
-  for (size_t jloc = 0; jloc < obsVector.nlocs(); ++jloc) {
+  for (size_t jo = 0; jo < locs_.size(); ++jo) {
     // Compute normalized horizontal distance
-    const atlas::PointLonLat horObsPoint({obsLon_[jloc], obsLat_[jloc]});
+    const atlas::PointLonLat horObsPoint({locs_[jo][0], locs_[jo][1]});
     double horDist = atlas::util::Earth().distance(horGridPoint, horObsPoint);
     if (horDist > 0.0) {
       if (horScale_ > 0.0) {
@@ -78,7 +63,7 @@ void ObsLocalization::computeLocalization(const GeometryIterator & geometryItera
     // Compute normalized vertical distance
     double verDist = 0.0;
     if (geometryIterator.iteratorDimension() == 3) {
-      verDist = std::abs(gridPoint[2] - obsHeight_[jloc]);
+      verDist = std::abs(gridPoint[2] - locs_[jo][2]);
     }
     if (verDist > 0.0) {
       if (verScale_ > 0.0) {
@@ -91,15 +76,15 @@ void ObsLocalization::computeLocalization(const GeometryIterator & geometryItera
     if ((horDist < 1.0) && (verDist < 1.0)) {
       // Compute localization as a product of horizontal and vertical components
       const double loc = locFunc(horDist)*locFunc(verDist);
-      for (size_t jvar = 0; jvar < nvars; ++jvar) {
-        if (obsVector[jvar+jloc*nvars] != missing) {
-          obsVector[jvar+jloc*nvars] *= loc;
+      for (size_t jvar = 0; jvar < obsVector.nvars(); ++jvar) {
+        if (obsVector(jvar, jo) != missing) {
+          obsVector.set(jvar, jo, obsVector(jvar, jo)*loc);
         }
       }
     } else {
-      // Set at missing value
-      for (size_t jvar = 0; jvar < nvars; ++jvar) {
-        obsVector[jvar+jloc*nvars] = missing;
+      for (size_t jvar = 0; jvar < obsVector.nvars(); ++jvar) {
+        // Set at missing value
+        obsVector.set(jvar, jo, missing);
       }
     }
   }

@@ -15,7 +15,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.3681575665418507e+01
+  air_temperature: 4.1940752843784665e+01
 Initial state for member 2:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -33,7 +33,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.3006009596174678e+01
+  air_temperature: 4.1366018530622348e+01
 Initial state for member 3:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -51,7 +51,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.3522941011507093e+01
+  air_temperature: 4.1786179165948269e+01
 Initial state for member 4:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -69,7 +69,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.3721739910464962e+01
+  air_temperature: 4.2022558974081726e+01
 Initial state for member 5:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -87,7 +87,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.3650811291585789e+01
+  air_temperature: 4.1978905975515573e+01
 Initial state for member 6:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -105,7 +105,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.4092383090360570e+01
+  air_temperature: 4.2455994372256889e+01
 Initial state for member 7:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -123,7 +123,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.3069269642490305e+01
+  air_temperature: 4.1331761754183297e+01
 Initial state for member 8:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -141,7 +141,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.2515494991161859e+01
+  air_temperature: 4.0866977969190422e+01
 Initial state for member 9:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -159,7 +159,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.2392417973877222e+01
+  air_temperature: 4.0754442083797365e+01
 Initial state for member 10:
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -177,31 +177,31 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.1864209705967966e+01
+  air_temperature: 4.0184665909426386e+01
 H(x) for member 1:
-temperature nobs= 30 Min=5.5920511098632453e-01, Max=1.1598830295476692e+00, RMS=8.2385788248641068e-01
+air_temperature nobs= 30 Min=6.2482165348678331e-01, Max=1.2235251683784867e+00, RMS=9.5625870818451675e-01
 H(x) for member 2:
-temperature nobs= 30 Min=6.6645896547477723e-01, Max=1.0764396634938469e+00, RMS=8.2861726702223926e-01
+air_temperature nobs= 30 Min=7.8926454042843885e-01, Max=1.2840418349675040e+00, RMS=9.7621659755371748e-01
 H(x) for member 3:
-temperature nobs= 30 Min=5.6673453428972953e-01, Max=1.1890707836154546e+00, RMS=8.3408959688671025e-01
+air_temperature nobs= 30 Min=7.0893320220287626e-01, Max=1.3477245560877056e+00, RMS=9.8713010910256893e-01
 H(x) for member 4:
-temperature nobs= 30 Min=5.1919364606811036e-01, Max=1.1385177809450218e+00, RMS=8.3828010834264299e-01
+air_temperature nobs= 30 Min=7.0531075159344303e-01, Max=1.1907007924236346e+00, RMS=9.8821220317606073e-01
 H(x) for member 5:
-temperature nobs= 30 Min=4.6024168916923547e-01, Max=1.0791712922016294e+00, RMS=8.2257297732515178e-01
+air_temperature nobs= 30 Min=7.4611087677905630e-01, Max=1.2182617922620682e+00, RMS=9.7617360811844611e-01
 H(x) for member 6:
-temperature nobs= 30 Min=6.0772141069212693e-01, Max=1.1500051492738455e+00, RMS=8.2320131344653147e-01
+air_temperature nobs= 30 Min=7.4891751941167750e-01, Max=1.1898077310796362e+00, RMS=9.6758482829526882e-01
 H(x) for member 7:
-temperature nobs= 30 Min=5.9035154156470449e-01, Max=1.1305889749843629e+00, RMS=8.2051191445213534e-01
+air_temperature nobs= 30 Min=7.0957425786852846e-01, Max=1.1102153012903013e+00, RMS=9.6924928682328637e-01
 H(x) for member 8:
-temperature nobs= 30 Min=5.7337259783933592e-01, Max=1.1756728572319310e+00, RMS=8.4825984467075477e-01
+air_temperature nobs= 30 Min=7.4673419330993784e-01, Max=1.1159328843604912e+00, RMS=9.7950015348126651e-01
 H(x) for member 9:
-temperature nobs= 30 Min=5.2097434833490497e-01, Max=1.0397301777249632e+00, RMS=7.8663926315990029e-01
+air_temperature nobs= 30 Min=6.5609088640459223e-01, Max=1.1014854134984420e+00, RMS=9.3649705930918525e-01
 H(x) for member 10:
-temperature nobs= 30 Min=4.7827267381633354e-01, Max=1.0804634605013481e+00, RMS=7.6791844619349103e-01
+air_temperature nobs= 30 Min=6.7836279552602852e-01, Max=1.1487495058188542e+00, RMS=9.3287520745151065e-01
 H(x) ensemble background mean: 
-temperature nobs= 30 Min=6.2787742824514181e-01, Max=1.0450860685686338e+00, RMS=8.1482752605152198e-01
+air_temperature nobs= 30 Min=7.4364234623333703e-01, Max=1.1243981433089065e+00, RMS=9.6387502174403750e-01
 background y - H(x): 
-temperature nobs= 30 Min=-4.1126999946601206e-01, Max=3.5068331747095316e-01, RMS=1.6258481109689635e-01
+air_temperature nobs= 30 Min=-3.2237857784649426e-01, Max=3.5431902568302232e-01, RMS=1.4992980368530973e-01
 Background mean :
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -219,7 +219,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.2930511355693888e+01
+  air_temperature: 4.1292069185493368e+01
 Analysis mean :
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -237,7 +237,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 3.2899760421362373e+01
+  air_temperature: 4.1267255313169763e+01
 Analysis mean increment :
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -255,7 +255,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 4.1512833441963343e-01
+  air_temperature: 3.6225736156017391e-01
 Forecast variance :
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -273,7 +273,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 4.4893555640399380e-01
+  air_temperature: 4.4893555640399380e-01
 Analysis variance :
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -291,30 +291,30 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: 4.3852247712848935e-01
+  air_temperature: 4.3880567726506475e-01
 H(x) for member 1:
-temperature nobs= 30 Min=5.8548808827638676e-01, Max=1.1316880205911193e+00, RMS=8.1051657631464002e-01
+air_temperature nobs= 30 Min=6.2910103082171420e-01, Max=1.2069774696980378e+00, RMS=9.4850499394108589e-01
 H(x) for member 2:
-temperature nobs= 30 Min=6.6124598645298738e-01, Max=1.0012292166505752e+00, RMS=8.1666940899478424e-01
+air_temperature nobs= 30 Min=8.2031249015406993e-01, Max=1.2382650221145592e+00, RMS=9.6864256915524549e-01
 H(x) for member 3:
-temperature nobs= 30 Min=6.1010151219417497e-01, Max=1.1603256067710901e+00, RMS=8.2235620909555496e-01
+air_temperature nobs= 30 Min=7.3805778436216007e-01, Max=1.3283681475169566e+00, RMS=9.7949506066967817e-01
 H(x) for member 4:
-temperature nobs= 30 Min=5.1237556081581170e-01, Max=1.1108162874694711e+00, RMS=8.2687860800921242e-01
+air_temperature nobs= 30 Min=6.9064876281158250e-01, Max=1.1605341344342290e+00, RMS=9.8066715743196409e-01
 H(x) for member 5:
-temperature nobs= 30 Min=5.4201194042142742e-01, Max=1.0253577640157236e+00, RMS=8.1052337177647005e-01
+air_temperature nobs= 30 Min=7.5420258238353100e-01, Max=1.1747480314155849e+00, RMS=9.6908194607899911e-01
 H(x) for member 6:
-temperature nobs= 30 Min=6.4258022542291104e-01, Max=9.8831064249513079e-01, RMS=8.1078483146969715e-01
+air_temperature nobs= 30 Min=7.6227879181773317e-01, Max=1.1695680239747386e+00, RMS=9.5987530857318293e-01
 H(x) for member 7:
-temperature nobs= 30 Min=6.0949737862153108e-01, Max=9.7111906861895025e-01, RMS=8.0959905245870012e-01
+air_temperature nobs= 30 Min=7.1403083104090981e-01, Max=1.1284344281817258e+00, RMS=9.6248144670316915e-01
 H(x) for member 8:
-temperature nobs= 30 Min=6.7928789082053653e-01, Max=1.0965154902641117e+00, RMS=8.3595939516214601e-01
+air_temperature nobs= 30 Min=7.7167564862515725e-01, Max=1.1125834417406637e+00, RMS=9.7248592959771352e-01
 H(x) for member 9:
-temperature nobs= 30 Min=5.2759980452566579e-01, Max=1.0127776284052832e+00, RMS=7.7765991654458289e-01
+air_temperature nobs= 30 Min=6.6033363346704843e-01, Max=1.0874101488006822e+00, RMS=9.3109043893611121e-01
 H(x) for member 10:
-temperature nobs= 30 Min=4.7469010520906535e-01, Max=1.0164949747498007e+00, RMS=7.5809528600702347e-01
+air_temperature nobs= 30 Min=6.8303504201243670e-01, Max=1.1271529836218595e+00, RMS=9.2733697686465733e-01
 H(x) ensemble analysis mean: 
-temperature nobs= 30 Min=6.6614198543873515e-01, Max=1.0182683552091043e+00, RMS=8.0346704207511033e-01
+air_temperature nobs= 30 Min=7.4811987500640587e-01, Max=1.1100080809470587e+00, RMS=9.5694506109525279e-01
 analysis y - H(x): 
-temperature nobs= 30 Min=-2.9587962885301811e-01, Max=2.1653549605215316e-01, RMS=1.2198416667325163e-01
-ombg RMS: 1.6258481109689635e-01
-oman RMS: 1.2198416667325163e-01
+air_temperature nobs= 30 Min=-2.5857367487925753e-01, Max=2.4816403299318157e-01, RMS=1.2056280994039041e-01
+ombg RMS: 1.4992980368530973e-01
+oman RMS: 1.2056280994039041e-01

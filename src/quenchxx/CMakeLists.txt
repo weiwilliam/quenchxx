@@ -6,6 +6,8 @@
 
 list( APPEND quenchxx_src_files
 
+Constants.cc
+Constants.h
 Covariance.h
 Fields.cc
 Fields.h
@@ -29,6 +31,10 @@ State.cc
 State.h
 Traits.h
 TraitsFwd.h
+VaderCookbook.h
+VariableChange.cc
+VariableChange.h
+VariableChangeParameters.h
 
 )
 
@@ -67,6 +73,8 @@ if( ECSABER )
     ObsAuxIncrement.h
     ObsError.cc
     ObsError.h
+    ObsLocalizationEC.cc
+    ObsLocalizationEC.h
     ObsOperator.cc
     ObsOperator.h
     Variables.h
@@ -76,16 +84,10 @@ if( ECSABER )
 else()
     list( APPEND quenchxx_src_files
 
-    Constants.cc
-    Constants.h
     LinearVariableChange.cc
     LinearVariableChange.h
-    ObsLocalization.cc
-    ObsLocalization.h
-    VaderCookbook.h
-    VariableChange.cc
-    VariableChange.h
-    VariableChangeParameters.h
+    ObsLocalizationJEDI.cc
+    ObsLocalizationJEDI.h
 
     )
 endif()

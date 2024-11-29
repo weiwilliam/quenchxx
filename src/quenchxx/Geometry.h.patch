@@ -1,6 +1,27 @@
---- src/quenchxx/Geometry.h.tmp	2024-11-15 14:40:50.970885627 +0100
-+++ src/quenchxx/Geometry.h	2024-11-15 09:10:32.665953161 +0100
-@@ -33,6 +33,7 @@
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.h.tmp.bak	2024-11-27 13:23:55.468743274 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.h	2024-11-27 12:09:28.401547968 +0100
+@@ -19,7 +19,6 @@
+ 
+ #include "eckit/mpi/Comm.h"
+ 
+-#include "oops/base/Variables.h"
+ #include "oops/mpi/mpi.h"
+ #include "oops/util/ObjectCounter.h"
+ #include "oops/util/parameters/OptionalParameter.h"
+@@ -28,11 +27,20 @@
+ #include "oops/util/parameters/RequiredParameter.h"
+ #include "oops/util/Printable.h"
+ 
++#ifdef ECSABER
++#include "quenchxx/Variables.h"
++namespace varns = quenchxx;
++#else
++#include "oops/base/Variables.h"
++namespace varns = oops;
++#endif
++
+ namespace eckit {
+   class Configuration;
  }
  
  namespace quenchxx {
@@ -8,10 +29,24 @@
  
  // -----------------------------------------------------------------------------
  /// Orography parameters
-@@ -213,6 +214,17 @@
+@@ -171,7 +179,7 @@
+   Geometry(const Geometry &);
+ 
+   // Variables sizes
+-  std::vector<size_t> variableSizes(const oops::Variables & vars) const;
++  std::vector<size_t> variableSizes(const varns::Variables & vars) const;
+ 
+   // Levels direction
+   bool levelsAreTopDown() const
+@@ -212,6 +220,21 @@
+     {return interpolation_;}
    bool duplicatePoints() const
      {return duplicatePoints_;}
- 
++  const eckit::mpi::Comm & timeComm() const
++    {return eckit::mpi::self();}
++  const std::vector<double> & vert_coord_avg(const std::string & var) const
++    {return groups_[groupIndex_.at(var)].vert_coord_avg_;}
++
 +  // Geometry iterator
 +  GeometryIterator begin() const;
 +  GeometryIterator end() const;
@@ -22,11 +57,10 @@
 +    {return nnodes_;}
 +  const size_t & nlevs() const
 +    {return nlevs_;}
-+
+ 
   private:
    // Print
-   void print(std::ostream &) const;
-@@ -279,6 +291,12 @@
+@@ -279,6 +302,12 @@
  
    // Duplicate points
    bool duplicatePoints_;

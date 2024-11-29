@@ -41,27 +41,29 @@ void ObsOperator::obsEquiv(const GeoVaLs & gv,
                            const ObsAuxControlPtrMap_ & bias) const {
   oops::Log::trace() << classname() << "::obsEquiv starting" << std::endl;
 
-  // Check number of GeoVaLs variables
-  ASSERT(gv.fieldSet().size() == 1);
+  for (size_t jvar = 0; jvar < gv.fieldSet().size(); ++jvar) {
+    // Get GeoVaLs view
+    const auto gvField = gv.fieldSet()[jvar];
+    const auto gvView = atlas::array::make_view<double, 2>(gvField);
 
-  // Get GeoVaLs view
-  const auto gvField = gv.fieldSet()[0];
-  const auto gvView = atlas::array::make_view<double, 1>(gvField);
+    // Get bias
+    double bias_ = 0.0;
+/*
+    // TODO(Benjamin): bias correction
+    using icst_ = typename ObsAuxControlPtrMap_::const_iterator;
+    icst_ it = bias.find("ObsAuxControl");
+    if (it != bias.end()) {
+      const ObsAuxControl * pbias = dynamic_cast<const ObsAuxControl*>(it->second.get());
+      ASSERT(pbias != nullptr);
+      bias_ = (*pbias).value();
+    }
+*/
 
-  // Get bias
-  double bias_ = 0.0;  // TODO(Benjamin): bias should also be an atlas fieldset
-  using icst_ = typename ObsAuxControlPtrMap_::const_iterator;
-  icst_ it = bias.find("ObsAuxControl");
-  if (it != bias.end()) {
-    const ObsAuxControl * pbias = dynamic_cast<const ObsAuxControl*>(it->second.get());
-    ASSERT(pbias != nullptr);
-    bias_ = (*pbias).value();
-  }
-
-  // Compute observation equivalent
-  for (int jo = 0; jo < gvField.shape(0); ++jo) {
-    const int ii = gv.obsIndex(jo);
-    ovec(ii) = gvView(jo)+bias_;
+    // Compute observation equivalent
+    for (int jo = 0; jo < gvField.shape(0); ++jo) {
+      const int ii = gv.obsIndex(jo);
+      ovec.set(jvar, ii, gvView(jo, 0)+bias_);
+    }
   }
 
   oops::Log::trace() << classname() << "::obsEquiv done" << std::endl;

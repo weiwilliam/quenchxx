@@ -7,7 +7,7 @@
      },
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
@@ -16,7 +16,7 @@
   "Background": {
     "state": [{
       "date": "2010-01-01T06:00:00Z",
-      "variables": ["temperature"],
+      "variables": ["air_temperature"],
       "filepath": "testdata/glb_bkg_06_000001"
     }]
   },
@@ -36,11 +36,11 @@
           "resolution": "4.0",
           "explicit length-scales": "true",
           "horizontal length-scale": [{
-            "groups": ["temperature"],
+            "groups": ["air_temperature"],
             "value": "4.0e6"
           }],
           "vertical length-scale": [{
-            "groups": ["temperature"],
+            "groups": ["air_temperature"],
             "value": "3.0"
           }]
         }

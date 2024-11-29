@@ -15,7 +15,7 @@ Groups:
   - vert_coord: [1,2]
   Mask size: 100%
 Fields:
-  temperature: 32.7902
+  air_temperature: 37.116
 Output state: 
 Valid time:2010-01-01T06:00:00Z
 Quench geometry grid:
@@ -33,4 +33,4 @@ Groups:
   - vert_coord: [1,2]
   Mask size: 100%
 Fields:
-  temperature: 32.7902
+  air_temperature: 37.116

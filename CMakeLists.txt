@@ -31,7 +31,12 @@ if( QUENCHXX_UPDATE )
     file( WRITE "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" "#!/usr/bin/env bash\n" )
 
     # Run check_diff_recursively script
-    execute_process( COMMAND bash "${CMAKE_SOURCE_DIR}/quenchxx/tools/check_diff_recursively.sh" "${CMAKE_CURRENT_SOURCE_DIR}/../saber/quench/src" "${CMAKE_CURRENT_SOURCE_DIR}/src/quenchxx" "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+    if( ECSABER )
+        set( QUENCH_SRC "${CMAKE_SOURCE_DIR}/ecsaber/saber-jedi/quench/src" )
+    else()
+        set( QUENCH_SRC "${CMAKE_SOURCE_DIR}/saber/quench/src" )
+    endif()
+    execute_process( COMMAND bash "${CMAKE_SOURCE_DIR}/quenchxx/tools/check_diff_recursively.sh" "${QUENCH_SRC}" "${CMAKE_CURRENT_SOURCE_DIR}/src/quenchxx" "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
 
     # Run update script
     execute_process( COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh"
@@ -131,7 +136,7 @@ ecbuild_find_mpi( COMPONENTS CXX Fortran REQUIRED )
 
 # QUENCHXX required public libraries
 if( ECSABER )
-    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "oops_patch" "saber" )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "oops_patch" "saber" "vader" )
 else()
     list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "saber" "ufo" "vader" )
 endif()

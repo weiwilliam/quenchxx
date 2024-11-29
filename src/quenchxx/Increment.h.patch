@@ -1,6 +1,14 @@
---- src/quenchxx/Increment.h.tmp	2024-11-15 14:40:51.095886218 +0100
-+++ src/quenchxx/Increment.h	2024-11-15 09:14:14.947906774 +0100
-@@ -22,7 +22,10 @@
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Increment.h.tmp.bak	2024-11-27 13:23:55.605743961 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Increment.h	2024-11-26 14:58:10.122932578 +0100
+@@ -8,6 +8,7 @@
+ 
+ #pragma once
+ 
++#include <algorithm>
+ #include <memory>
+ #include <ostream>
+ #include <string>
+@@ -22,9 +23,20 @@
  #include "oops/util/Printable.h"
  #include "oops/util/Serializable.h"
  
@@ -10,8 +18,31 @@
 +#include "quenchxx/GeometryIterator.h"
  #include "quenchxx/State.h"
  
++#ifdef ECSABER
++#include "quenchxx/Variables.h"
++namespace varns = quenchxx;
++#else
++#include "oops/base/Variables.h"
++namespace varns = oops;
++#endif
++
  namespace quenchxx {
-@@ -53,6 +56,8 @@
+   class Geometry;
+ 
+@@ -40,7 +52,11 @@
+ 
+   // Constructors/destructor
+   Increment(const Geometry &,
+-            const oops::Variables &,
++            const varns::Variables &,
++            const util::DateTime &);
++  Increment(const Geometry &,
++            const varns::Variables &,
++            const util::DateTime &,
+             const util::DateTime &);
+   Increment(const Geometry &,
+             const Increment &);
+@@ -53,6 +69,8 @@
    void zero()
      {fields_->zero();}
    void zero(const util::DateTime &);
@@ -20,16 +51,59 @@
    void dirac(const eckit::Configuration & config)
      {fields_->dirac(config);}
    Increment & operator =(const Increment &);
-@@ -111,6 +116,12 @@
+@@ -68,6 +86,10 @@
+     {fields_->schur_product_with(*dx.fields_);}
+   void random()
+     {fields_->random();}
++  double max(const varns::Variables & var) const
++    {return fields_->max(var);}
++  double min(const varns::Variables & var) const
++    {return fields_->min(var);}
+ 
+   // I/O and diagnostics
+   void read(const eckit::Configuration & config)
+@@ -86,6 +108,12 @@
+     {fields_->toFieldSet(fset);}
+   void fromFieldSet(const atlas::FieldSet & fset)
+     {fields_->fromFieldSet(fset);}
++  const atlas::FieldSet & fieldSet() const
++    {return fields_->fieldSet();}
++  atlas::FieldSet & fieldSet()
++    {return fields_->fieldSet();}
++  void synchronizeFields()
++    {fields_->synchronizeFields();}
+ 
+   // Access to fields
+   Fields & fields()
+@@ -99,8 +127,14 @@
+   void accumul(const double & zz,
+                const State & xx)
+     {fields_->axpy(zz, xx.fields());}
+-  const oops::Variables & variables() const
++  const varns::Variables & variables() const
+     {return fields_->variables();}
++  void interpolateTL(const Locations & locs,
++                     GeoVaLs & gv) const
++    {fields_->interpolate(locs, gv);}
++  void interpolateAD(const Locations & locs,
++                     const GeoVaLs & gv)
++    {fields_->interpolateAD(locs, gv);}
+ 
+   // Serialization
+   size_t serialSize() const
+@@ -110,6 +144,15 @@
+   void deserialize(const std::vector<double> & vect,
                     size_t & index)
      {fields_->deserialize(vect, index);}
- 
++  friend eckit::Stream & operator<<(eckit::Stream &,
++                                    const Increment &);
++  friend eckit::Stream & operator>>(eckit::Stream &,
++                                    Increment &);
++
 +  // Local increment
 +  oops::LocalIncrement getLocal(const GeometryIterator & geometryIterator) const;
 +  void setLocal(const oops::LocalIncrement & localIncrement,
 +                const GeometryIterator & geometryIterator);
-+
-+
+ 
   private:
    // Print
-   void print(std::ostream &) const;

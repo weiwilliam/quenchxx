@@ -18,7 +18,7 @@
     "partitioner": "checkerboard",
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
@@ -34,11 +34,11 @@
           },
           "obsvalue": "ObsValue"
         },
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "Generate": {
           "density": "20",
-          "error": "0.1",
-          "variable": "temperature",
+          "error": [0.1],
+          "variable": "air_temperature",
           "obserror": "ObsError"
         },
         "Covariance": {
@@ -53,7 +53,7 @@
   "Model": {},
   "Initial Condition": {
     "date": "2010-01-01T06:00:00Z",
-    "variables": ["temperature"],
+    "variables": ["air_temperature"],
     "filepath": "testdata/reg_truth_06"
   },
   "Assimilation Window": {

@@ -18,7 +18,7 @@
     "partitioner": "checkerboard",
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
@@ -29,13 +29,13 @@
     "cost_type": "3D-Var",
     "window_begin": "2010-01-01T12:00:00Z",
     "window_length": "PT0H",
-    "variables": ["temperature"],
+    "variables": ["air_temperature"],
     "Jb": {
       "Background": {
         "state": [
           {
             "date": "2010-01-01T12:00:00Z",
-            "variables": ["temperature"],
+            "variables": ["air_temperature"],
             "filepath": "testdata/reg_bkg_12_000001"
           }
         ]
@@ -54,13 +54,13 @@
               "explicit length-scales": "true",
               "horizontal length-scale": [
                 {
-                  "groups": ["temperature"],
+                  "groups": ["air_temperature"],
                   "value": "4.0e6"
                 }
               ],
               "vertical length-scale": [
                 {
-                "groups": ["temperature"],
+                "groups": ["air_temperature"],
                 "value": "3.0"
                 }
               ]
@@ -98,7 +98,7 @@
               "obserror": "ObsError"
             }
           },
-          "variables": ["temperature"]
+          "variables": ["air_temperature"]
         }
       ]
     }
@@ -132,7 +132,7 @@
           "partitioner": "checkerboard",
           "groups": [
             {
-              "variables": ["temperature"],
+              "variables": ["air_temperature"],
               "levels": "2"
             }
           ],
@@ -144,7 +144,7 @@
           "tstep": "PT0H",
           "trajectory": {
             "forcing": {
-              "variables": ["temperature"]
+              "variables": ["air_temperature"]
             }
           }
         },
@@ -177,7 +177,7 @@
           "partitioner": "checkerboard",
           "groups": [
             {
-              "variables": ["temperature"],
+              "variables": ["air_temperature"],
               "levels": "2"
             }
           ],
@@ -189,7 +189,7 @@
           "tstep": "PT0H",
           "trajectory": {
             "forcing": {
-              "variables": ["temperature"]
+              "variables": ["air_temperature"]
             }
           }
         },

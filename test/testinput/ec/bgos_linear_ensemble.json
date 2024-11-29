@@ -7,7 +7,7 @@
     },
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "3"
       }
     ],
@@ -18,13 +18,13 @@
     "cost_type": "3D-Var",
     "window_begin": "2010-01-01T12:00:00Z",
     "window_length": "PT0H",
-    "variables": ["temperature"],
+    "variables": ["air_temperature"],
     "Jb": {
       "Background": {
         "state": [
           {
             "date": "2010-01-01T12:00:00Z",
-            "variables": ["temperature"],
+            "variables": ["air_temperature"],
             "filepath": "testdata/bgos_bkg_000001"
           }
         ]
@@ -64,7 +64,7 @@
             "ObsDataOutScreened": {
               "filepath": "testdata/bgos_obs_linear_ensemble"
             },
-            "obsvalue": "ObsValue.000000"
+            "obsvalue": "ObsValue"
           },
           "Covariance": {
             "ObsErrorCovariance": {
@@ -72,7 +72,7 @@
               "obserror": "ObsError"
             }
           },
-          "variables": ["temperature"]
+          "variables": ["air_temperature"]
         }
       ]
     }
@@ -88,7 +88,7 @@
           },
           "groups": [
             {
-              "variables": ["temperature"],
+              "variables": ["air_temperature"],
               "levels": "3"
             }
           ],
@@ -100,7 +100,7 @@
           "tstep": "PT0H",
           "trajectory": {
             "forcing": {
-              "variables": ["temperature"]
+              "variables": ["air_temperature"]
             }
           }
         }
@@ -113,7 +113,7 @@
       "template": {
         "date": "2010-01-01T12:00:00Z",
         "filepath": "testdata/bgos_ens_%member%",
-        "state variables": ["temperature"]
+        "state variables": ["air_temperature"]
       },
       "pattern": "%member%",
       "zero padding": "6"

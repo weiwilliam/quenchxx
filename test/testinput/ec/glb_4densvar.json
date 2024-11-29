@@ -7,7 +7,7 @@
     },
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
@@ -19,23 +19,23 @@
     "window_begin": "2010-01-01T06:00:00Z",
     "window_length": "PT12H",
     "window_sub": "PT6H",
-    "variables": ["temperature"],
+    "variables": ["air_temperature"],
     "Jb": {
       "Background": {
         "state": [
           {
             "date": "2010-01-01T06:00:00Z",
-            "variables": ["temperature"],
+            "variables": ["air_temperature"],
             "filepath": "testdata/glb_bkg_06_000001"
           },
           {
             "date": "2010-01-01T12:00:00Z",
-            "variables": ["temperature"],
+            "variables": ["air_temperature"],
             "filepath": "testdata/glb_bkg_12_000001"
           },
           {
             "date": "2010-01-01T18:00:00Z",
-            "variables": ["temperature"],
+            "variables": ["air_temperature"],
             "filepath": "testdata/glb_bkg_18_000001"
           }
         ]
@@ -44,177 +44,177 @@
         "covariance": "ensemble",
         "ensemble": [
           {
-            "variables": ["temperature"],
+            "variables": ["air_temperature"],
             "members": "10",
             "state": [
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000001",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000002",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000003",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000004",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000005",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000006",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000007",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000008",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000009",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T06:00:00Z",
                 "filepath": "testdata/glb_ens_06_000010",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               }
             ]
           },
           {
-            "variables": ["temperature"],
+            "variables": ["air_temperature"],
             "members": "10",
             "state": [
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000001",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000002",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000003",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000004",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000005",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000006",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000007",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000008",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000009",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T12:00:00Z",
                 "filepath": "testdata/glb_ens_12_000010",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               }
             ]
           },
           {
-            "variables": ["temperature"],
+            "variables": ["air_temperature"],
             "members": "10",
             "state": [
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000001",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000002",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000003",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000004",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000005",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000006",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000007",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000008",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000009",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               },
               {
                 "date": "2010-01-01T18:00:00Z",
                 "filepath": "testdata/glb_ens_18_000010",
-                "state variables": ["temperature"]
+                "state variables": ["air_temperature"]
               }
             ]
           }
         ],
         "localization": {
           "localization": "SABER",
-          "variables": ["temperature"],
+          "variables": ["air_temperature"],
           "saber central block": {
             "saber block name": "BUMP_NICAS",
             "read": {
@@ -227,13 +227,13 @@
                 "explicit length-scales": "true",
                 "horizontal length-scale": [
                  {
-                    "groups": ["temperature"],
+                    "groups": ["air_temperature"],
                     "value": "4.0e6"
                   }
                 ],
                 "vertical length-scale": [
                   {
-                    "groups": ["temperature"],
+                    "groups": ["air_temperature"],
                     "value": "3.0"
                   }
                 ]
@@ -262,7 +262,7 @@
               "obserror": "ObsError"
             }
           },
-          "variables": ["temperature"]
+          "variables": ["air_temperature"]
         },
         {
           "ObsType": "default",
@@ -281,7 +281,7 @@
               "obserror": "ObsError"
             }
           },
-          "variables": ["temperature"]
+          "variables": ["air_temperature"]
         },
         {
           "ObsType": "default",
@@ -300,7 +300,7 @@
               "obserror": "ObsError"
             }
           },
-          "variables": ["temperature"]
+          "variables": ["air_temperature"]
         }
       ]
     }
@@ -323,7 +323,7 @@
           },
           "groups": [
             {
-              "variables": ["temperature"],
+              "variables": ["air_temperature"],
               "levels": "2"
             }
           ],
@@ -335,7 +335,7 @@
           "tstep": "PT6H",
           "trajectory": {
             "forcing": {
-              "variables": ["temperature"]
+              "variables": ["air_temperature"]
             }
           }
         },
@@ -357,7 +357,7 @@
           },
           "groups": [
             {
-              "variables": ["temperature"],
+              "variables": ["air_temperature"],
               "levels": "2"
             }
           ],
@@ -369,7 +369,7 @@
           "tstep": "PT6H",
           "trajectory": {
             "forcing": {
-              "variables": ["temperature"]
+              "variables": ["air_temperature"]
             }
           }
         },

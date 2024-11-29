@@ -5,16 +5,18 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
+#include "oops/runs/BGOS.h"
 #include "oops/runs/Run.h"
 #include "quenchxx/instantiateQuenchMatrices.h"
 #include "quenchxx/Logbook.h"
 #include "quenchxx/Traits.h"
-#include "saber/oops/BGOS.h"
+#include "saber/oops/instantiateCovarFactory.h"
 
 int main(int argc, char** argv) {
   oops::Run run(argc, argv);
   quenchxx::instantiateQuenchMatrices();
-  saber::BGOS<quenchxx::Traits> bgos;
+  saber::instantiateCovarFactory<quenchxx::Traits>();
+  oops::BGOS<quenchxx::Traits> bgos;
   quenchxx::Logbook::start();
   run.execute(bgos);
   quenchxx::Logbook::stop();

@@ -1,3 +1,4 @@
-Initial state: 32.7902
-Final state: 32.7902
-Generated observation: quenchxx[20]: Min=0.575413, Max=1.06461, Average=0.80842
+Initial state: 37.116
+Final state: 37.116
+Generated observation: quenchxx[20]:
+- air_temperature: Min=0.685253, Max=1.19605, Average=0.902182

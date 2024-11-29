@@ -1,23 +1,74 @@
---- src/quenchxx/TraitsFwd.h.tmp	2024-11-15 14:40:50.946885514 +0100
-+++ src/quenchxx/TraitsFwd.h	2024-11-15 14:42:35.941379885 +0100
-@@ -14,6 +14,7 @@
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/TraitsFwd.h.tmp.bak	2024-11-27 13:23:55.447743168 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/TraitsFwd.h	2024-11-26 14:58:10.128932607 +0100
+@@ -14,11 +14,30 @@
  
  class Covariance;
  class Geometry;
 +class GeometryIterator;
++class GeoVaLs;
++class HorizScaleDecomposition;
  class Increment;
++class IncrEnsCtlVec;
++class IncrModCtlVec;
++class Interpolator;
  class LinearVariableChange;
++class LocalizationMatrix;
++class Locations;
++class Model;
++class ModelAuxControl;
++class ModelAuxControlEstimator;
++class ModelAuxCovariance;
++class ModelAuxCtlVec;
++class ModelAuxIncrement;
  class ModelData;
-@@ -28,8 +29,12 @@
++class ObsSpace;
++class ObsVector;
+ class State;
+ class VariableChange;
++#ifdef ECSABER
++class Variables;
++#endif
  
-   typedef quenchxx::Covariance           Covariance;
-   typedef quenchxx::Geometry             Geometry;
-+  typedef quenchxx::GeometryIterator     GeometryIterator;
-   typedef quenchxx::Increment            Increment;
-   typedef quenchxx::LinearVariableChange LinearVariableChange;
-+  typedef quenchxx::ModelAuxControl      ModelAuxControl;
-+  typedef quenchxx::ModelAuxIncrement    ModelAuxIncrement;
-+  typedef quenchxx::ModelAuxCovariance   ModelAuxCovariance;
-   typedef quenchxx::ModelData            ModelData;
-   typedef quenchxx::State                State;
-   typedef quenchxx::VariableChange       VariableChange;
+ struct Traits {
+   static std::string name()
+@@ -26,13 +45,33 @@
+   static std::string nameCovar()
+     {return "quenchxxCovariance";}
+ 
+-  typedef quenchxx::Covariance           Covariance;
+-  typedef quenchxx::Geometry             Geometry;
+-  typedef quenchxx::Increment            Increment;
+-  typedef quenchxx::LinearVariableChange LinearVariableChange;
+-  typedef quenchxx::ModelData            ModelData;
+-  typedef quenchxx::State                State;
+-  typedef quenchxx::VariableChange       VariableChange;
++  using Covariance = quenchxx::Covariance;
++  using Geometry = quenchxx::Geometry;
++  using GeometryIterator = quenchxx::GeometryIterator;
++  using GeoVaLs = quenchxx::GeoVaLs;
++  using HorizScaleDecomposition = quenchxx::HorizScaleDecomposition;
++  using Increment = quenchxx::Increment;
++  using IncrEnsCtlVec = quenchxx::IncrEnsCtlVec;
++  using IncrModCtlVec = quenchxx::IncrModCtlVec;
++  using Interpolator = quenchxx::Interpolator;
++  using LinearVariableChange = quenchxx::LinearVariableChange;
++  using LocalizationMatrix = quenchxx::LocalizationMatrix;
++  using Locations = quenchxx::Locations;
++  using Model = quenchxx::Model;
++  using ModelAuxControl = quenchxx::ModelAuxControl;
++  using ModelAuxControlEstimator = quenchxx::ModelAuxControlEstimator;
++  using ModelAuxCovariance = quenchxx::ModelAuxCovariance;
++  using ModelAuxCtlVec = quenchxx::ModelAuxCtlVec;
++  using ModelAuxIncrement = quenchxx::ModelAuxIncrement;
++  using ModelData = quenchxx::ModelData;
++  using ObsSpace = quenchxx::ObsSpace;
++  using ObsVector = quenchxx::ObsVector;
++  using State = quenchxx::State;
++  using VariableChange = quenchxx::VariableChange;
++#ifdef ECSABER
++  using Variables = quenchxx::Variables;
++#endif
+ };
+ 
+ }  // namespace quenchxx
++

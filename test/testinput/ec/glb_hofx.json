@@ -7,7 +7,7 @@
     },
     "groups": [
       {
-        "variables": ["temperature"],
+        "variables": ["air_temperature"],
         "levels": "2"
       }
     ],
@@ -16,7 +16,7 @@
   "Model": {},
   "Initial Condition": {
     "date": "2010-01-01T12:00:00Z",
-    "variables": ["temperature"],
+    "variables": ["air_temperature"],
     "filepath": "testdata/glb_truth_12"
   },
   "forecast_length": "PT0S",
@@ -33,7 +33,7 @@
           },
           "obsvalue": "hofx"
         },
-        "variables": ["temperature"]
+        "variables": ["air_temperature"]
       }
     ]
   },

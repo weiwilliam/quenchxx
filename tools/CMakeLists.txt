@@ -1,8 +1,8 @@
 # Install scripts
 list( APPEND tool_files
-    check_diff.sh
-    check_diff_recursively.sh
     cpplint.py
+    ecmwf_compare.py
+    ecmwf_compare.sh
 )
 
 foreach(FILENAME IN LISTS tool_files)

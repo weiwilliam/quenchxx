@@ -71,7 +71,7 @@ Locations::Locations(const ObsSpace & obsSpace,
 void Locations::print(std::ostream & os) const {
   oops::Log::trace() << classname() << "::print starting" << std::endl;
 
-  os << "Locations::print not implemented";
+  os << "Locations: " << grid_ << std::endl;
 
   oops::Log::trace() << classname() << "::print done" << std::endl;
 }

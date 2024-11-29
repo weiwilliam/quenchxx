@@ -66,6 +66,13 @@ class ObsError : public oops::ObsErrorBase<Traits> {
   double getRMSE() const
     {return stddev_->rms();}
 
+/// Save obs errors
+  void save(const std::string &) const {}  // TODO(Benjamin)
+
+/// Returns inverse of observation error variance
+  void inverseVariance(ObsVector &dy) const
+    {dy = *inverseVariance_;}
+
  private:
   void print(std::ostream &) const;
 

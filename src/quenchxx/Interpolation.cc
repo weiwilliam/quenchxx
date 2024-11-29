@@ -110,11 +110,11 @@ void Interpolation::executeVertical(const atlas::FieldSet & srcFieldSet,
   for (auto & tgtField : tgtFieldSet) {
     const std::string var = tgtField.name();
     const auto srcView = atlas::array::make_view<double, 2>(srcFieldSet[var]);
-    auto tgtView = atlas::array::make_view<double, 1>(tgtField);
+    auto tgtView = atlas::array::make_view<double, 2>(tgtField);
     tgtView.assign(0.0);
     for (size_t jo = 0; jo < verStencilSize_.at(var).size(); ++jo) {
       for (size_t jj = 0; jj < verStencilSize_.at(var)[jo]; ++jj) {
-        tgtView(jo) += verWeights_.at(var)[jo][jj]*srcView(jo, verStencil_.at(var)[jo][jj]);
+        tgtView(jo, 0) += verWeights_.at(var)[jo][jj]*srcView(jo, verStencil_.at(var)[jo][jj]);
       }
     }
   }
@@ -131,11 +131,11 @@ void Interpolation::executeVerticalAdjoint(atlas::FieldSet & srcFieldSet,
   for (const auto & tgtField : tgtFieldSet) {
     const std::string var = tgtField.name();
     auto srcView = atlas::array::make_view<double, 2>(srcFieldSet[var]);
-    const auto tgtView = atlas::array::make_view<double, 1>(tgtField);
+    const auto tgtView = atlas::array::make_view<double, 2>(tgtField);
     srcView.assign(0.0);
     for (size_t jo = 0; jo < verStencilSize_.at(var).size(); ++jo) {
       for (size_t jj = 0; jj < verStencilSize_.at(var)[jo]; ++jj) {
-        srcView(jo, verStencil_.at(var)[jo][jj]) += verWeights_.at(var)[jo][jj]*tgtView(jo);
+        srcView(jo, verStencil_.at(var)[jo][jj]) += verWeights_.at(var)[jo][jj]*tgtView(jo, 0);
       }
     }
   }

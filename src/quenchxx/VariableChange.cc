@@ -62,7 +62,7 @@ VariableChange::VariableChange(const eckit::Configuration & config,
 // -------------------------------------------------------------------------------------------------
 
 void VariableChange::changeVar(State & x,
-                               const oops::Variables & vars_out) const {
+                               const varns::Variables & vars_out) const {
   oops::Log::trace() << "VariableChange::changeVar starting" << std::endl;
 
   // State to FieldSet
@@ -70,7 +70,7 @@ void VariableChange::changeVar(State & x,
   x.toFieldSet(fset);
 
   // Call vader
-  oops::Variables varsCha(vars_out);
+  varns::Variables varsCha(vars_out);
   vader_->changeVar(fset, varsCha);
 
   // FieldSet to State
@@ -82,7 +82,7 @@ void VariableChange::changeVar(State & x,
 // -------------------------------------------------------------------------------------------------
 
 void VariableChange::changeVarInverse(State & x,
-                                      const oops::Variables & vars_out) const {
+                                      const varns::Variables & vars_out) const {
   oops::Log::trace() << "VariableChange::changeVarInverse starting" << std::endl;
 
   // State to FieldSet
@@ -90,7 +90,7 @@ void VariableChange::changeVarInverse(State & x,
   x.toFieldSet(fset);
 
   // Call vader
-  oops::Variables varsCha(vars_out);
+  varns::Variables varsCha(vars_out);
   vader_->changeVar(fset, varsCha);
 
   // FieldSet to State

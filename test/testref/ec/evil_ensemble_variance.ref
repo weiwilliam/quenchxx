@@ -15,7 +15,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 51.2085
+  air_temperature: 51.2085
 Write variance of evil_assim_ensemble: 7.73559
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -33,7 +33,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 7.73559
+  air_temperature: 7.73559
 Write variance of evil_control_ens_D: 28.0783
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -51,7 +51,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 28.0783
+  air_temperature: 28.0783
 Write variance of evil_control_ens_R: 48.3243
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -69,7 +69,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 48.3243
+  air_temperature: 48.3243
 Write variance of evil_control_ens_S: 28.0706
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -87,7 +87,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 28.0706
+  air_temperature: 28.0706
 Write variance of evil_dual_ens_D: 28.0759
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -105,7 +105,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 28.0759
+  air_temperature: 28.0759
 Write variance of evil_dual_ens_R: 48.4969
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -123,7 +123,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 48.4969
+  air_temperature: 48.4969
 Write variance of evil_dual_ens_S: 28.0706
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -141,7 +141,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 28.0706
+  air_temperature: 28.0706
 Write variance of evil_primal_ens_D: 28.0759
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -159,7 +159,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 28.0759
+  air_temperature: 28.0759
 Write variance of evil_primal_ens_R: 48.4969
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -177,7 +177,7 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 48.4969
+  air_temperature: 48.4969
 Write variance of evil_primal_ens_S: 28.0706
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
@@ -195,4 +195,4 @@ Groups:
   - vert_coord: [1,2,3]
   Mask size: 100%
 Fields:
-  temperature: 28.0706
+  air_temperature: 28.0706

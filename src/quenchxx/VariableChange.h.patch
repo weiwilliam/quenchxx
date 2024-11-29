@@ -1,6 +1,6 @@
---- src/quenchxx/VariableChange.h.tmp	2024-11-15 14:40:50.922885400 +0100
-+++ src/quenchxx/VariableChange.h	2024-11-15 14:34:00.514906662 +0100
-@@ -8,13 +8,21 @@
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/VariableChange.h.tmp.bak	2024-11-27 13:23:55.423743048 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/VariableChange.h	2024-11-26 14:58:10.128932607 +0100
+@@ -8,13 +8,25 @@
  
  #pragma once
  
@@ -15,14 +15,18 @@
  
 +#include "vader/vader.h"
 +
-+namespace oops {
-+  class Variables;
-+}
++#ifdef ECSABER
++#include "quenchxx/Variables.h"
++namespace varns = quenchxx;
++#else
++#include "oops/base/Variables.h"
++namespace varns = oops;
++#endif
 +
  namespace quenchxx {
    class Geometry;
    class State;
-@@ -28,21 +36,18 @@
+@@ -28,21 +40,18 @@
  
    // Constructor/destructor
    VariableChange(const eckit::Configuration &,
@@ -34,11 +38,11 @@
    void changeVar(State &,
 -                 const oops::Variables &) const
 -    {throw eckit::NotImplemented(Here());}
-+                 const oops::Variables &) const;
++                 const varns::Variables &) const;
    void changeVarInverse(State &,
 -                        const oops::Variables &) const
 -    {throw eckit::NotImplemented(Here());}
-+                        const oops::Variables &) const;
++                        const varns::Variables &) const;
  
   private:
 -  // Print

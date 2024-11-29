@@ -1,6 +1,6 @@
 CostJb   : Nonlinear Jb = 0.0000000000000000e+00
-CostJo   : Nonlinear Jo(temperature) = 1.5706406591574382e+01, nobs = 15, Jo/n = 1.0470937727716254e+00, err = 1.0000000149011612e-01
-CostFunction: Nonlinear J = 1.5706406591574382e+01
+CostJo   : Nonlinear Jo(air_temperature) = 1.8871656300580810e+01, nobs = 15, Jo/n = 1.2581104200387208e+00, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 1.8871656300580810e+01
 DRIPCGMinimizer: reduction in residual norm = nan
 CostFunction::addIncrement: Analysis: 
 Valid time:2010-01-01T06:00:00Z
@@ -20,7 +20,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: -nan
+  air_temperature: -nan
 Valid time:2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: structured
@@ -38,7 +38,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: -nan
+  air_temperature: -nan
 Valid time:2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: structured
@@ -56,7 +56,7 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  temperature: -nan
+  air_temperature: -nan
 CostJb   : Nonlinear Jb = -nan
-CostJo   : Nonlinear Jo(temperature) = -nan, nobs = 15, Jo/n = -nan, err = 1.0000000149011612e-01
+CostJo   : Nonlinear Jo(air_temperature) = -nan, nobs = 15, Jo/n = -nan, err = 1.0000000149011612e-01
 CostFunction: Nonlinear J = -nan

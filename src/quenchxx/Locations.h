@@ -12,12 +12,12 @@
 #include "atlas/grid.h"
 #include "atlas/util/Point.h"
 
+#include "oops/util/DateTime.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
-#include "quenchxx/ObsSpace.h"
-
 namespace quenchxx {
+  class ObsSpace;
 
 // -----------------------------------------------------------------------------
 /// Locations class

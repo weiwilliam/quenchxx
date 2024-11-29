@@ -5,7 +5,7 @@ input geometry: &geom
     N: 10
   groups:
   - variables:
-    - temperature
+    - air_temperature
     levels: 2
   halo: 1
 output geometry: *geom
@@ -13,8 +13,8 @@ states:
 - input:
     date: 2010-01-01T06:00:00Z
     state variables:
-    - temperature
-    constant value: 0.8
+    - air_temperature
+    constant profile: [0.8, 1.0]
   output:
     date: 2010-01-01T06:00:00Z
     filepath: testdata/glb_truth_06
