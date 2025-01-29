@@ -34,7 +34,7 @@ background error:
         multivariate strategy: univariate
         compute nicas: true
       nicas:
-        resolution: 8.0
+        resolution: 4.0
         explicit length-scales: true
         horizontal length-scale:
         - groups:
@@ -54,4 +54,4 @@ output states:
   filepath: testdata/reg_bkg_06
   date: 2010-01-01T06:00:00Z
 test:
-  reference filename: testref/jedi/reg_background_06.ref
+  reference filename: testref/reg_background_06.ref

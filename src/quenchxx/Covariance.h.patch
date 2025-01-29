@@ -1,20 +1,15 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Covariance.h.tmp	2024-11-27 13:23:55.519743530 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Covariance.h	2024-11-26 14:58:10.121932573 +0100
-@@ -19,6 +19,13 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Covariance.h.tmp.bak	2025-01-18 06:56:55.445721471 +0100
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Covariance.h	2025-01-18 04:26:13.994877519 +0100
+@@ -19,6 +19,8 @@
  #include "oops/util/Printable.h"
  
  #include "quenchxx/Increment.h"
 +#include "quenchxx/IncrModCtlVec.h"
-+
-+#ifdef ECSABER
-+namespace varns = quenchxx;
-+#else
-+namespace varns = oops;
-+#endif
++#include "quenchxx/VariablesSwitch.h"
  
  namespace quenchxx {
    class Geometry;
-@@ -36,21 +43,39 @@
+@@ -36,14 +38,24 @@
  
    // Constructor/destructor
    Covariance(const Geometry &,
@@ -32,21 +27,18 @@
    ~Covariance()
      {}
  
--  // Multiply and inverse multiply (identity)
--  void multiply(const Increment & dxi,
--                Increment & dxo) const
--    {dxo = dxi;}
--  void inverseMultiply(const Increment & dxi,
--                       Increment & dxo) const
--    {dxo = dxi;}
-+  // Multiply and inverse multiply
-+  void multiply(const Increment &,
-+                Increment &) const
-+    {throw eckit::NotImplemented(Here());}
-+  void inverseMultiply(const Increment &,
-+                       Increment &) const
-+    {throw eckit::NotImplemented(Here());}
++  // Linearize
++  void linearize(const State &,
++                 const Geometry &)
++    {}
 +
+   // Multiply and inverse multiply
+   void multiply(const Increment &,
+                 Increment &) const
+@@ -52,6 +64,14 @@
+                        Increment &) const
+     {throw eckit::NotImplemented(Here());}
+ 
 +  // Square-root and adjoint
 +  void multiplySqrt(const IncrModCtlVec &,
 +                    Increment &) const
@@ -55,10 +47,6 @@
 +                         IncrModCtlVec &) const
 +    {throw eckit::NotImplemented(Here());}
 +
-+  // Linearize
-+  void linearize(const State &,
-+                 const Geometry &)
-+    {}
- 
    // Randomization
    void randomize(Increment & dxo) const
+     {throw eckit::NotImplemented(Here());}

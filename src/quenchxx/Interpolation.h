@@ -18,10 +18,13 @@
 
 #include "eckit/config/Configuration.h"
 
+#include "oops/generic/UnstructuredInterpolator.h"
 #include "oops/util/Logger.h"
 #include "oops/util/ObjectCounter.h"
 
 #include "saber/interpolation/AtlasInterpWrapper.h"
+
+#include "quenchxx/Geometry.h"
 
 namespace atlas {
   class Field;
@@ -41,10 +44,7 @@ class Interpolation {
     {return "quenchxx::Interpolation";}
 
   // Constructor/destructor
-  Interpolation(const eckit::Configuration &,
-                const eckit::mpi::Comm &,
-                const atlas::grid::Partitioner &,
-                const atlas::FunctionSpace &,
+  Interpolation(const Geometry &,
                 const std::string &,
                 const atlas::Grid &,
                 const atlas::FunctionSpace &,
@@ -70,24 +70,27 @@ class Interpolation {
   // Accessors
   const std::string & srcUid() const
     {return srcUid_;}
-  const std::string & dstUid() const
-    {return dstUid_;}
-  const atlas::FunctionSpace & dstFspace() const
-    {return dstFspace_;}
+  const std::string & tgtUid() const
+    {return tgtUid_;}
+  const atlas::FunctionSpace & tgtFspace() const
+    {return tgtFspace_;}
 
  private:
   // Grids UID
   std::string srcUid_;
-  std::string dstUid_;
+  std::string tgtUid_;
 
   // Destination function space
-  atlas::FunctionSpace dstFspace_;
+  atlas::FunctionSpace tgtFspace_;
 
   // ATLAS interpolation wrapper from SABER
   std::shared_ptr<saber::interpolation::AtlasInterpWrapper> atlasInterpWrapper_;
 
   // Regional ATLAS interpolation
   std::shared_ptr<atlas::Interpolation> regionalInterp_;
+
+  // OOPS unstructured interpolation
+  std::shared_ptr<oops::UnstructuredInterpolator> unstructuredInterp_;
 
   // Vertical interpolations
   std::unordered_map<std::string, std::vector<std::array<size_t, 2>>> verStencil_;

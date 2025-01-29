@@ -33,7 +33,7 @@ LinearObsOperator::LinearObsOperator(const ObsSpace &,
 // -----------------------------------------------------------------------------
 
 void LinearObsOperator::obsEquivTL(const GeoVaLs & gv,
-                                   ObsVector & ovec,
+                                   ObsVector & obsVector,
                                    const ObsAuxIncrementPtrMap_ & bias) const {
   oops::Log::trace() << classname() << "::obsEquivTL starting" << std::endl;
 
@@ -58,9 +58,12 @@ void LinearObsOperator::obsEquivTL(const GeoVaLs & gv,
     // Compute observation equivalent
     for (int jo = 0; jo < gvField.shape(0); ++jo) {
       const int ii = gv.obsIndex(jo);
-      ovec.set(jvar, ii, gvView(jo, 0)+bias_);
+      obsVector.set(jvar, ii, gvView(jo, 0)+bias_);
     }
   }
+
+  // Fill halo
+  obsVector.fillHalo();
 
   oops::Log::trace() << classname() << "::obsEquivTL done" << std::endl;
 }
@@ -68,7 +71,7 @@ void LinearObsOperator::obsEquivTL(const GeoVaLs & gv,
 // -----------------------------------------------------------------------------
 
 void LinearObsOperator::obsEquivAD(GeoVaLs & gv,
-                                   const ObsVector & ovec,
+                                   const ObsVector & obsVector,
                                    ObsAuxIncrementPtrMap_ & bias) const {
   oops::Log::trace() << classname() << "::obsEquivAD starting" << std::endl;
 
@@ -87,7 +90,7 @@ void LinearObsOperator::obsEquivAD(GeoVaLs & gv,
       ASSERT(pbias != nullptr);
       for (int jo = 0; jo < gvField.shape(0); ++jo) {
         const int ii = gv.obsIndex(jo);
-        ovec.get(jvar, ii, bias);
+        v.get(jvar, ii, bias);
       }
     }
 */
@@ -95,7 +98,7 @@ void LinearObsOperator::obsEquivAD(GeoVaLs & gv,
     // Compute observation equivalent
     for (int jo = 0; jo < gvField.shape(0); ++jo) {
       const int ii = gv.obsIndex(jo);
-      ovec.get(jvar, ii, gvView(jo, 0));
+      obsVector.get(jvar, ii, gvView(jo, 0));
     }
   }
 

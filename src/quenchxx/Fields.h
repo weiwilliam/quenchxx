@@ -21,7 +21,6 @@
 
 #include "eckit/serialisation/Stream.h"
 
-#include "oops/util/abor1_cpp.h"
 #include "oops/util/DateTime.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
@@ -30,14 +29,7 @@
 #include "quenchxx/GeoVaLs.h"
 #include "quenchxx/Interpolation.h"
 #include "quenchxx/Locations.h"
-
-#ifdef ECSABER
-#include "quenchxx/Variables.h"
-namespace varns = quenchxx;
-#else
-#include "oops/base/Variables.h"
-namespace varns = oops;
-#endif
+#include "quenchxx/VariablesSwitch.h"
 
 namespace quenchxx {
   class Geometry;

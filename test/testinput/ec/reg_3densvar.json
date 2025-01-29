@@ -24,7 +24,9 @@
     ],
     "halo": "1"
   },
-  "model": {},
+  "model": {
+    "tstep": "PT6H"
+  },
   "cost_function": {
     "cost_type": "3D-Var",
     "window_begin": "2010-01-01T12:00:00Z",
@@ -117,7 +119,7 @@
                   "horizontal length-scale": [
                     {
                       "groups": ["air_temperature"],
-                      "value": "4.0e6"
+                      "value": "3.0e4"
                     }
                   ],
                   "vertical length-scale": [
@@ -197,6 +199,7 @@
           "version": "default",
           "tstep": "PT0H",
           "trajectory": {
+            "tstep": "PT6H",
             "forcing": {
               "variables": ["air_temperature"]
             }
@@ -242,6 +245,7 @@
           "version": "default",
           "tstep": "PT0H",
           "trajectory": {
+            "tstep": "PT6H",
             "forcing": {
               "variables": ["air_temperature"]
             }
@@ -259,5 +263,8 @@
         "obsvalue": "oman"
       }
     }
+  },
+  "test": {
+    "reference filename": "testref/ec/reg_3densvar.ref"
   }
 }

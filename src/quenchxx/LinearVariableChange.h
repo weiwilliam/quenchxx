@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <map>
 #include <ostream>
 #include <string>
 
@@ -20,19 +21,11 @@
 #include "quenchxx/Geometry.h"
 #include "quenchxx/Increment.h"
 #include "quenchxx/State.h"
-
-#ifdef ECSABER
-#include "quenchxx/Variables.h"
-namespace varns = quenchxx;
-#else
-#include "oops/base/Variables.h"
-namespace varns = oops;
-#endif
+#include "quenchxx/VariablesSwitch.h"
 
 namespace quenchxx {
 
 // -----------------------------------------------------------------------------
-/// LinearVariableChange class
 
 class LinearVariableChange: public util::Printable {
  public:
@@ -42,7 +35,8 @@ class LinearVariableChange: public util::Printable {
   // Constructor/destructor
   LinearVariableChange(const Geometry &,
                        const eckit::Configuration &);
-  ~LinearVariableChange();
+  ~LinearVariableChange()
+    {}
 
   // Linear variable changes: TL, inverseTL, AD and inverseAD
   void changeVarTL(Increment &,
@@ -56,15 +50,19 @@ class LinearVariableChange: public util::Printable {
 
   // Trajectory setup
   void changeVarTraj(const State &,
-                     const varns::Variables &) {}
+                     const varns::Variables &)
+    {}
 
  private:
   // Print
   void print(std::ostream & os) const override
-    {os << "LinearVariableChange";};
+    {os << "LinearVariableChange";}
+
+  // Map from output to input variables
+  std::map<std::string, std::string> map_;
 
   // Multiplicative factor
-  atlas::FieldSet fset_;
+  atlas::FieldSet multiplierFset_;
 };
 // -----------------------------------------------------------------------------
 

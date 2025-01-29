@@ -13,7 +13,9 @@
     ],
     "halo": "1"
   },
-  "Model": {},
+  "Model": {
+    "tstep": "PT6H"
+  },
   "Initial Condition": {
     "date": "2010-01-01T12:00:00Z",
     "variables": ["air_temperature"],
@@ -40,5 +42,8 @@
   "Assimilation Window": {
     "Begin": "2010-01-01T12:00:00Z",
     "Length": "PT0S"
+  },
+  "test": {
+    "reference filename": "testref/ec/glb_hofx.ref"
   }
 }

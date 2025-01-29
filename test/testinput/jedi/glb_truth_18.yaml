@@ -19,4 +19,4 @@ states:
     date: 2010-01-01T18:00:00Z
     filepath: testdata/glb_truth_18
 test:
-  reference filename: testref/jedi/glb_truth_18.ref
+  reference filename: testref/glb_truth_18.ref

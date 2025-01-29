@@ -1,21 +1,14 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/LinearVariableChange.h.tmp	2024-11-27 13:23:55.551743690 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/LinearVariableChange.h	2024-11-26 14:58:10.123932583 +0100
-@@ -21,6 +21,14 @@
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/LinearVariableChange.h.tmp.bak	2024-12-05 10:04:27.845768711 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/LinearVariableChange.h	2024-12-05 10:07:07.761768365 +0100
+@@ -21,6 +21,7 @@
+ #include "quenchxx/Geometry.h"
  #include "quenchxx/Increment.h"
  #include "quenchxx/State.h"
++#include "quenchxx/VariablesSwitch.h"
  
-+#ifdef ECSABER
-+#include "quenchxx/Variables.h"
-+namespace varns = quenchxx;
-+#else
-+#include "oops/base/Variables.h"
-+namespace varns = oops;
-+#endif
-+
  namespace quenchxx {
  
- // -----------------------------------------------------------------------------
-@@ -38,17 +46,17 @@
+@@ -39,17 +40,17 @@
  
    // Linear variable changes: TL, inverseTL, AD and inverseAD
    void changeVarTL(Increment &,
@@ -33,8 +26,8 @@
  
    // Trajectory setup
    void changeVarTraj(const State &,
--                     const oops::Variables &) {}
-+                     const varns::Variables &) {}
+-                     const oops::Variables &)
++                     const varns::Variables &)
+     {}
  
   private:
-   // Print

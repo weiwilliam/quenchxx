@@ -20,7 +20,9 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "atlas/field.h"
 #include "atlas/functionspace.h"
@@ -41,7 +43,8 @@
 
 #include "quenchxx/Geometry.h"
 
-#define ERR(e, msg) {std::string s(nc_strerror(e)); ABORT(s + " : " + msg);}
+#define ERR(e, msg) {std::string s(nc_strerror(e)); \
+  throw eckit::Exception(s + " : " + msg, Here());}
 
 namespace quenchxx {
 
@@ -274,7 +277,7 @@ void Fields::constantValue(const std::vector<double> & profile) {
     const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
     const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
     if (field.rank() == 2) {
-      ASSERT(field.shape(1) == profile.size());
+      ASSERT(field.shape(1) == static_cast<int>(profile.size()));
       auto view = atlas::array::make_view<double, 2>(field);
       view.assign(0.0);
       for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
@@ -895,7 +898,7 @@ void Fields::interpolate(const Locations & locs,
     // Create observation fieldset
     atlas::FieldSet obsFieldSet;
     for (const auto & var : vars_.variables()) {
-      atlas::Field obsField = interpolation->dstFspace().createField<double>(
+      atlas::Field obsField = interpolation->tgtFspace().createField<double>(
         atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
       obsFieldSet.add(obsField);
     }
@@ -926,7 +929,7 @@ void Fields::interpolateAD(const Locations & locs,
     // Create observation fieldset
     atlas::FieldSet obsFieldSet;
     for (const auto & var : vars_.variables()) {
-      atlas::Field obsField = interpolation->dstFspace().createField<double>(
+      atlas::Field obsField = interpolation->tgtFspace().createField<double>(
         atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
       obsFieldSet.add(obsField);
     }
@@ -1222,7 +1225,7 @@ void Fields::read(const eckit::Configuration & config) {
     }
 
     // NetCDF file path
-    std::string ncfilepath = filepath + ".nc";
+    std::string ncFilePath = filepath + ".nc";
 
     // Clear local fieldset
     fset_.clear();
@@ -1274,10 +1277,10 @@ void Fields::read(const eckit::Configuration & config) {
       atlas::idx_t nx = grid.nxmax();
       atlas::idx_t ny = grid.ny();
 
-      oops::Log::info() << "Info     : Reading file: " << ncfilepath << std::endl;
+      oops::Log::info() << "Info     : Reading file: " << ncFilePath << std::endl;
 
       // Open NetCDF file
-      if ((retval = nc_open(ncfilepath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncfilepath);
+      if ((retval = nc_open(ncFilePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncFilePath);
 
       // Get variables
       for (size_t jVarLev = 0; jVarLev < nVarLev; ++jVarLev) {
@@ -1308,7 +1311,7 @@ void Fields::read(const eckit::Configuration & config) {
       }
 
       // Close file
-      if ((retval = nc_close(ncid))) ERR(retval, ncfilepath);
+      if ((retval = nc_close(ncid))) ERR(retval, ncFilePath);
     }
 
     // Scatter data from main processor
@@ -1545,17 +1548,14 @@ std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geomet
 
   // Compare with existing UIDs
   for (auto it = interpolations().begin(); it != interpolations().end(); ++it) {
-    if ((it->srcUid() == srcGeomUid) && (it->dstUid() == geomUid)) {
+    if ((it->srcUid() == srcGeomUid) && (it->tgtUid() == geomUid)) {
       oops::Log::trace() << classname() << "::setupGridInterpolation done" << std::endl;
       return it;
     }
   }
 
   // Create interpolation
-  Interpolation interpolation(geom_->interpolation(),
-                              geom_->getComm(),
-                              srcGeom.partitioner(),
-                              srcGeom.functionSpace(),
+  Interpolation interpolation(srcGeom,
                               srcGeomUid,
                               geom_->grid(),
                               geom_->functionSpace(),
@@ -1576,12 +1576,12 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
 
   // Get geometry UIDs (grid + "_" + paritioner)
   const std::string srcGeomUid = geom_->grid().uid() + "_" + geom_->partitioner().type();
-  const std::string dstObsUid = locs.grid().uid() + "_" + geom_->partitioner().type();
+  const std::string tgtObsUid = locs.grid().uid() + "_" + geom_->partitioner().type();
 
   // Compare with existing UIDs
   for (auto it = interpolations().begin(); it != interpolations().end(); ++it) {
-    if ((it->srcUid() == srcGeomUid) && (it->dstUid() == dstObsUid)) {
-      oops::Log::trace() << classname() << "::setupGridInterpolation done" << std::endl;
+    if ((it->srcUid() == srcGeomUid) && (it->tgtUid() == tgtObsUid)) {
+      oops::Log::trace() << classname() << "::setupObsInterpolation done" << std::endl;
       return it;
     }
   }
@@ -1593,7 +1593,7 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
   std::vector<int> partition(nobsGlb);
   size_t joGlb = 0;
   for (size_t jt = 0; jt < geom_->getComm().size(); ++jt) {
-    for (int joLoc = 0; joLoc < locs.size(jt); ++joLoc) {
+    for (int joOwn = 0; joOwn < locs.size(jt); ++joOwn) {
       partition[joGlb] = jt;
       ++joGlb;
     }
@@ -1617,14 +1617,11 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
   }
 
   // Create horizontal interpolation
-  Interpolation interpolation(geom_->interpolation(),
-                              geom_->getComm(),
-                              geom_->partitioner(),
-                              geom_->functionSpace(),
+  Interpolation interpolation(*geom_,
                               srcGeomUid,
                               locs.grid(),
                               *fspace,
-                              dstObsUid);
+                              tgtObsUid);
 
   // Interpolate vertical coordinate
   atlas::FieldSet fset;

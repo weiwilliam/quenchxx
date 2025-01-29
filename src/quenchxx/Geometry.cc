@@ -264,11 +264,7 @@ Geometry::Geometry(const eckit::Configuration & config,
     interpolation_ = interpParams->toConfiguration();
   } else {
     interpolation_ = eckit::LocalConfiguration();
-    if (grid_.domain().global()) {
-      interpolation_.set("interpolation type", "atlas interpolation wrapper");
-    } else {
-      interpolation_.set("interpolation type", "regional");
-    }
+      interpolation_.set("interpolation type", "unstructured");
   }
 
   // Check for duplicate points
@@ -309,6 +305,11 @@ Geometry::Geometry(const eckit::Configuration & config,
       vert_coord_avg /= counter;
     }
     vert_coord_avg_.push_back(vert_coord_avg);
+  }
+
+  // GeometryData
+  if (interpolation_.getString("interpolation type") == "unstructured") {
+    geomData_.reset(new oops::GeometryData(functionSpace_, fields_, levelsAreTopDown_, comm_));
   }
 
   // Print summary
@@ -376,6 +377,11 @@ Geometry::Geometry(const Geometry & other)
     groups_.push_back(group);
   }
 
+  // Geometry data
+  if (interpolation_.getString("interpolation type") == "unstructured") {
+    geomData_.reset(new oops::GeometryData(functionSpace_, fields_, levelsAreTopDown_, comm_));
+  }
+
   oops::Log::trace() << classname() << "::Geometry done" << std::endl;
 }
 
@@ -391,6 +397,18 @@ std::vector<size_t> Geometry::variableSizes(const varns::Variables & vars) const
 
   oops::Log::trace() << classname() << "::variableSizes done" << std::endl;
   return sizes;
+}
+
+// -----------------------------------------------------------------------------
+
+std::vector<size_t> Geometry::variableSizes(const std::vector<std::string> & varNames) const {
+  oops::Log::trace() << classname() << "::variableSizes starting" << std::endl;
+
+  // Create variables
+  const varns::Variables vars(varNames);
+
+  oops::Log::trace() << classname() << "::variableSizes done" << std::endl;
+  return variableSizes(vars);
 }
 
 // -----------------------------------------------------------------------------
@@ -478,7 +496,7 @@ void Geometry::readSeaMask(const std::string & maskPath,
     std::vector<float> zlat(nlat);
     std::vector<uint8_t> zlsm(nlat*nlon);
     if ((retval = nc_get_var_float(ncid, lon_id, zlon.data()))) ERR(retval, "lon");
-    if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval, "lon");
+    if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval, "lat");
     if ((retval = nc_get_var_ubyte(ncid, lsm_id, zlsm.data()))) ERR(retval, "LMASK");
 
     // Copy data

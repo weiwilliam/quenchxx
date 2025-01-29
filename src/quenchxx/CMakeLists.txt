@@ -22,6 +22,9 @@ Increment.h
 Interpolation.cc
 Interpolation.h
 IncrModCtlVec.h
+LinearVariableChange.cc
+LinearVariableChange.h
+LinearVariableChangeParameters.h
 ModelData.h
 ObsSpace.cc
 ObsSpace.h
@@ -31,10 +34,13 @@ State.cc
 State.h
 Traits.h
 TraitsFwd.h
+Utilities.cc
+Utilities.h
 VaderCookbook.h
 VariableChange.cc
 VariableChange.h
 VariableChangeParameters.h
+VariablesSwitch.h
 
 )
 
@@ -84,8 +90,6 @@ if( ECSABER )
 else()
     list( APPEND quenchxx_src_files
 
-    LinearVariableChange.cc
-    LinearVariableChange.h
     ObsLocalizationJEDI.cc
     ObsLocalizationJEDI.h
 
@@ -105,7 +109,6 @@ target_link_libraries( quenchxx PUBLIC NetCDF::NetCDF_Fortran NetCDF::NetCDF_C )
 if( eccodes_FOUND )
     target_link_libraries( quenchxx PUBLIC eccodes )
 endif()
-
 
 #Configure include directory layout for build-tree to match install-tree
 set(QUENCHXX_BUILD_DIR_INCLUDE_PATH ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/include)

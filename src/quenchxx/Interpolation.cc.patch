@@ -1,30 +1,29 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Interpolation.cc.tmp	2024-11-27 13:23:55.493743400 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Interpolation.cc	2024-11-26 14:58:10.123932583 +0100
-@@ -110,11 +110,11 @@
-   for (auto & tgtField : tgtFieldSet) {
-     const std::string var = tgtField.name();
-     const auto srcView = atlas::array::make_view<double, 2>(srcFieldSet[var]);
--    auto tgtView = atlas::array::make_view<double, 1>(tgtField);
-+    auto tgtView = atlas::array::make_view<double, 2>(tgtField);
-     tgtView.assign(0.0);
-     for (size_t jo = 0; jo < verStencilSize_.at(var).size(); ++jo) {
-       for (size_t jj = 0; jj < verStencilSize_.at(var)[jo]; ++jj) {
--        tgtView(jo) += verWeights_.at(var)[jo][jj]*srcView(jo, verStencil_.at(var)[jo][jj]);
-+        tgtView(jo, 0) += verWeights_.at(var)[jo][jj]*srcView(jo, verStencil_.at(var)[jo][jj]);
-       }
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Interpolation.cc.tmp.bak	2025-01-25 06:30:40.428094338 +0100
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Interpolation.cc	2025-01-25 06:31:32.782095816 +0100
+@@ -13,6 +13,8 @@
+ 
+ #include "oops/util/FieldSetHelpers.h"
+ 
++#include "quenchxx/VariablesSwitch.h"
++
+ // -----------------------------------------------------------------------------
+ 
+ namespace quenchxx {
+@@ -80,7 +82,7 @@
+     fset.haloExchange();
+ 
+     // Apply unstructured interpolator
+-    const oops::Variables vars(fset.field_names());
++    const varns::Variables vars(fset.field_names());
+     std::vector<double> vals;
+     unstructuredInterp_->apply(vars, fset, vals);
+ 
+@@ -133,7 +135,7 @@
      }
-   }
-@@ -131,11 +131,11 @@
-   for (const auto & tgtField : tgtFieldSet) {
-     const std::string var = tgtField.name();
-     auto srcView = atlas::array::make_view<double, 2>(srcFieldSet[var]);
--    const auto tgtView = atlas::array::make_view<double, 1>(tgtField);
-+    const auto tgtView = atlas::array::make_view<double, 2>(tgtField);
-     srcView.assign(0.0);
-     for (size_t jo = 0; jo < verStencilSize_.at(var).size(); ++jo) {
-       for (size_t jj = 0; jj < verStencilSize_.at(var)[jo]; ++jj) {
--        srcView(jo, verStencil_.at(var)[jo][jj]) += verWeights_.at(var)[jo][jj]*tgtView(jo);
-+        srcView(jo, verStencil_.at(var)[jo][jj]) += verWeights_.at(var)[jo][jj]*tgtView(jo, 0);
-       }
-     }
-   }
+ 
+     // Apply unstructured interpolator, adjoint
+-    const oops::Variables vars(tgtFieldSet.field_names());
++    const varns::Variables vars(tgtFieldSet.field_names());
+     unstructuredInterp_->applyAD(vars, srcFieldSet, vals);
+ 
+     // Exchange FieldSet halo, adjoint

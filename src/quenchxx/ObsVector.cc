@@ -7,7 +7,6 @@
 
 #include <math.h>
 #include <limits>
-#include <random>
 
 #include "eckit/config/Configuration.h"
 #include "eckit/exception/Exceptions.h"
@@ -19,8 +18,9 @@
 #include "oops/util/FieldSetHelpers.h"
 #include "oops/util/FieldSetOperations.h"
 #include "oops/util/Logger.h"
+#include "oops/util/Random.h"
 
-#include "quenchxx/GeoVaLs.h"
+#include "quenchxx/Utilities.h"
 
 namespace quenchxx {
 
@@ -52,7 +52,7 @@ ObsVector::ObsVector(const ObsVector & other,
     missing_(util::missingValue<double>()) {
   oops::Log::trace() << classname() << "::ObsVector starting" << std::endl;
 
-  util::copyFieldSet(other.data_, data_);
+  copyFieldSetWithoutFunctionSpace(other.data_, data_);
   if (!copy) {
     zero();
   }
@@ -65,7 +65,7 @@ ObsVector::ObsVector(const ObsVector & other,
 ObsVector & ObsVector::operator= (const ObsVector & rhs) {
   oops::Log::trace() << classname() << "::operator= starting" << std::endl;
 
-  util::copyFieldSet(rhs.data_, data_);
+  copyFieldSetWithoutFunctionSpace(rhs.data_, data_);
 
   oops::Log::trace() << classname() << "::operator= done" << std::endl;
   return *this;
@@ -156,7 +156,7 @@ void ObsVector::invert() {
   oops::Log::trace() << classname() << "::invert starting" << std::endl;
 
   atlas::FieldSet tmp;
-  util::copyFieldSet(data_, tmp);
+  copyFieldSetWithoutFunctionSpace(data_, tmp);
   ones();
   util::divideFieldSets(data_, tmp);
 
@@ -170,7 +170,7 @@ void ObsVector::axpy(const double & zz,
   oops::Log::trace() << classname() << "::axpy starting" << std::endl;
 
   atlas::FieldSet tmp;
-  util::copyFieldSet(rhs.data_, tmp);
+  copyFieldSetWithoutFunctionSpace(rhs.data_, tmp);
   util::multiplyFieldSet(tmp, zz);
   util::addFieldSets(data_, tmp);
 
@@ -187,21 +187,21 @@ void ObsVector::random() {
 
   if (comm_.rank() == 0) {
     // Random numbers generator
-    static std::mt19937 generator(2);
-    static std::normal_distribution<double> randomDistrib(0.0, 1.0);
-
-    // Generate perturbations
-    std::vector<double> randomPertTmp(vars_.size()*obsSpace_.sizeGlb());
-    for (size_t jj = 0; jj < vars_.size()*obsSpace_.sizeGlb(); ++jj) {
-      randomPertTmp[jj] = randomDistrib(generator);
-    }
+    util::NormalDistribution<double> x(vars_.size()*obsSpace_.sizeGlbAll(), 0.0, 1.0,
+      obsSpace_.getSeed());
+    std::vector<double> randomPertTmp(vars_.size()*obsSpace_.sizeGlbAll());
+    randomPertTmp = x.data();
 
     // Reorder perturbations
     randomPertGlb.resize(vars_.size()*obsSpace_.sizeGlb());
-    for (size_t jo = 0; jo < obsSpace_.sizeGlb(); ++jo) {
-      for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
-        randomPertGlb[jo*vars_.size()+jvar] =
-          randomPertTmp[obsSpace_.order()[jo]*vars_.size()+jvar];
+    size_t jo = 0;
+    for (size_t joAll = 0; joAll < obsSpace_.sizeGlbAll(); ++joAll) {
+      if (obsSpace_.maskSum()[joAll] > 0) {
+        for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
+          randomPertGlb[jo*vars_.size()+jvar] =
+            randomPertTmp[obsSpace_.order()[jo]*vars_.size()+jvar];
+        }
+        ++jo;
       }
     }
   }
@@ -218,23 +218,23 @@ void ObsVector::random() {
   }
 
   // Local vector
-  std::vector<double> randomPertLoc(obsSpace_.sizeOwn());
+  std::vector<double> randomPertOwn(obsSpace_.sizeOwn());
 
   // Scatter perturbation
   comm_.scatterv(randomPertGlb.begin(), randomPertGlb.end(), dataCounts, dataDispls,
-    randomPertLoc.begin(), randomPertLoc.end(), 0);
+    randomPertOwn.begin(), randomPertOwn.end(), 0);
 
   // Format data
   for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
     atlas::Field field = data_[vars_[jvar].name()];
     auto view = atlas::array::make_view<double, 2>(field);
     for (size_t jo = 0; jo < obsSpace_.sizeOwn(); ++jo) {
-      view(jo, 0) = randomPertLoc[jo*vars_.size()+jvar];
+      view(jo, 0) = randomPertOwn[jo*vars_.size()+jvar];
     }
   }
 
   // Fill halo
-  this->fillHalo();
+  fillHalo();
 
   oops::Log::trace() << classname() << "::random done" << std::endl;
 }
@@ -265,7 +265,7 @@ double ObsVector::dot_product_with(const ObsVector & other) const {
 double ObsVector::rms() const {
   oops::Log::trace() << classname() << "::rms starting" << std::endl;
 
-  double zz = util::dotProductFieldSets(data_, data_, vars_.variables(), comm_);
+  double zz = dot_product_with(*this);
   if (obsSpace_.sizeGlb() > 0) {
     zz = std::sqrt(zz/static_cast<double>(obsSpace_.sizeGlb()));
   }
@@ -329,6 +329,10 @@ void ObsVector::set(const size_t & jvar,
 Eigen::VectorXd ObsVector::packEigen(const ObsVector & mask) const {
   oops::Log::trace() << classname() << "::packEigen starting" << std::endl;
 
+  // Check whether halo was setup correctly
+  ASSERT(obsSpace_.sizeLoc() > 0);
+
+  // Pack data
   Eigen::VectorXd vec(packEigenSize(mask));
   size_t ii = 0;
   for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
@@ -352,6 +356,9 @@ Eigen::VectorXd ObsVector::packEigen(const ObsVector & mask) const {
 size_t ObsVector::packEigenSize(const ObsVector & mask) const {
   oops::Log::trace() << classname() << "::packEigenSize starting" << std::endl;
 
+  // Check whether halo was setup correctly
+  ASSERT(obsSpace_.sizeLoc() > 0);
+
   size_t ii = 0;
   for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
     const atlas::Field maskField = mask.data_[vars_[jvar].name()];
@@ -371,22 +378,12 @@ size_t ObsVector::packEigenSize(const ObsVector & mask) const {
 
 // -----------------------------------------------------------------------------
 
-void ObsVector::fillHalo() {
-  oops::Log::trace() << classname() << "::fillHalo starting" << std::endl;
-
-  obsSpace_.fillHalo(data_);
-
-  oops::Log::trace() << classname() << "::fillHalo done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
 void ObsVector::print(std::ostream & os) const {
   oops::Log::trace() << classname() << "::print starting" << std::endl;
 
   std::vector<double> zmin(vars_.size(), std::numeric_limits<double>::max());
   std::vector<double> zmax(vars_.size(), -std::numeric_limits<double>::max());
-  std::vector<double> zavg(vars_.size(), 0.0);
+  std::vector<double> zrms(vars_.size(), 0.0);
 
   for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
     const atlas::Field field = data_[vars_[jvar].name()];
@@ -394,24 +391,28 @@ void ObsVector::print(std::ostream & os) const {
     for (size_t jo = 0; jo < obsSpace_.sizeOwn(); ++jo) {
       if (view(jo, 0) < zmin[jvar]) zmin[jvar] = view(jo, 0);
       if (view(jo, 0) > zmax[jvar]) zmax[jvar] = view(jo, 0);
-      zavg[jvar] += view(jo, 0);
+      zrms[jvar] += view(jo, 0)*view(jo, 0);
     }
   }
 
   comm_.allReduceInPlace(zmin.begin(), zmin.end(), eckit::mpi::min());
   comm_.allReduceInPlace(zmax.begin(), zmax.end(), eckit::mpi::max());
   if (obsSpace_.sizeGlb() > 0) {
-    comm_.allReduceInPlace(zavg.begin(), zavg.end(), eckit::mpi::sum());
+    comm_.allReduceInPlace(zrms.begin(), zrms.end(), eckit::mpi::sum());
     const double norm = 1.0/static_cast<double>(obsSpace_.sizeGlb());
-    for (auto & item : zavg) {
+    for (auto & item : zrms) {
       item *= norm;
+      item = std::sqrt(item);
     }
   }
 
-  os << "quenchxx[" << obsSpace_.sizeGlb() << "]:" << std::endl;
   for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
-    os << "- " << vars_[jvar].name() << ": Min=" << zmin[0] << ", Max=" << zmax[0]
-      << ", Average=" << zavg[0];
+    if (obsSpace_.sizeGlb() > 0) {
+      os << vars_[jvar].name() << " nobs= " << obsSpace_. sizeGlb() << " Min="
+         << zmin[jvar] << ", Max=" << zmax[jvar] << ", RMS=" << zrms[jvar] << std::endl;
+    } else {
+      os << vars_[jvar].name() << ": No observations." << std::endl;
+    }
   }
 
   oops::Log::trace() << classname() << "::print done" << std::endl;

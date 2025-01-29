@@ -1,5 +1,5 @@
 State: 
-Valid time:2020-09-03T21:00:00Z
+Valid time: 2020-09-03T21:00:00Z
 Quench geometry grid:
 - name: L30x20
 - size: 600
@@ -30,5 +30,5 @@ Fields:
   volume_mixing_ratio_of_co: 1.0145210049846511e-05
   air_pressure_at_surface: 2.3656206611578432e+06
 H(x): 
-NO2 nobs= 101 Min=4.0612988355625082e-05, Max=1.5346176389206001e-04, RMS=7.0769019652692234e-05
+NO2 nobs= 101 Min=3.1800989035818644e-04, Max=2.3078532844934760e-03, RMS=9.6784265894770966e-04
 End H(x)

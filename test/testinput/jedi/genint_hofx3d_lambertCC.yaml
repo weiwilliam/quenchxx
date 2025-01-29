@@ -69,6 +69,7 @@ state:
   filepath: testdata/wrfout_d01_subset_20230519_000000
   netcdf extension: nc
   date: '2020-09-03T21:00:00Z'
+  check dimensions: false
 observations:
   observers:
   - obs space:

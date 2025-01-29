@@ -1,5 +1,5 @@
 Input state: 
-  Valid time: 2021-08-01T00:00:00Z
+Valid time: 2021-08-01T00:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -18,28 +18,11 @@ Fields:
   volume_mixing_ratio_of_no2: 7.7584394410521537e-07
   volume_mixing_ratio_of_co: 1.1759639075938640e-05
   air_pressure_thickness: 4.6881410733385070e+05
-Variable transform: VADER Cookbook
-cookbook:
-  air_pressure: [AirPressure_A,AirPressure_B]
-  air_pressure_levels: [AirPressureAtInterface_B,AirPressureAtInterface_A]
-  air_pressure_thickness: [AirPressureThickness_A]
-  air_pressure_to_kappa: [AirPressureToKappa_A]
-  air_temperature: [AirTemperature_C,AirTemperature_A]
-  dlsvpdT: [LogDerivativeSaturationVaporPressure_A]
-  humidity_mixing_ratio: [HumidityMixingRatio_A,HumidityMixingRatio_B]
-  ln_air_pressure_at_interface: [LnAirPressureAtInterface_A]
-  mass_fraction_of_sulfate_in_air: [SulfateMassFraction_A]
-  potential_temperature: [AirPotentialTemperature_B]
-  qsat: [SaturationSpecificHumidity_A]
-  relative_humidity: [RelativeHumidity_A]
-  specific_humidity: [WaterVaporMixingRatioWrtMoistAir_A]
-  surface_pressure: [SurfaceAirPressure_A]
-  svp: [SaturationVaporPressure_A]
-  virtual_temperature: [AirVirtualTemperature_A]
+Variable transform: VariableChange
 Variable change from: 3 variables: volume_mixing_ratio_of_no2, volume_mixing_ratio_of_co, air_pressure_thickness
 Variable change to: 1 variables: air_pressure_levels
 State after variable transform: 
-  Valid time: 2021-08-01T00:00:00Z
+Valid time: 2021-08-01T00:00:00Z
 Quench geometry grid:
 - name: L32x17
 - size: 544
@@ -61,12 +44,12 @@ Groups:
   Mask size: 100%
 Model data: LocalConfiguration[root={air_pressure_at_top_of_atmosphere_model => 1.0000000000000000e-02}]
 Fields:
-  volume_mixing_ratio_of_no2: 6.1744843561604722e-07
-  volume_mixing_ratio_of_co: 9.3863571025709613e-06
-  air_pressure_thickness: 3.7634768982216861e+05
-  air_pressure_levels: 9.1950575905838013e+06
+  volume_mixing_ratio_of_no2: 4.9010866217454362e+39
+  volume_mixing_ratio_of_co: 4.9010866217454362e+39
+  air_pressure_thickness: 4.9010866217454362e+39
+  air_pressure_levels: 2.0585536226184195e+41
 Output state: 
-  Valid time: 2021-08-01T00:00:00Z
+Valid time: 2021-08-01T00:00:00Z
 Quench geometry grid:
 - name: L32x17
 - size: 544
@@ -88,7 +71,7 @@ Groups:
   Mask size: 100%
 Model data: LocalConfiguration[root={air_pressure_at_top_of_atmosphere_model => 1.0000000000000000e-02}]
 Fields:
-  volume_mixing_ratio_of_no2: 6.1744843561604722e-07
-  volume_mixing_ratio_of_co: 9.3863571025709613e-06
-  air_pressure_thickness: 3.7634768982216861e+05
-  air_pressure_levels: 9.1950575905838013e+06
+  volume_mixing_ratio_of_no2: 4.9010866217454362e+39
+  volume_mixing_ratio_of_co: 4.9010866217454362e+39
+  air_pressure_thickness: 4.9010866217454362e+39
+  air_pressure_levels: 2.0585536226184195e+41

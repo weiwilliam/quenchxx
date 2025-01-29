@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 # Parameters
-input=$1
-output=$2
-commandPath=$3
+checkDiff=$1
+inputDir=$2
+outputDir=$3
+mode=$4
+commandPath=$5
 
-# Script directory
-scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-# Loop recursively over items
-for item in `find ${input}`; do
+# Loop over items
+for item in `find ${inputDir}`; do
   # Check if item is a file
   if test -f "${item}"; then
-    # Get input directory and file
-    dir=$(dirname "${item}")
+    # Get full directories and file name
+    fullInputDir=$(dirname "${item}")
+    fullOutputDir=${fullInputDir/"${inputDir}"/"${outputDir}"}
     file=$(basename "${item}")
 
     # Update file
-    bash ${scriptDir}/check_diff.sh ${item} ${output}/${file} ${commandPath}
+    bash ${checkDiff} ${item} ${fullOutputDir}/${file} ${mode} ${commandPath}
   fi
 done

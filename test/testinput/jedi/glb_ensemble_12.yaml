@@ -44,4 +44,4 @@ output states:
   filepath: testdata/glb_ens_12
   date: 2010-01-01T12:00:00Z
 test:
-  reference filename: testref/jedi/glb_ensemble_12.ref
+  reference filename: testref/glb_ensemble_12.ref

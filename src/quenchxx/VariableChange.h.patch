@@ -1,55 +1,41 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/VariableChange.h.tmp.bak	2024-11-27 13:23:55.423743048 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/VariableChange.h	2024-11-26 14:58:10.128932607 +0100
-@@ -8,13 +8,25 @@
- 
- #pragma once
- 
-+#include <memory>
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/VariableChange.h.tmp.bak	2024-12-05 10:04:27.688767689 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/VariableChange.h	2024-12-05 10:04:42.968866717 +0100
+@@ -11,6 +11,7 @@
+ #include <memory>
  #include <ostream>
  #include <string>
 +#include <vector>
  
  #include "eckit/config/Configuration.h"
  
- #include "oops/util/Printable.h"
+@@ -18,6 +19,9 @@
  
+ #include "quenchxx/Geometry.h"
+ #include "quenchxx/State.h"
++#include "quenchxx/VariablesSwitch.h"
++
 +#include "vader/vader.h"
-+
-+#ifdef ECSABER
-+#include "quenchxx/Variables.h"
-+namespace varns = quenchxx;
-+#else
-+#include "oops/base/Variables.h"
-+namespace varns = oops;
-+#endif
-+
+ 
  namespace quenchxx {
-   class Geometry;
-   class State;
-@@ -28,21 +40,18 @@
  
-   // Constructor/destructor
-   VariableChange(const eckit::Configuration &,
--                 const Geometry &) {}
--  ~VariableChange() {}
-+                 const Geometry &);
+@@ -36,9 +40,9 @@
  
--  // Variable changes: direct and inverse
+   // Variable changes: direct and inverse
    void changeVar(State &,
--                 const oops::Variables &) const
--    {throw eckit::NotImplemented(Here());}
+-                 const oops::Variables &) const;
 +                 const varns::Variables &) const;
    void changeVarInverse(State &,
--                        const oops::Variables &) const
--    {throw eckit::NotImplemented(Here());}
+-                        const oops::Variables &) const;
 +                        const varns::Variables &) const;
  
   private:
--  // Print
-   void print(std::ostream & os) const override
--    {os << "VariableChange";};
-+    {os << *vader_;};
-+  std::vector<eckit::LocalConfiguration> alias_;
+   // Print
+@@ -47,6 +51,9 @@
+ 
+   // Geometry reference
+   const Geometry & geom_;
++
++  // VADER
 +  std::unique_ptr<vader::Vader> vader_;
  };
  

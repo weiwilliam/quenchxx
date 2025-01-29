@@ -16,14 +16,7 @@
 #include "oops/util/Printable.h"
 
 #include "quenchxx/ObsSpace.h"
-
-#ifdef ECSABER
-#include "quenchxx/Variables.h"
-namespace varns = quenchxx;
-#else
-#include "oops/base/Variables.h"
-namespace varns = oops;
-#endif
+#include "quenchxx/VariablesSwitch.h"
 
 namespace quenchxx {
 
@@ -84,8 +77,10 @@ class ObsVector : public util::Printable,
   Eigen::VectorXd packEigen(const ObsVector &) const;
   size_t packEigenSize(const ObsVector &) const;
 
+  void fillHalo() const
+    {obsSpace_.fillHalo(data_);}
+
  private:
-  void fillHalo();
   void print(std::ostream &) const;
 
   const eckit::mpi::Comm & comm_;

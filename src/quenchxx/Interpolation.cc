@@ -13,34 +13,50 @@
 
 #include "oops/util/FieldSetHelpers.h"
 
+#include "quenchxx/VariablesSwitch.h"
+
 // -----------------------------------------------------------------------------
 
 namespace quenchxx {
 
 // -----------------------------------------------------------------------------
 
-Interpolation::Interpolation(const eckit::Configuration & conf,
-                             const eckit::mpi::Comm & comm,
-                             const atlas::grid::Partitioner & srcPartitioner,
-                             const atlas::FunctionSpace & srcFspace,
+Interpolation::Interpolation(const Geometry & geom,
                              const std::string & srcUid,
-                             const atlas::Grid & dstGrid,
-                             const atlas::FunctionSpace & dstFspace,
-                             const std::string & dstUid)
-  : srcUid_(srcUid), dstUid_(dstUid), dstFspace_(dstFspace), atlasInterpWrapper_() {
+                             const atlas::Grid & tgtGrid,
+                             const atlas::FunctionSpace & tgtFspace,
+                             const std::string & tgtUid)
+  : srcUid_(srcUid), tgtUid_(tgtUid), tgtFspace_(tgtFspace) {
   oops::Log::trace() << classname() << "::Interpolation starting" << std::endl;
 
   // Get interpolation type
-  const std::string type = conf.getString("interpolation type");
+  const std::string type = geom.interpolation().getString("interpolation type");
 
   // Setup interpolation
   if (type == "atlas interpolation wrapper") {
-    atlasInterpWrapper_ = std::make_shared<saber::interpolation::AtlasInterpWrapper>(srcPartitioner,
-      srcFspace, dstGrid, dstFspace);
+    atlasInterpWrapper_ = std::make_shared<saber::interpolation::AtlasInterpWrapper>(
+      geom.partitioner(), geom.functionSpace(), tgtGrid, tgtFspace_);
   } else if (type == "regional") {
     regionalInterp_ = std::make_shared<atlas::Interpolation>(
       atlas::util::Config("type", "regional-linear-2d"),
-      srcFspace, dstFspace);
+      geom.functionSpace(), tgtFspace_);
+  } else if (type == "unstructured") {
+    // Get longitudes/latitudes
+    std::vector<double> lons;
+    std::vector<double> lats;
+    const auto lonLatField = tgtFspace_.lonlat();
+    const auto lonLatView = atlas::array::make_view<double, 2>(lonLatField);
+    const auto tgtGhostView = atlas::array::make_view<int, 1>(tgtFspace_.ghost());
+    for (atlas::idx_t jnode = 0; jnode < lonLatField.shape(0); ++jnode) {
+      if (tgtGhostView(jnode) == 0) {
+        lons.push_back(lonLatView(jnode, 0));
+        lats.push_back(lonLatView(jnode, 1));
+      }
+    }
+
+    // Setup unstructured interpolator
+    unstructuredInterp_ = std::make_shared<oops::UnstructuredInterpolator>(geom.interpolation(),
+      geom.generic(), lats, lons);
   } else {
     throw eckit::Exception("wrong interpolation type", Here());
   }
@@ -60,6 +76,33 @@ void Interpolation::execute(const atlas::FieldSet & srcFieldSet,
   if (regionalInterp_) {
     regionalInterp_->execute(srcFieldSet, tgtFieldSet);
   }
+  if (unstructuredInterp_) {
+    // Exchange FieldSet halo
+    atlas::FieldSet fset = util::copyFieldSet(srcFieldSet);
+    fset.haloExchange();
+
+    // Apply unstructured interpolator
+    const varns::Variables vars(fset.field_names());
+    std::vector<double> vals;
+    unstructuredInterp_->apply(vars, fset, vals);
+
+    // Format data
+    const auto tgtGhostView = atlas::array::make_view<int, 1>(tgtFspace_.ghost());
+    size_t index = 0;
+    for (auto & tgtField : tgtFieldSet) {
+      auto tgtView = atlas::array::make_view<double, 2>(tgtField);
+      for (atlas::idx_t jlevel = 0; jlevel < tgtView.shape(1); ++jlevel) {
+        for (atlas::idx_t jnode = 0; jnode < tgtView.shape(0); ++jnode) {
+          if (tgtGhostView(jnode) == 0) {
+            tgtView(jnode, jlevel) = vals[index];
+            ++index;
+          }
+        }
+      }
+    }
+    tgtFieldSet.haloExchange();
+  }
+
 
   oops::Log::trace() << classname() << "::execute done" << std::endl;
 }
@@ -75,6 +118,29 @@ void Interpolation::executeAdjoint(atlas::FieldSet & srcFieldSet,
   }
   if (regionalInterp_) {
     regionalInterp_->execute_adjoint(srcFieldSet, tgtFieldSet);
+  }
+  if (unstructuredInterp_) {
+    // Format data
+    const auto tgtGhostView = atlas::array::make_view<int, 1>(tgtFspace_.ghost());
+    std::vector<double> vals;
+    for (const auto & tgtField : tgtFieldSet) {
+      const auto tgtView = atlas::array::make_view<double, 2>(tgtField);
+      for (atlas::idx_t jlevel = 0; jlevel < tgtField.shape(1); ++jlevel) {
+        for (atlas::idx_t jnode = 0; jnode < tgtField.shape(0); ++jnode) {
+          if (tgtGhostView(jnode) == 0) {
+            vals.push_back(tgtView(jnode, jlevel));
+          }
+        }
+      }
+    }
+
+    // Apply unstructured interpolator, adjoint
+    const varns::Variables vars(tgtFieldSet.field_names());
+    unstructuredInterp_->applyAD(vars, srcFieldSet, vals);
+
+    // Exchange FieldSet halo, adjoint
+    srcFieldSet.adjointHaloExchange();
+    srcFieldSet.set_dirty();
   }
 
   oops::Log::trace() << classname() << "::executeAdjoint done" << std::endl;

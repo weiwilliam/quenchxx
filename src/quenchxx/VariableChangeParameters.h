@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2022 UCAR.
+ * (C) Copyright 2024-     UCAR.
  * (C) Copyright 2023-2024 Meteorologisk Institutt
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
@@ -12,19 +12,20 @@
 #include <string>
 #include <vector>
 
-#include "oops/base/VariableChangeParametersBase.h"
+#include "oops/util/parameters/OptionalParameter.h"
+#include "oops/util/parameters/Parameters.h"
 
 namespace quenchxx {
 
 // -------------------------------------------------------------------------------------------------
 /// VariableChange parameters class
 
-class VariableChangeParameters : public oops::VariableChangeParametersBase {
-  OOPS_CONCRETE_PARAMETERS(VariableChangeParameters, oops::VariableChangeParametersBase)
+class VariableChangeParameters : public oops::Parameters {
+  OOPS_CONCRETE_PARAMETERS(VariableChangeParameters, Parameters)
  public:
   oops::Parameter<std::map<std::string, std::vector<std::string>>> vaderCustomCookbook{
     "vader custom cookbook", vaderQuenchxxCustomCookbook(), this};
-  oops::Parameter<vader::VaderParameters> vaderParam{"vader", {}, this};
+  oops::OptionalParameter<vader::VaderParameters> vaderParam{"vader", this};
 };
 
 // -------------------------------------------------------------------------------------------------

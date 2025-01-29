@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Increment.h.tmp.bak	2024-11-27 13:23:55.605743961 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Increment.h	2024-11-26 14:58:10.122932578 +0100
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Increment.h.tmp.bak	2024-12-02 16:43:56.107709054 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Increment.h	2024-12-02 13:09:19.317112179 +0100
 @@ -8,6 +8,7 @@
  
  #pragma once
@@ -8,7 +8,7 @@
  #include <memory>
  #include <ostream>
  #include <string>
-@@ -22,9 +23,20 @@
+@@ -22,8 +23,12 @@
  #include "oops/util/Printable.h"
  #include "oops/util/Serializable.h"
  
@@ -17,19 +17,11 @@
  #include "quenchxx/Fields.h"
 +#include "quenchxx/GeometryIterator.h"
  #include "quenchxx/State.h"
++#include "quenchxx/VariablesSwitch.h"
  
-+#ifdef ECSABER
-+#include "quenchxx/Variables.h"
-+namespace varns = quenchxx;
-+#else
-+#include "oops/base/Variables.h"
-+namespace varns = oops;
-+#endif
-+
  namespace quenchxx {
    class Geometry;
- 
-@@ -40,7 +52,11 @@
+@@ -40,7 +45,11 @@
  
    // Constructors/destructor
    Increment(const Geometry &,
@@ -42,7 +34,7 @@
              const util::DateTime &);
    Increment(const Geometry &,
              const Increment &);
-@@ -53,6 +69,8 @@
+@@ -53,6 +62,8 @@
    void zero()
      {fields_->zero();}
    void zero(const util::DateTime &);
@@ -51,7 +43,7 @@
    void dirac(const eckit::Configuration & config)
      {fields_->dirac(config);}
    Increment & operator =(const Increment &);
-@@ -68,6 +86,10 @@
+@@ -68,6 +79,10 @@
      {fields_->schur_product_with(*dx.fields_);}
    void random()
      {fields_->random();}
@@ -62,7 +54,7 @@
  
    // I/O and diagnostics
    void read(const eckit::Configuration & config)
-@@ -86,6 +108,12 @@
+@@ -86,6 +101,12 @@
      {fields_->toFieldSet(fset);}
    void fromFieldSet(const atlas::FieldSet & fset)
      {fields_->fromFieldSet(fset);}
@@ -75,7 +67,7 @@
  
    // Access to fields
    Fields & fields()
-@@ -99,8 +127,14 @@
+@@ -99,8 +120,14 @@
    void accumul(const double & zz,
                 const State & xx)
      {fields_->axpy(zz, xx.fields());}
@@ -91,7 +83,7 @@
  
    // Serialization
    size_t serialSize() const
-@@ -110,6 +144,15 @@
+@@ -110,6 +137,15 @@
    void deserialize(const std::vector<double> & vect,
                     size_t & index)
      {fields_->deserialize(vect, index);}

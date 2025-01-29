@@ -22,14 +22,7 @@
 #include "quenchxx/LinearModel.h"
 #include "quenchxx/Locations.h"
 #include "quenchxx/Model.h"
-
-#ifdef ECSABER
-#include "quenchxx/Variables.h"
-namespace varns = quenchxx;
-#else
-#include "oops/base/Variables.h"
-namespace varns = oops;
-#endif
+#include "quenchxx/VariablesSwitch.h"
 
 namespace eckit {
   class Configuration;

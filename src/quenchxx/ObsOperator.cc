@@ -37,7 +37,7 @@ ObsOperator::ObsOperator(const ObsSpace & obsSpace,
 // -----------------------------------------------------------------------------
 
 void ObsOperator::obsEquiv(const GeoVaLs & gv,
-                           ObsVector & ovec,
+                           ObsVector & obsVector,
                            const ObsAuxControlPtrMap_ & bias) const {
   oops::Log::trace() << classname() << "::obsEquiv starting" << std::endl;
 
@@ -62,9 +62,12 @@ void ObsOperator::obsEquiv(const GeoVaLs & gv,
     // Compute observation equivalent
     for (int jo = 0; jo < gvField.shape(0); ++jo) {
       const int ii = gv.obsIndex(jo);
-      ovec.set(jvar, ii, gvView(jo, 0)+bias_);
+      obsVector.set(jvar, ii, gvView(jo, 0)+bias_);
     }
   }
+
+  // Fill halo
+  obsVector.fillHalo();
 
   oops::Log::trace() << classname() << "::obsEquiv done" << std::endl;
 }

@@ -1,5 +1,5 @@
 State: 
-  Valid time: 2020-09-03T21:00:00Z
+Valid time: 2020-09-03T21:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -25,5 +25,5 @@ Fields:
   volume_mixing_ratio_of_co: 1.1759639075938640e-05
   air_pressure_thickness: 4.6881410733385070e+05
 H(x): 
-NO2 nobs= 101 Min=4.6021633491778815e-05, Max=2.9375420282585612e-04, RMS=2.0013492502344996e-04
+NO2 nobs= 101 Min=1.3885435885248345e-04, Max=1.1100587766574251e-03, RMS=7.5873496288156187e-04
 End H(x)

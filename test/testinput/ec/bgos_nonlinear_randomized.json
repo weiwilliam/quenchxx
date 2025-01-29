@@ -13,7 +13,9 @@
     ],
     "halo": "1"
   },
-  "model": {},
+  "model": {
+    "tstep": "PT6H"
+  },
   "cost_function": {
     "cost_type": "3D-Var",
     "window_begin": "2010-01-01T12:00:00Z",
@@ -99,6 +101,7 @@
           "version": "default",
           "tstep": "PT0H",
           "trajectory": {
+            "tstep": "PT6H",
             "forcing": {
               "variables": ["air_temperature"]
             }
@@ -111,5 +114,8 @@
   "use nonlinear observation operator": "true",
   "variance in observation space": {
     "obsvalue": "Variance"
+  },
+  "test": {
+    "reference filename": "testref/ec/bgos_nonlinear_randomized.ref"
   }
 }

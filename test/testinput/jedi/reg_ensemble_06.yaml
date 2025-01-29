@@ -54,4 +54,4 @@ output states:
   filepath: testdata/reg_ens_06
   date: 2010-01-01T06:00:00Z
 test:
-  reference filename: testref/jedi/reg_ensemble_06.ref
+  reference filename: testref/reg_ensemble_06.ref

@@ -1,5 +1,5 @@
---- src/quenchxx/VariableChangeParameters.h.tmp	2024-11-15 14:43:45.692706532 +0100
-+++ src/quenchxx/VariableChangeParameters.h	2024-11-15 14:44:33.221928363 +0100
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/VariableChangeParameters.h.tmp.bak	2024-12-03 10:42:07.762620182 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/VariableChangeParameters.h	2024-12-03 10:36:22.304318645 +0100
 @@ -8,6 +8,10 @@
  
  #pragma once
@@ -8,17 +8,18 @@
 +#include <string>
 +#include <vector>
 +
- #include "oops/base/VariableChangeParametersBase.h"
+ #include "eckit/config/LocalConfiguration.h"
  
- namespace quenchxx {
-@@ -17,6 +21,10 @@
+ #include "oops/base/VariableChangeParametersBase.h"
+@@ -19,6 +23,11 @@
  
  class VariableChangeParameters : public oops::VariableChangeParametersBase {
-   OOPS_CONCRETE_PARAMETERS(VariableChangeParameters, oops::VariableChangeParametersBase)
+   OOPS_CONCRETE_PARAMETERS(VariableChangeParameters, VariableChangeParametersBase)
 + public:
++  // VADER parameters
 +  oops::Parameter<std::map<std::string, std::vector<std::string>>> vaderCustomCookbook{
 +    "vader custom cookbook", vaderQuenchxxCustomCookbook(), this};
-+  oops::Parameter<vader::VaderParameters> vaderParam{"vader", {}, this};
++  oops::OptionalParameter<vader::VaderParameters> vaderParam{"vader", this};
  };
  
  // -------------------------------------------------------------------------------------------------

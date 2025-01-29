@@ -19,4 +19,4 @@ states:
     date: 2010-01-01T12:00:00Z
     filepath: testdata/glb_stddev
 test:
-  reference filename: testref/jedi/glb_stddev.ref
+  reference filename: testref/glb_stddev.ref

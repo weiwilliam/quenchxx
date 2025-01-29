@@ -47,4 +47,4 @@ observations:
       covariance model: diagonal
 make obs: true
 test:
-  reference filename: testref/jedi/glb_makeobs_18.ref
+  reference filename: testref/glb_makeobs_18.ref

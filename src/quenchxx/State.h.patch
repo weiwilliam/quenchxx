@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/State.h.tmp	2024-11-27 13:23:55.405742958 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/State.h	2024-11-26 14:58:10.128932607 +0100
-@@ -18,6 +18,18 @@
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/State.h.tmp.bak	2024-12-02 16:43:55.903707739 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/State.h	2024-12-02 13:09:02.713039937 +0100
+@@ -18,6 +18,11 @@
  #include "oops/util/Printable.h"
  
  #include "quenchxx/Fields.h"
@@ -8,18 +8,11 @@
 +#include "quenchxx/LinearModel.h"
 +#include "quenchxx/Locations.h"
 +#include "quenchxx/Model.h"
-+
-+#ifdef ECSABER
-+#include "quenchxx/Variables.h"
-+namespace varns = quenchxx;
-+#else
-+#include "oops/base/Variables.h"
-+namespace varns = oops;
-+#endif
++#include "quenchxx/VariablesSwitch.h"
  
  namespace eckit {
    class Configuration;
-@@ -38,18 +50,35 @@
+@@ -38,18 +43,35 @@
  
    // Constructors
    State(const Geometry &,
@@ -57,7 +50,7 @@
  
    // Assignment
    State & operator=(const State &);
-@@ -84,6 +113,12 @@
+@@ -84,6 +106,12 @@
      {fields_->toFieldSet(fset);}
    void fromFieldSet(const atlas::FieldSet & fset)
      {fields_->fromFieldSet(fset);}
@@ -70,7 +63,7 @@
  
    // Other
    void zero()
-@@ -91,8 +126,14 @@
+@@ -91,8 +119,14 @@
    void accumul(const double & zz,
                 const State & xx)
      {fields_->axpy(zz, xx.fields());}

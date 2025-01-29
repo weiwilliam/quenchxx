@@ -13,6 +13,9 @@
     ],
     "halo": "1"
   },
+  "model": {
+    "tstep": "PT6H"
+  },
   "Background": {
     "state": [{
       "date": "2010-01-01T12:00:00Z",
@@ -47,5 +50,8 @@
   "output states": {
     "filepath": "testdata/evil_ens",
     "date": "2010-01-01T12:00:00Z"
+  },
+  "test": {
+    "reference filename": "testref/ec/evil_ensemble.ref"
   }
 }

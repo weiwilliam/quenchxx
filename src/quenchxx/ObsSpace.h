@@ -17,16 +17,12 @@
 #include "eckit/mpi/Comm.h"
 
 #include "oops/util/DateTime.h"
+#include "oops/util/Logger.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
-#ifdef ECSABER
-#include "quenchxx/Variables.h"
-namespace varns = quenchxx;
-#else
-#include "oops/base/Variables.h"
-namespace varns = oops;
-#endif
+#include "quenchxx/Geometry.h"
+#include "quenchxx/VariablesSwitch.h"
 
 namespace eckit {
   class Configuration;
@@ -35,7 +31,6 @@ namespace eckit {
 namespace quenchxx {
   class GeoVaLs;
   class ObsVector;
-  class Geometry;
 
 // -----------------------------------------------------------------------------
 /// ObsSpace class
@@ -76,28 +71,38 @@ class ObsSpace : public util::Printable,
   void saveObservations() const
     {}
 
+  const size_t & sizeGlbAll() const
+    {return nobsGlbAll_;}
+  const size_t & sizeGlb() const
+    {return nobsGlb_;}
   const size_t & sizeOwn() const
     {return nobsOwn_;}
   const size_t & sizeOwn(const size_t & it) const
     {return nobsOwnVec_[it];}
   const size_t & sizeLoc() const
     {return nobsLoc_;}
-  const size_t & sizeGlb() const
-    {return nobsGlb_;}
   const std::vector<int> & order() const
     {return order_;}
   const varns::Variables & vars() const
     {return vars_;}
   std::vector<atlas::Point3> & locations() const
     {return locs_;}
-  void fillHalo(atlas::FieldSet & fset) const;
+  void fillHalo(atlas::FieldSet &) const;
+  const int64_t & getSeed() const
+    {return seed_;}
+  const std::vector<int> & maskSum() const
+    {return maskSum_;}
 
  private:
   void print(std::ostream &) const;
   void read(const std::string &);
   void write(const std::string &,
              const bool &) const;
-  void fillHalo();
+  void setupHalo() const;
+  void checkValidity(const std::vector<float> &,
+                     const std::vector<float> &);
+  void splitObservations(const std::vector<float> &,
+                         const std::vector<float> &);
 
   const util::DateTime winbgn_;
   const util::DateTime winend_;
@@ -112,20 +117,25 @@ class ObsSpace : public util::Printable,
   mutable std::vector<atlas::FieldSet> screenedData_;
   std::string nameIn_;
   std::string nameOut_;
-  size_t nobsOwn_;
-  size_t nobsLoc_;
+  size_t nobsGlbAll_;
   size_t nobsGlb_;
+  size_t nobsOwn_;
   const varns::Variables vars_;
   std::vector<size_t> nobsOwnVec_;
   std::vector<int> order_;
+  std::vector<int> mask_;
+  std::vector<int> maskSum_;
+  std::vector<int> partition_;
   eckit::LocalConfiguration distribution_;
-  std::vector<int> sendBufIndex_;
-  size_t nSend_;
-  size_t nRecv_;
-  std::vector<int> dataSendCounts_;
-  std::vector<int> dataRecvCounts_;
-  std::vector<int> dataSendDispls_;
-  std::vector<int> dataRecvDispls_;
+  mutable size_t nobsLoc_;
+  mutable std::vector<int> sendBufIndex_;
+  mutable size_t nSend_;
+  mutable size_t nRecv_;
+  mutable std::vector<int> dataSendCounts_;
+  mutable std::vector<int> dataRecvCounts_;
+  mutable std::vector<int> dataSendDispls_;
+  mutable std::vector<int> dataRecvDispls_;
+  int64_t seed_;
 };
 
 // -----------------------------------------------------------------------------

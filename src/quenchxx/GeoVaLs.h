@@ -17,13 +17,7 @@
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
-#ifdef ECSABER
-#include "quenchxx/Variables.h"
-namespace varns = quenchxx;
-#else
-#include "oops/base/Variables.h"
-namespace varns = oops;
-#endif
+#include "quenchxx/VariablesSwitch.h"
 
 namespace eckit {
   class Configuration;

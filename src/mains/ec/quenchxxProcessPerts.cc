@@ -5,7 +5,10 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
+#include <limits>
+
 #include "oops/runs/Run.h"
+#include "oops/util/Logger.h"
 #include "quenchxx/instantiateQuenchMatrices.h"
 #include "quenchxx/Logbook.h"
 #include "quenchxx/Traits.h"

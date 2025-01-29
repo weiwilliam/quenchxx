@@ -27,6 +27,9 @@
     ],
     "halo": "1"
   },
+  "model": {
+    "tstep": "PT6H"
+  },
   "states": [{
     "input": {
       "date": "2010-01-01T06:00:00Z",
@@ -37,5 +40,8 @@
       "date": "2010-01-01T06:00:00Z",
       "filepath": "testdata/glb_truth_06"
     }
-  }]
+  }],
+  "test": {
+    "reference filename": "testref/glb_truth_06.ref"
+  }
 }

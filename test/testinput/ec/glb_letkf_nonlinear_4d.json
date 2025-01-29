@@ -1,0 +1,150 @@
+{
+  "time window": {
+    "begin": "2010-01-01T11:59:59Z",
+    "length": "PT6H2S"
+  },
+  "geometry": {
+    "function space": "StructuredColumns",
+    "grid": {
+      "type": "regular_lonlat",
+      "N": "10"
+    },
+    "groups": [
+      {
+        "variables": ["air_temperature"],
+        "levels": "2"
+      }
+    ],
+    "halo": "1"
+  },
+  "model": {
+    "tstep": "PT6H2S"
+  },
+  "background": {
+    "members from template": {
+      "template": {
+        "state": [
+          {
+            "date": "2010-01-01T12:00:00Z",
+            "variables": ["air_temperature"],
+            "filepath": "testdata/glb_ens_12_%mem%"
+          },
+          {
+            "date": "2010-01-01T18:00:00Z",
+            "variables": ["air_temperature"],
+            "filepath": "testdata/glb_ens_18_%mem%"
+          }
+        ]
+      },
+      "pattern": "%mem%",
+      "zero padding": "6",
+      "nmembers": "10"
+    }
+  },
+  "observations": {
+    "ObsTypes": [
+      {
+        "ObsType": "default",
+        "ObsData": {
+          "ObsDataIn": {
+            "filepath": "testdata/glb_obs_12"
+          },
+          "ObsDataOut": {
+            "filepath": "testdata/glb_obs_letkf_nonlinear_4d_12"
+          },
+          "obsvalue": "ObsValue"
+        },
+        "Covariance": {
+          "ObsErrorCovariance": {
+            "covariance": "diagonal",
+            "obserror": "ObsError"
+          }
+        },
+        "obs localizations": [
+          {
+            "localization method": "default",
+            "horizontal length-scale": 1000000
+          }
+        ],
+        "variables": ["air_temperature"]
+      },
+      {
+        "ObsType": "default",
+        "ObsData": {
+          "ObsDataIn": {
+            "filepath": "testdata/glb_obs_18"
+          },
+          "ObsDataOut": {
+            "filepath": "testdata/glb_obs_letkf_nonlinear_4d_18"
+          },
+          "obsvalue": "ObsValue"
+        },
+        "Covariance": {
+          "ObsErrorCovariance": {
+            "covariance": "diagonal",
+            "obserror": "ObsError"
+          }
+        },
+        "obs localizations": [
+          {
+            "localization method": "default",
+            "horizontal length-scale": 1000000
+          }
+        ],
+        "variables": ["air_temperature"]
+      }
+    ]
+  },
+  "driver": {
+    "save prior mean": true,
+    "save posterior mean": true,
+    "save posterior mean increment": true,
+    "save posterior ensemble increments": true,
+    "save prior variance": true,
+    "save posterior variance": true,
+    "update obs config with geometry info": true
+  },
+  "local ensemble DA": {
+    "solver": "LETKF",
+    "inflation": {
+      "rtps": 0.5,
+      "rtpp": 0.5,
+      "mult": 1.1
+    }
+  },
+  "output": {
+    "states": [
+      {
+        "filepath": "testdata/glb_letkf_nonlinear_4d_12_state"
+      },
+      {
+        "filepath": "testdata/glb_letkf_nonlinear_4d_18_state"
+      }
+    ]
+  },
+  "output increment": {
+    "filepath": "testdata/glb_letkf_nonlinear_4d_increment"
+  },
+  "output ensemble increments": {
+    "filepath": "testdata/glb_letkf_nonlinear_4d_increment"
+  },
+  "output mean prior": {
+    "states": [
+      {
+        "filepath": "testdata/glb_letkf_nonlinear_4d_12_mean_prior"
+      },
+      {
+        "filepath": "testdata/glb_letkf_nonlinear_4d_18_mean_prior"
+      }
+    ]
+  },
+  "output variance prior": {
+    "filepath": "testdata/glb_letkf_nonlinear_4d_var_prior"
+  },
+  "output variance posterior": {
+    "filepath": "testdata/glb_letkf_nonlinear_4d_var_posterior"
+  },
+  "test": {
+    "reference filename": "testref/ec/glb_letkf_nonlinear_4d.ref"
+  }
+}

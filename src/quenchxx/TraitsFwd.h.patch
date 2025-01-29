@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/TraitsFwd.h.tmp.bak	2024-11-27 13:23:55.447743168 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/TraitsFwd.h	2024-11-26 14:58:10.128932607 +0100
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/TraitsFwd.h.tmp.bak	2025-01-18 06:56:55.359721299 +0100
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/TraitsFwd.h	2025-01-18 04:40:37.052834597 +0100
 @@ -14,11 +14,30 @@
  
  class Covariance;
@@ -31,7 +31,7 @@
  
  struct Traits {
    static std::string name()
-@@ -26,13 +45,33 @@
+@@ -26,13 +45,32 @@
    static std::string nameCovar()
      {return "quenchxxCovariance";}
  
@@ -71,4 +71,3 @@
  };
  
  }  // namespace quenchxx
-+

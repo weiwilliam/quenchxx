@@ -24,6 +24,9 @@
     ],
     "halo": "1"
   },
+  "model": {
+    "tstep": "PT6H"
+  },
   "Background": {
     "state": [{
       "date": "2010-01-01T12:00:00Z",
@@ -48,7 +51,7 @@
           "explicit length-scales": "true",
           "horizontal length-scale": [{
             "groups": ["air_temperature"],
-            "value": "4.0e6"
+            "value": "3.0e4"
           }],
           "vertical length-scale": [{
             "groups": ["air_temperature"],
@@ -70,5 +73,8 @@
   "output states": {
     "filepath": "testdata/reg_bkg_12",
     "date": "2010-01-01T12:00:00Z"
+  },
+  "test": {
+    "reference filename": "testref/reg_background_12.ref"
   }
 }

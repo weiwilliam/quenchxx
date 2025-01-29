@@ -28,14 +28,7 @@
 #include "quenchxx/Fields.h"
 #include "quenchxx/GeometryIterator.h"
 #include "quenchxx/State.h"
-
-#ifdef ECSABER
-#include "quenchxx/Variables.h"
-namespace varns = quenchxx;
-#else
-#include "oops/base/Variables.h"
-namespace varns = oops;
-#endif
+#include "quenchxx/VariablesSwitch.h"
 
 namespace quenchxx {
   class Geometry;

@@ -25,25 +25,33 @@ if( QUENCHXX_UPDATE )
     message( STATUS "Update QUENCHXX source from saber/quench" )
 
     # Remove update script
-    file( REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+    file( REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
 
     # Create update script
-    file( WRITE "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" "#!/usr/bin/env bash\n" )
+    file( WRITE ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh "#!/usr/bin/env bash\n" )
+
+    # Define source directory
+    if( ECSABER )
+        set( QUENCH_SRC ${CMAKE_SOURCE_DIR}/ecsaber/saber-jedi/quench/src )
+    else()
+        set( QUENCH_SRC ${CMAKE_SOURCE_DIR}/saber/quench/src )
+    endif()
 
     # Run check_diff_recursively script
-    if( ECSABER )
-        set( QUENCH_SRC "${CMAKE_SOURCE_DIR}/ecsaber/saber-jedi/quench/src" )
-    else()
-        set( QUENCH_SRC "${CMAKE_SOURCE_DIR}/saber/quench/src" )
-    endif()
-    execute_process( COMMAND bash "${CMAKE_SOURCE_DIR}/quenchxx/tools/check_diff_recursively.sh" "${QUENCH_SRC}" "${CMAKE_CURRENT_SOURCE_DIR}/src/quenchxx" "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+    execute_process( COMMAND bash
+                             ${CMAKE_BINARY_DIR}/bin/quenchxx_check_diff_recursively.sh
+                             ${CMAKE_BINARY_DIR}/bin/quenchxx_check_diff.sh
+                             ${QUENCH_SRC} 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/src/quenchxx
+                             "QUENCHXX"
+                             ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
 
     # Run update script
-    execute_process( COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh"
+    execute_process( COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh
                      COMMAND_ERROR_IS_FATAL ANY )
 
     # Remove update script
-    file( REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh" )
+    file( REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/patch_update.sh )
 else()
     message( STATUS "Do not update QUENCHXX source from saber/quench" )
 endif()

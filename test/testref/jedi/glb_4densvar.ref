@@ -1,11 +1,11 @@
 CostJb   : Nonlinear Jb = 0.0000000000000000e+00
-CostJo   : Nonlinear Jo(air_temperature_06) = 1.9365044518360694e+01, nobs = 30, Jo/n = 6.4550148394535645e-01, err = 1.0000000149011612e-01
-CostJo   : Nonlinear Jo(air_temperature_12) = 2.7740200539843009e+01, nobs = 30, Jo/n = 9.2467335132810036e-01, err = 1.0000000149011612e-01
+CostJo   : Nonlinear Jo(air_temperature_06) = 0.0000000000000000e+00 --- No Observations
+CostJo   : Nonlinear Jo(air_temperature_12) = 2.7771223054791207e+01, nobs = 30, Jo/n = 9.2570743515970688e-01, err = 1.0000000149011612e-01
 CostJo   : Nonlinear Jo(air_temperature_18) = 1.8345252425381194e+01, nobs = 30, Jo/n = 6.1150841417937307e-01, err = 1.0000000149011612e-01
-CostFunction: Nonlinear J = 6.5450497483584897e+01
-DRIPCGMinimizer: reduction in residual norm = 1.1232515067642167e-07
+CostFunction: Nonlinear J = 4.6116475480172397e+01
+DRIPCGMinimizer: reduction in residual norm = 3.1488233909451376e-08
 CostFunction::addIncrement: Analysis: 
-Valid time:2010-01-01T06:00:00Z
+Valid time: 2010-01-01T06:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -21,8 +21,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  air_temperature: 3.8639302824735331e+01
-Valid time:2010-01-01T12:00:00Z
+  air_temperature: 3.8582091007128071e+01
+Valid time: 2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -38,8 +38,8 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  air_temperature: 4.1149810356799222e+01
-Valid time:2010-01-01T18:00:00Z
+  air_temperature: 4.1203989708727136e+01
+Valid time: 2010-01-01T18:00:00Z
 Quench geometry grid:
 - name: L40x21
 - size: 840
@@ -55,9 +55,9 @@ Groups:
   - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
   Mask size: 100%
 Fields:
-  air_temperature: 4.6317686688151589e+01
-CostJb   : Nonlinear Jb = 1.2697486407842458e+01
-CostJo   : Nonlinear Jo(air_temperature_06) = 8.1604288400261460e+00, nobs = 30, Jo/n = 2.7201429466753818e-01, err = 1.0000000149011612e-01
-CostJo   : Nonlinear Jo(air_temperature_12) = 1.2527906903943505e+01, nobs = 30, Jo/n = 4.1759689679811685e-01, err = 1.0000000149011612e-01
-CostJo   : Nonlinear Jo(air_temperature_18) = 9.1430650877672424e+00, nobs = 30, Jo/n = 3.0476883625890810e-01, err = 1.0000000149011612e-01
-CostFunction: Nonlinear J = 4.2528887239579348e+01
+  air_temperature: 4.6315378380020285e+01
+CostJb   : Nonlinear Jb = 8.8604804400673096e+00
+CostJo   : Nonlinear Jo(air_temperature_06) = 0.0000000000000000e+00 --- No Observations
+CostJo   : Nonlinear Jo(air_temperature_12) = 1.2752696779195256e+01, nobs = 30, Jo/n = 4.2508989263984187e-01, err = 1.0000000149011612e-01
+CostJo   : Nonlinear Jo(air_temperature_18) = 9.1247753079343017e+00, nobs = 30, Jo/n = 3.0415917693114342e-01, err = 1.0000000149011612e-01
+CostFunction: Nonlinear J = 3.0737952527196867e+01

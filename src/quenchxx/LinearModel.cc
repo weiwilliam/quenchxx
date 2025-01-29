@@ -19,7 +19,7 @@ static oops::LinearModelMaker<Traits, LinearModel> makerLinearModelDefault_("def
 
 LinearModel::LinearModel(const Geometry &,
                          const eckit::Configuration & config)
-  : timeResolution_(config.getString("tstep", "PT6H")) {
+  : timeResolution_(config.getString("tstep")) {
   oops::Log::trace() << classname() << "::LinearModel starting" << std::endl;
 
   oops::Log::info() << "Persistance linear model" << std::endl;

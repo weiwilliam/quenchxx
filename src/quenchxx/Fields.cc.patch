@@ -1,16 +1,14 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.cc.tmp	2024-11-27 13:23:55.628744077 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.cc	2024-11-26 14:58:10.121932573 +0100
-@@ -20,8 +20,7 @@
- #include <iostream>
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.cc.tmp.bak	2025-01-18 06:56:55.542721666 +0100
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.cc	2025-01-18 05:14:46.947299717 +0100
+@@ -21,6 +21,7 @@
  #include <iterator>
  #include <limits>
--#include <string>
--#include <vector>
+ #include <string>
 +#include <utility>
+ #include <vector>
  
  #include "atlas/field.h"
- #include "atlas/functionspace.h"
-@@ -59,7 +58,7 @@
+@@ -59,7 +60,7 @@
  // -----------------------------------------------------------------------------
  
  Fields::Fields(const Geometry & geom,
@@ -19,39 +17,7 @@
                 const util::DateTime & time)
    : geom_(new Geometry(geom)), vars_(vars), time_(time) {
    oops::Log::trace() << classname() << "::Fields starting" << std::endl;
-@@ -267,6 +266,31 @@
- 
- // -----------------------------------------------------------------------------
- 
-+void Fields::constantValue(const std::vector<double> & profile) {
-+  oops::Log::trace() << classname() << "::constantValue starting" << std::endl;
-+
-+  for (const auto & var : vars_) {
-+    atlas::Field field = fset_[var.name()];
-+    const std::string gmaskName = "gmask_" + std::to_string(geom_->groupIndex(var.name()));
-+    const auto gmaskView = atlas::array::make_view<int, 2>(geom_->fields()[gmaskName]);
-+    if (field.rank() == 2) {
-+      ASSERT(field.shape(1) == profile.size());
-+      auto view = atlas::array::make_view<double, 2>(field);
-+      view.assign(0.0);
-+      for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
-+        for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
-+          if (gmaskView(jnode, jlevel) == 1) view(jnode, jlevel) = profile[jlevel];
-+        }
-+      }
-+    }
-+  }
-+  fset_.set_dirty(false);
-+
-+  oops::Log::trace() << classname() << "::constantValue end" << std::endl;
-+}
-+
-+// -----------------------------------------------------------------------------
-+
- void Fields::constantValue(const eckit::Configuration & config) {
-   oops::Log::trace() << "Fields::constantValue starting" << std::endl;
-   for (const auto & group : config.getSubConfigurations("constant group-specific value")) {
-@@ -804,6 +828,155 @@
+@@ -829,6 +830,155 @@
  
  // -----------------------------------------------------------------------------
  
@@ -122,7 +88,7 @@
 +    // Create observation fieldset
 +    atlas::FieldSet obsFieldSet;
 +    for (const auto & var : vars_.variables()) {
-+      atlas::Field obsField = interpolation->dstFspace().createField<double>(
++      atlas::Field obsField = interpolation->tgtFspace().createField<double>(
 +        atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
 +      obsFieldSet.add(obsField);
 +    }
@@ -153,7 +119,7 @@
 +    // Create observation fieldset
 +    atlas::FieldSet obsFieldSet;
 +    for (const auto & var : vars_.variables()) {
-+      atlas::Field obsField = interpolation->dstFspace().createField<double>(
++      atlas::Field obsField = interpolation->tgtFspace().createField<double>(
 +        atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
 +      obsFieldSet.add(obsField);
 +    }
@@ -207,7 +173,7 @@
  void Fields::toFieldSet(atlas::FieldSet & fset) const {
    oops::Log::trace() << classname() << "::toFieldSet starting" << std::endl;
  
-@@ -834,7 +1007,7 @@
+@@ -859,7 +1009,7 @@
    fset_ = util::shareFields(fset);
  
    // Reset variables
@@ -216,7 +182,7 @@
    for (const auto & field : fset_) {
      vars_[field.name()].setLevels(field.shape(1));
    }
-@@ -847,11 +1020,22 @@
+@@ -872,11 +1022,22 @@
  
  // -----------------------------------------------------------------------------
  
@@ -240,7 +206,7 @@
    for (const auto & var : vars_) {
      std::string newVar = var.name();
      for (const auto & item : geom_->alias()) {
-@@ -1317,6 +1501,40 @@
+@@ -1342,6 +1503,40 @@
  
  // -----------------------------------------------------------------------------
  
@@ -281,7 +247,7 @@
  std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geometry & srcGeom)
    const {
    oops::Log::trace() << classname() << "::setupGridInterpolation starting" << std::endl;
-@@ -1352,6 +1570,154 @@
+@@ -1374,6 +1569,151 @@
  
  // -----------------------------------------------------------------------------
  
@@ -291,12 +257,12 @@
 +
 +  // Get geometry UIDs (grid + "_" + paritioner)
 +  const std::string srcGeomUid = geom_->grid().uid() + "_" + geom_->partitioner().type();
-+  const std::string dstObsUid = locs.grid().uid() + "_" + geom_->partitioner().type();
++  const std::string tgtObsUid = locs.grid().uid() + "_" + geom_->partitioner().type();
 +
 +  // Compare with existing UIDs
 +  for (auto it = interpolations().begin(); it != interpolations().end(); ++it) {
-+    if ((it->srcUid() == srcGeomUid) && (it->dstUid() == dstObsUid)) {
-+      oops::Log::trace() << classname() << "::setupGridInterpolation done" << std::endl;
++    if ((it->srcUid() == srcGeomUid) && (it->tgtUid() == tgtObsUid)) {
++      oops::Log::trace() << classname() << "::setupObsInterpolation done" << std::endl;
 +      return it;
 +    }
 +  }
@@ -308,7 +274,7 @@
 +  std::vector<int> partition(nobsGlb);
 +  size_t joGlb = 0;
 +  for (size_t jt = 0; jt < geom_->getComm().size(); ++jt) {
-+    for (int joLoc = 0; joLoc < locs.size(jt); ++joLoc) {
++    for (int joOwn = 0; joOwn < locs.size(jt); ++joOwn) {
 +      partition[joGlb] = jt;
 +      ++joGlb;
 +    }
@@ -332,14 +298,11 @@
 +  }
 +
 +  // Create horizontal interpolation
-+  Interpolation interpolation(geom_->interpolation(),
-+                              geom_->getComm(),
-+                              geom_->partitioner(),
-+                              geom_->functionSpace(),
++  Interpolation interpolation(*geom_,
 +                              srcGeomUid,
 +                              locs.grid(),
 +                              *fspace,
-+                              dstObsUid);
++                              tgtObsUid);
 +
 +  // Interpolate vertical coordinate
 +  atlas::FieldSet fset;
@@ -436,7 +399,7 @@
  void Fields::resetDuplicatePoints() {
    oops::Log::trace() << classname() << "::resetDuplicatePoints starting" << std::endl;
  
-@@ -1415,5 +1781,75 @@
+@@ -1437,5 +1777,75 @@
  }
  
  // -----------------------------------------------------------------------------

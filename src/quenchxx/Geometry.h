@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <memory>
 #include <ostream>
 #include <string>
 #include <unordered_map>
@@ -19,6 +20,7 @@
 
 #include "eckit/mpi/Comm.h"
 
+#include "oops/base/GeometryData.h"
 #include "oops/mpi/mpi.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/parameters/OptionalParameter.h"
@@ -27,13 +29,7 @@
 #include "oops/util/parameters/RequiredParameter.h"
 #include "oops/util/Printable.h"
 
-#ifdef ECSABER
-#include "quenchxx/Variables.h"
-namespace varns = quenchxx;
-#else
-#include "oops/base/Variables.h"
-namespace varns = oops;
-#endif
+#include "quenchxx/VariablesSwitch.h"
 
 namespace eckit {
   class Configuration;
@@ -180,6 +176,7 @@ class Geometry : public util::Printable,
 
   // Variables sizes
   std::vector<size_t> variableSizes(const varns::Variables & vars) const;
+  std::vector<size_t> variableSizes(const std::vector<std::string> &) const;
 
   // Levels direction
   bool levelsAreTopDown() const
@@ -224,6 +221,8 @@ class Geometry : public util::Printable,
     {return eckit::mpi::self();}
   const std::vector<double> & vert_coord_avg(const std::string & var) const
     {return groups_[groupIndex_.at(var)].vert_coord_avg_;}
+  const oops::GeometryData & generic() const
+    {return *geomData_;}
 
   // Geometry iterator
   GeometryIterator begin() const;
@@ -308,6 +307,9 @@ class Geometry : public util::Printable,
   size_t nnodes_;
   size_t nlevs_;
   std::vector<double> vert_coord_avg_;
+
+  // Geometry data structure
+  std::unique_ptr<oops::GeometryData> geomData_;
 };
 
 // -----------------------------------------------------------------------------

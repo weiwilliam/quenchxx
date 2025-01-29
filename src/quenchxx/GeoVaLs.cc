@@ -5,9 +5,6 @@
 
 #include "quenchxx/GeoVaLs.h"
 
-#include <netcdf.h>
-#include <limits>
-
 #include "eckit/exception/Exceptions.h"
 
 #include "oops/util/FieldSetHelpers.h"
@@ -16,8 +13,7 @@
 #include "oops/util/RandomField.h"
 
 #include "quenchxx/ObsSpace.h"
-
-#define ERR(e) {throw eckit::Exception(nc_strerror(e), Here());}
+#include "quenchxx/Utilities.h"
 
 namespace quenchxx {
 
@@ -92,8 +88,8 @@ void GeoVaLs::random() {
 double GeoVaLs::dot_product_with(const GeoVaLs & other) const {
   oops::Log::trace() << classname() << "::dot_product_with starting" << std::endl;
 
-  double zz = util::dotProductFieldSets(gvFieldSet_, other.gvFieldSet_, gvFieldSet_.field_names(),
-    comm_);
+  double zz = dotProductFieldSetsWithoutFunctionSpace(gvFieldSet_, other.gvFieldSet_,
+    gvFieldSet_.field_names(), comm_);
 
   oops::Log::trace() << classname() << "::dot_product_with done" << std::endl;
   return zz;

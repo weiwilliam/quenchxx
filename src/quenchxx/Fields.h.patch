@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.h.tmp	2024-11-27 13:23:55.456743214 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.h	2024-11-26 14:58:10.122932578 +0100
-@@ -8,21 +8,36 @@
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.h.tmp.bak	2025-01-28 13:35:39.813325913 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.h	2025-01-28 13:36:18.025565106 +0100
+@@ -8,20 +8,28 @@
  
  #pragma once
  
@@ -18,7 +18,6 @@
 +#include "eckit/serialisation/Stream.h"
  
 -#include "oops/base/Variables.h"
- #include "oops/util/abor1_cpp.h"
  #include "oops/util/DateTime.h"
  #include "oops/util/ObjectCounter.h"
  #include "oops/util/Printable.h"
@@ -27,18 +26,11 @@
 +#include "quenchxx/GeoVaLs.h"
  #include "quenchxx/Interpolation.h"
 +#include "quenchxx/Locations.h"
-+
-+#ifdef ECSABER
-+#include "quenchxx/Variables.h"
-+namespace varns = quenchxx;
-+#else
-+#include "oops/base/Variables.h"
-+namespace varns = oops;
-+#endif
++#include "quenchxx/VariablesSwitch.h"
  
  namespace quenchxx {
    class Geometry;
-@@ -39,7 +54,7 @@
+@@ -38,7 +46,7 @@
  
    // Constructors/destructor
    Fields(const Geometry &,
@@ -47,15 +39,7 @@
           const util::DateTime &);
    Fields(const Fields &,
           const Geometry &);
-@@ -52,6 +67,7 @@
-   // Basic operators
-   void zero();
-   void constantValue(const double &);
-+  void constantValue(const std::vector<double> &);
-   void constantValue(const eckit::Configuration &);
-   Fields & operator=(const Fields &);
-   Fields & operator+=(const Fields &);
-@@ -65,6 +81,14 @@
+@@ -65,6 +73,14 @@
    void random();
    void diff(const Fields &,
              const Fields &);
@@ -70,7 +54,7 @@
  
    // ATLAS FieldSet
    void toFieldSet(atlas::FieldSet &) const;
-@@ -73,6 +97,7 @@
+@@ -73,6 +89,7 @@
      {return fset_;}
    atlas::FieldSet & fieldSet()
      {return fset_;}
@@ -78,7 +62,7 @@
  
    // Utilities
    void read(const eckit::Configuration &);
-@@ -80,7 +105,7 @@
+@@ -80,7 +97,7 @@
    double norm() const;
    std::shared_ptr<const Geometry> geometry() const
      {return geom_;}
@@ -87,7 +71,7 @@
      {return vars_;}
    const util::DateTime & time() const
      {return time_;}
-@@ -94,6 +119,10 @@
+@@ -94,6 +111,10 @@
    void serialize(std::vector<double> &) const;
    void deserialize(const std::vector<double> &,
                     size_t &);
@@ -98,7 +82,7 @@
  
    // Grid interpolations
    static std::vector<quenchxx::Interpolation>& interpolations();
-@@ -108,11 +137,17 @@
+@@ -108,11 +129,17 @@
    // Return grid interpolation
    std::vector<quenchxx::Interpolation>::iterator setupGridInterpolation(const Geometry &) const;
  

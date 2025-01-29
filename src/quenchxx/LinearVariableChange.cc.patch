@@ -1,64 +1,26 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/LinearVariableChange.cc.tmp	2024-11-27 13:23:55.479743329 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/LinearVariableChange.cc	2024-11-26 14:58:10.123932583 +0100
-@@ -10,13 +10,12 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/LinearVariableChange.cc.tmp.bak	2025-01-18 06:56:55.400721381 +0100
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/LinearVariableChange.cc	2025-01-18 06:22:21.133759114 +0100
+@@ -37,8 +37,8 @@
+     // Define output to input variables map
+     ASSERT(params.inputVariables.value()->size() == params.outputVariables.value()->size());
+     for (size_t jj = 0; jj < params.outputVariables.value()->size(); ++jj) {
+-      map_[(*params.outputVariables.value())[jj].name()] =
+-        (*params.inputVariables.value())[jj].name();
++      map_[(*params.outputVariables.value())[jj]] =
++        (*params.inputVariables.value())[jj];
+     }
  
- #include <ostream>
- #include <string>
-+#include <vector>
- 
- #include "oops/util/ConfigFunctions.h"
- #include "oops/util/FieldSetHelpers.h"
- #include "oops/util/FieldSetOperations.h"
- 
--#include "quenchxx/LinearVariableChangeParameters.h"
--
- namespace quenchxx {
- 
- // -----------------------------------------------------------------------------
-@@ -25,14 +24,14 @@
-                                            const eckit::Configuration & config) {
-   oops::Log::trace() << classname() << "::LinearVariableChange starting" << std::endl;
- 
--  // Local configuration
--  LinearVariableChangeParameters params;
--  params.deserialize(config);
-+  if (config.has("variables")) {
-+    // Variables
-+    const std::vector<std::string> varNames = config.getStringVector("variables");
-+    const varns::Variables vars(varNames);
- 
--  if (params.variables.value() != boost::none) {
      // Read multiplicative factor
--    ASSERT(params.atlasFile.value() != boost::none);
--    eckit::LocalConfiguration conf(*params.atlasFile.value());
-+    ASSERT(config.has("atlas file"));
-+    eckit::LocalConfiguration fileConf(config, "atlas file");
- 
-     // Get number of MPI tasks and OpenMP threads
-     std::string mpi(std::to_string(geom.getComm().size()));
-@@ -45,16 +44,16 @@
- #endif
- 
-     // Replace patterns
--    util::seekAndReplace(conf, "_MPI_", mpi);
--    util::seekAndReplace(conf, "_OMP_", omp);
-+    util::seekAndReplace(fileConf, "_MPI_", mpi);
-+    util::seekAndReplace(fileConf, "_OMP_", omp);
- 
-     // Read fieldset
-     // TODO(AS): replace with setting up variables correctly
+@@ -63,7 +63,7 @@
      util::readFieldSet(geom.getComm(),
                         geom.functionSpace(),
--                       geom.variableSizes(*params.variables.value()),
--                       params.variables.value()->variables(),
--                       conf,
-+                       geom.variableSizes(vars),
-+                       varNames,
-+                       fileConf,
-                        fset_);
+                        geom.variableSizes(*params.inputVariables.value()),
+-                       params.inputVariables.value()->variables(),
++                       *params.inputVariables.value(),
+                        conf,
+                        multiplierFset_);
    }
- 
-@@ -68,7 +67,7 @@
+@@ -74,7 +74,7 @@
  // -----------------------------------------------------------------------------
  
  void LinearVariableChange::changeVarTL(Increment & dx,
@@ -66,8 +28,8 @@
 +                                       const varns::Variables & vars) const {
    oops::Log::trace() << classname() << "::changeVarTL starting" << std::endl;
  
-   if (!fset_.empty()) {
-@@ -84,7 +83,7 @@
+   if (!multiplierFset_.empty()) {
+@@ -106,7 +106,7 @@
  // -----------------------------------------------------------------------------
  
  void LinearVariableChange::changeVarInverseTL(Increment & dx,
@@ -75,8 +37,8 @@
 +                                              const varns::Variables & vars) const {
    oops::Log::trace() << classname() << "::changeVarInverseTL starting" << std::endl;
  
-   if (!fset_.empty()) {
-@@ -100,7 +99,7 @@
+   if (!multiplierFset_.empty()) {
+@@ -138,7 +138,7 @@
  // -----------------------------------------------------------------------------
  
  void LinearVariableChange::changeVarAD(Increment & dx,
@@ -84,8 +46,8 @@
 +                                       const varns::Variables & vars) const {
    oops::Log::trace() << classname() << "::changeVarAD starting" << std::endl;
  
-   if (!fset_.empty()) {
-@@ -116,7 +115,7 @@
+   if (!multiplierFset_.empty()) {
+@@ -170,7 +170,7 @@
  // -----------------------------------------------------------------------------
  
  void LinearVariableChange::changeVarInverseAD(Increment & dx,
@@ -93,4 +55,4 @@
 +                                              const varns::Variables & vars) const {
    oops::Log::trace() << classname() << "::changeVarInverseAD starting" << std::endl;
  
-   if (!fset_.empty()) {
+   if (!multiplierFset_.empty()) {

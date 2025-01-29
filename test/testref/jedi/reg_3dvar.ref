@@ -4,7 +4,7 @@ CostJo   : Nonlinear Jo(air_temperature) = 1.8871656300580810e+01, nobs = 15, Jo
 CostFunction: Nonlinear J = 1.8871656300580810e+01
 DRIPCGMinimizer: reduction in residual norm = 2.4702445319095588e-12
 CostFunction::addIncrement: Analysis: 
-Valid time:2010-01-01T12:00:00Z
+Valid time: 2010-01-01T12:00:00Z
 Quench geometry grid:
 - name: structured
 - size: 3763

@@ -13,7 +13,9 @@
     ],
     "halo": "1"
   },
-  "model": {},
+  "model": {
+    "tstep": "PT6H"
+  },
   "variables": ["air_temperature"],
   "cost_function": {
     "cost_type": "3D-Var",
@@ -109,6 +111,7 @@
           "version": "default",
           "tstep": "PT0H",
           "trajectory": {
+            "tstep": "PT6H",
             "forcing": {
               "variables": ["air_temperature"]
             }
@@ -159,5 +162,8 @@
   "variance reduction": {
     "mpi pattern": "%mpi%",
     "filepath": "testdata/evil_dual_variance_D_%iteration%_%mpi%"
+  },
+  "test": {
+    "reference filename": "testref/ec/evil_dual_update_D.ref"
   }
 }

@@ -29,4 +29,4 @@ states:
     date: 2010-01-01T12:00:00Z
     filepath: testdata/reg_stddev
 test:
-  reference filename: testref/jedi/reg_stddev.ref
+  reference filename: testref/reg_stddev.ref

@@ -1,4 +1,24 @@
-Initial state: 50.1996
-Final state: 50.1996
-Generated observation: quenchxx[100]:
-- air_temperature: Min=0.977541, Max=1.02835, Average=1.00081
+State: 
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 3
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00,3.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 5.0199601592044530e+01
+H(x):
+air_temperature nobs= 30 Min=9.9999999999999989e-01, Max=1.0000000000000002e+00, RMS=1.0000000000000000e+00
+End H(x)
+Perturbed H(x):
+air_temperature nobs= 30 Min=7.6059827440021266e-01, Max=1.2283710083230894e+00, RMS=9.6842194964542738e-01
+End Perturbed H(x)

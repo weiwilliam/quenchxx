@@ -13,7 +13,9 @@
     ],
     "halo": "1"
   },
-  "model": {},
+  "model": {
+    "tstep": "PT6H"
+  },
   "cost_function": {
     "cost_type": "4D-Ens-Var",
     "window_begin": "2010-01-01T06:00:00Z",
@@ -252,7 +254,7 @@
               "filepath": "testdata/glb_obs_06"
             },
             "ObsDataOutScreened": {
-              "filepath": "testdata/glb_obs_4densvar_06"
+              "filepath": "testdata/glb_obs_4densvar"
             },
             "obsvalue": "ObsValue"
           },
@@ -334,6 +336,7 @@
           "version": "default",
           "tstep": "PT6H",
           "trajectory": {
+            "tstep": "PT6H",
             "forcing": {
               "variables": ["air_temperature"]
             }
@@ -368,6 +371,7 @@
           "version": "default",
           "tstep": "PT6H",
           "trajectory": {
+            "tstep": "PT6H",
             "forcing": {
               "variables": ["air_temperature"]
             }
@@ -388,5 +392,8 @@
         "obsvalue": "oman"
       }
     }
+  },
+  "test": {
+    "reference filename": "testref/ec/glb_4densvar.ref"
   }
 }

@@ -1,0 +1,294 @@
+Initial state for member 1:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.1940752843784665e+01
+Initial state for member 2:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.1366018530622348e+01
+Initial state for member 3:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.1786179165948269e+01
+Initial state for member 4:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.2022558974081726e+01
+Initial state for member 5:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.1978905975515573e+01
+Initial state for member 6:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.2455994372256889e+01
+Initial state for member 7:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.1331761754183297e+01
+Initial state for member 8:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.0866977969190422e+01
+Initial state for member 9:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.0754442083797365e+01
+Initial state for member 10:
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.0184665909426386e+01
+H(x) for member 1:
+air_temperature nobs= 30 Min=6.2482166290283203e-01, Max=1.2235251665115356e+00, RMS=9.5478677288432445e-01
+H(x) for member 2:
+air_temperature nobs= 30 Min=7.8926455974578857e-01, Max=1.2840418815612793e+00, RMS=9.7486087897639739e-01
+H(x) for member 3:
+air_temperature nobs= 30 Min=7.0893317461013794e-01, Max=1.3477245569229126e+00, RMS=9.8638380633830158e-01
+H(x) for member 4:
+air_temperature nobs= 30 Min=7.0531076192855835e-01, Max=1.1907007694244385e+00, RMS=9.8616643866090470e-01
+H(x) for member 5:
+air_temperature nobs= 30 Min=7.4611085653305054e-01, Max=1.2182618379592896e+00, RMS=9.7533139729205620e-01
+H(x) for member 6:
+air_temperature nobs= 30 Min=7.4891752004623413e-01, Max=1.1898077726364136e+00, RMS=9.6589260617149097e-01
+H(x) for member 7:
+air_temperature nobs= 30 Min=7.0957428216934204e-01, Max=1.1102153062820435e+00, RMS=9.6754432348924202e-01
+H(x) for member 8:
+air_temperature nobs= 30 Min=7.4673420190811157e-01, Max=1.1159329414367676e+00, RMS=9.7930910599884458e-01
+H(x) for member 9:
+air_temperature nobs= 30 Min=6.5609091520309448e-01, Max=1.1014853715896606e+00, RMS=9.3477686924930459e-01
+H(x) for member 10:
+air_temperature nobs= 30 Min=6.7836278676986694e-01, Max=1.1487494707107544e+00, RMS=9.3145423543131711e-01
+H(x) ensemble background mean: 
+air_temperature nobs= 30 Min=7.4364234805107121e-01, Max=1.1243981361389161e+00, RMS=9.6255513189993269e-01
+background y - H(x): 
+air_temperature nobs= 30 Min=-3.2237859964370741e-01, Max=3.5431903600692749e-01, RMS=1.4988902944534793e-01
+Background mean :
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.1292069185493368e+01
+Analysis mean :
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.1267123500765940e+01
+Analysis mean increment :
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 3.6199341668020951e-01
+Forecast variance :
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.4893555640399380e-01
+Analysis variance :
+Valid time: 2010-01-01T12:00:00Z
+Quench geometry grid:
+- name: L40x21
+- size: 840
+Partitioner:
+- type: equal_regions
+Function space:
+- type: StructuredColumns
+- halo: 1
+Groups: 
+- Group 0:
+  Vertical levels: 
+  - number: 2
+  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
+  Mask size: 100%
+Fields:
+  air_temperature: 4.3880938460461549e-01
