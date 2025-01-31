@@ -104,6 +104,7 @@ testinput/ec/glb_background_18.json
 testinput/ec/glb_ensemble_06.json
 testinput/ec/glb_ensemble_12.json
 testinput/ec/glb_ensemble_18.json
+testinput/ec/glb_getkf_nonlinear.json
 testinput/ec/glb_hofx.json
 testinput/ec/glb_interfaces.json
 testinput/ec/glb_letkf_linear.json
@@ -129,6 +130,7 @@ testinput/ec/reg_background_18.json
 testinput/ec/reg_ensemble_06.json
 testinput/ec/reg_ensemble_12.json
 testinput/ec/reg_ensemble_18.json
+testinput/ec/reg_getkf_nonlinear.json
 testinput/ec/reg_hofx.json
 testinput/ec/reg_interfaces.json
 testinput/ec/reg_letkf_linear.json
@@ -153,61 +155,64 @@ testinput/ec/synthetic_data_truth.json
 # JEDI
 
 # GENINT
-testinput/jedi/genint_geometry_regular_lonlat.yaml
-testinput/jedi/genint_geometry_lambertCC.yaml
-testinput/jedi/genint_convertstate_regular_lonlat.yaml
 testinput/jedi/genint_convertstate_nonuni_lonlat.yaml
+testinput/jedi/genint_convertstate_regular_lonlat.yaml
 testinput/jedi/genint_convertstate_varcha_regular_lonlat.yaml
 testinput/jedi/genint_convertstate_varcha_nonuni_lonlat.yaml
-testinput/jedi/genint_hofx3d_regular_lonlat.yaml
-testinput/jedi/genint_hofx3d_nonuni_lonlat.yaml
+testinput/jedi/genint_geometry_lambertCC.yaml
+testinput/jedi/genint_geometry_regular_lonlat.yaml
 testinput/jedi/genint_hofx3d_lambertCC.yaml
+testinput/jedi/genint_hofx3d_nonuni_lonlat.yaml
+testinput/jedi/genint_hofx3d_regular_lonlat.yaml
 
 # GLOBAL
-testinput/jedi/glb_stddev.yaml
-testinput/jedi/glb_truth_06.yaml
-testinput/jedi/glb_truth_12.yaml
-testinput/jedi/glb_truth_18.yaml
+testinput/jedi/glb_3dvar.yaml
+testinput/jedi/glb_3densvar.yaml
+testinput/jedi/glb_4densvar.yaml
 testinput/jedi/glb_background_06.yaml
 testinput/jedi/glb_background_12.yaml
 testinput/jedi/glb_background_18.yaml
 testinput/jedi/glb_ensemble_06.yaml
 testinput/jedi/glb_ensemble_12.yaml
 testinput/jedi/glb_ensemble_18.yaml
-testinput/jedi/glb_makeobs_06.yaml
-testinput/jedi/glb_makeobs_12.yaml
-testinput/jedi/glb_makeobs_18.yaml
-testinput/jedi/glb_3dvar.yaml
-testinput/jedi/glb_3densvar.yaml
-testinput/jedi/glb_4densvar.yaml
+testinput/jedi/glb_getkf_nonlinear.yaml
 testinput/jedi/glb_letkf_linear.yaml
 testinput/jedi/glb_letkf_linear_4d.yaml
 testinput/jedi/glb_letkf_nonlinear.yaml
 testinput/jedi/glb_letkf_nonlinear_4d.yaml
 testinput/jedi/glb_letkf_read_members.yaml
+testinput/jedi/glb_makeobs_06.yaml
+testinput/jedi/glb_makeobs_12.yaml
+testinput/jedi/glb_makeobs_18.yaml
+testinput/jedi/glb_stddev.yaml
+testinput/jedi/glb_truth_06.yaml
+testinput/jedi/glb_truth_12.yaml
+testinput/jedi/glb_truth_18.yaml
+
 
 # REGIONAL
-testinput/jedi/reg_stddev.yaml
-testinput/jedi/reg_truth_06.yaml
-testinput/jedi/reg_truth_12.yaml
-testinput/jedi/reg_truth_18.yaml
+testinput/jedi/reg_3dvar.yaml
+testinput/jedi/reg_3densvar.yaml
+testinput/jedi/reg_4densvar.yaml
 testinput/jedi/reg_background_06.yaml
 testinput/jedi/reg_background_12.yaml
 testinput/jedi/reg_background_18.yaml
 testinput/jedi/reg_ensemble_06.yaml
 testinput/jedi/reg_ensemble_12.yaml
 testinput/jedi/reg_ensemble_18.yaml
-testinput/jedi/reg_makeobs_06.yaml
-testinput/jedi/reg_makeobs_12.yaml
-testinput/jedi/reg_makeobs_18.yaml
-testinput/jedi/reg_3dvar.yaml
-testinput/jedi/reg_3densvar.yaml
-testinput/jedi/reg_4densvar.yaml
+testinput/jedi/reg_getkf_nonlinear.yaml
 testinput/jedi/reg_letkf_linear.yaml
 testinput/jedi/reg_letkf_linear_4d.yaml
 testinput/jedi/reg_letkf_nonlinear.yaml
 testinput/jedi/reg_letkf_nonlinear_4d.yaml
 testinput/jedi/reg_letkf_read_members.yaml
+testinput/jedi/reg_makeobs_06.yaml
+testinput/jedi/reg_makeobs_12.yaml
+testinput/jedi/reg_makeobs_18.yaml
+testinput/jedi/reg_stddev.yaml
+testinput/jedi/reg_truth_06.yaml
+testinput/jedi/reg_truth_12.yaml
+testinput/jedi/reg_truth_18.yaml
 )
 
 # Test output references
@@ -284,6 +289,7 @@ testref/ec/evil_truth.ref
 testref/ec/glb_3dvar.ref
 testref/ec/glb_3densvar.ref
 testref/ec/glb_4densvar.ref
+testref/ec/glb_getkf_nonlinear.ref
 testref/ec/glb_hofx.ref
 testref/ec/glb_letkf_linear.ref
 testref/ec/glb_letkf_linear_4d.ref
@@ -295,6 +301,7 @@ testref/ec/glb_letkf_read_members.ref
 testref/ec/reg_3dvar.ref
 testref/ec/reg_3densvar.ref
 testref/ec/reg_4densvar.ref
+testref/ec/reg_getkf_nonlinear.ref
 testref/ec/reg_hofx.ref
 testref/ec/reg_letkf_linear.ref
 testref/ec/reg_letkf_linear_4d.ref
@@ -325,6 +332,7 @@ testref/jedi/genint_hofx3d_lambertCC.ref
 testref/jedi/glb_3dvar.ref
 testref/jedi/glb_3densvar.ref
 testref/jedi/glb_4densvar.ref
+testref/jedi/glb_getkf_nonlinear.ref
 testref/jedi/glb_letkf_linear.ref
 testref/jedi/glb_letkf_linear_4d.ref
 testref/jedi/glb_letkf_nonlinear.ref
@@ -335,6 +343,7 @@ testref/jedi/glb_letkf_read_members.ref
 testref/jedi/reg_3dvar.ref
 testref/jedi/reg_3densvar.ref
 testref/jedi/reg_4densvar.ref
+testref/jedi/reg_getkf_nonlinear.ref
 testref/jedi/reg_letkf_linear.ref
 testref/jedi/reg_letkf_linear_4d.ref
 testref/jedi/reg_letkf_nonlinear.ref
@@ -388,6 +397,7 @@ foreach( mpi "1" "4" )
         create_test( ${domain}_3dvar ${mpi} variational )
         create_test( ${domain}_3densvar ${mpi} variational )
         create_test( ${domain}_4densvar ${mpi} variational )
+        create_test( ${domain}_getkf_nonlinear ${mpi} letkf )
         create_test( ${domain}_letkf_linear ${mpi} letkf )
         create_test( ${domain}_letkf_linear_4d ${mpi} letkf )
         create_test( ${domain}_letkf_nonlinear ${mpi} letkf )

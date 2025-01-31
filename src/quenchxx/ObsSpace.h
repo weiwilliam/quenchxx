@@ -113,7 +113,7 @@ class ObsSpace : public util::Printable,
   mutable std::vector<atlas::Point3> locs_;
   mutable std::vector<atlas::FieldSet> data_;
   mutable std::vector<util::DateTime> screenedTimes_;
-  mutable std::vector<atlas::Point3> screenedLocations_;
+  mutable std::vector<atlas::Point3> screendLocs_;
   mutable std::vector<atlas::FieldSet> screenedData_;
   std::string nameIn_;
   std::string nameOut_;
