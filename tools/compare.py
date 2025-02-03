@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # (C) Copyright 2019 UCAR
+# (C) Copyright 2024 Meteorologisk Institutt
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -155,7 +156,7 @@ with open(args.input, "r") as file:
   if extension == ".json":
     conf = json.load(file)
   elif extension == ".yaml":
-    conf = yaml.load(file)
+    conf = yaml.safe_load(file)
 
 # Set number of OpenMP threads TODO(Benjamin)
 #export OMP_NUM_THREADS=${omp}
@@ -166,7 +167,7 @@ if "test" in conf:
 
   # Find tolerance
   if "float relative tolerance" in conf["test"]:
-    tol = conf["test"]["float relative tolerance"]
+    tol = float(conf["test"]["float relative tolerance"])
   else:
     tol = 1.0e-12
 
@@ -182,6 +183,8 @@ if "test" in conf:
       text = proc.stdout.readline()
       log.write(text)
       sys.stdout.write(text)
+    if proc.returncode != 0:
+      exit(proc.returncode)
 
   # Extract test lines
   command = "grep -s 'Test     : ' " + flog + " > " + ftest
@@ -260,7 +263,7 @@ if "test" in conf:
     sys.exit(1) #Return failure
   if not testfound:
     print("Did not find any instances of \'Test     : \' in run file")
-    sys.exit(1) #Return failure
+    sys.exit(0) #Return failure
 
   # Otherwise return success
   sys.exit(0)

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.cc.tmp	2025-01-27 14:13:00.202232587 +0100
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.cc	2025-01-25 05:39:12.299007164 +0100
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.cc.tmp.bak	2025-02-03 11:29:31.388090557 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.cc	2025-02-03 11:30:16.155348984 +0100
 @@ -30,6 +30,7 @@
  #include "oops/util/Logger.h"
  
@@ -8,7 +8,7 @@
  
  #define ERR(e, msg) {std::string s(nc_strerror(e)); throw eckit::Exception(s + ": " + msg, Here());}
  
-@@ -103,7 +104,7 @@
+@@ -104,7 +105,7 @@
        // From a file
        const std::vector<std::string> vert_coordVars =
          vert_coordParamsFromFile->getStringVector("variables");
@@ -17,7 +17,7 @@
        eckit::LocalConfiguration fileGeomConfig(config);
        std::vector<eckit::LocalConfiguration> groupsConfig(1);
        groupsConfig[0].set("variables", vert_coordVars);
-@@ -279,6 +280,33 @@
+@@ -280,6 +281,33 @@
    comm_.allReduceInPlace(duplicatedPointsCount, eckit::mpi::sum());
    duplicatePoints_ = (duplicatedPointsCount > 0);
  
@@ -51,7 +51,7 @@
    // GeometryData
    if (interpolation_.getString("interpolation type") == "unstructured") {
      geomData_.reset(new oops::GeometryData(functionSpace_, fields_, levelsAreTopDown_, comm_));
-@@ -297,7 +325,8 @@
+@@ -298,7 +326,8 @@
    partitioner_(other.partitioner_), mesh_(other.mesh_), groupIndex_(other.groupIndex_),
    levelsAreTopDown_(other.levelsAreTopDown_), modelData_(other.modelData_), alias_(other.alias_),
    latSouthToNorth_(other.latSouthToNorth_), interpolation_(other.interpolation_),
@@ -61,7 +61,7 @@
    oops::Log::trace() << classname() << "::Geometry starting" << std::endl;
  
    // Copy function space
-@@ -358,7 +387,7 @@
+@@ -359,7 +388,7 @@
  
  // -----------------------------------------------------------------------------
  
@@ -70,7 +70,7 @@
    oops::Log::trace() << classname() << "::variableSizes starting" << std::endl;
  
    std::vector<size_t> sizes;
-@@ -372,6 +401,18 @@
+@@ -373,6 +402,18 @@
  
  // -----------------------------------------------------------------------------
  
@@ -89,7 +89,7 @@
  void Geometry::print(std::ostream & os) const {
    oops::Log::trace() << classname() << "::print starting" << std::endl;
  
-@@ -455,7 +496,7 @@
+@@ -456,7 +497,7 @@
      std::vector<float> zlat(nlat);
      std::vector<uint8_t> zlsm(nlat*nlon);
      if ((retval = nc_get_var_float(ncid, lon_id, zlon.data()))) ERR(retval, "lon");
@@ -98,7 +98,7 @@
      if ((retval = nc_get_var_ubyte(ncid, lsm_id, zlsm.data()))) ERR(retval, "LMASK");
  
      // Copy data
-@@ -541,5 +582,23 @@
+@@ -542,5 +583,23 @@
  }
  
  // -----------------------------------------------------------------------------

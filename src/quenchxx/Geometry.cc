@@ -65,7 +65,8 @@ Geometry::Geometry(const eckit::Configuration & config,
     // Use this group index for all the group variables
     for (const auto & var : groupParams.variables.value()) {
       if (groupIndex_.find(var) != groupIndex_.end()) {
-        throw eckit::UserError("Same variable present in distinct groups", Here());
+        throw eckit::UserError(
+          "Same variable present in distinct groups " + var, Here());
       } else {
         groupIndex_[var] = groupIndex;
       }
