@@ -136,6 +136,10 @@ class State : public util::Printable,
   void deserialize(const std::vector<double> & vect,
                    size_t & index)
     {fields_->deserialize(vect, index);}
+  void transpose(const State & /*FCState*/, const eckit::mpi::Comm & /*global*/,
+     const int /*ensNum*/, const int /*transNum*/) {
+     throw eckit::NotImplemented("quenchxx::State::transpose not implemented", Here());
+  }
 
  private:
   // Print
