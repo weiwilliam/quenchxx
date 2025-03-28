@@ -5,57 +5,18 @@ CostJo   : Nonlinear Jo(air_temperature_18) = 1.8345252425381194e+01, nobs = 30,
 CostFunction: Nonlinear J = 4.6116475480172397e+01
 DRIPCGMinimizer: reduction in residual norm = 3.1488233909451376e-08
 CostFunction::addIncrement: Analysis: 
-Valid time: 2010-01-01T06:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  air_temperature: 3.8582091007128071e+01
-Valid time: 2010-01-01T12:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  air_temperature: 4.1203989708727136e+01
-Valid time: 2010-01-01T18:00:00Z
-Quench geometry grid:
-- name: L40x21
-- size: 840
-Partitioner:
-- type: equal_regions
-Function space:
-- type: StructuredColumns
-- halo: 1
-Groups: 
-- Group 0:
-  Vertical levels: 
-  - number: 2
-  - vert_coord: [1.0000000000000000e+00,2.0000000000000000e+00]
-  Mask size: 100%
-Fields:
-  air_temperature: 4.6315378380020285e+01
+- Valid time: 2010-01-01T06:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    air_temperature: 3.8582091007128071e+01
+- Valid time: 2010-01-01T12:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    air_temperature: 4.1203989708727136e+01
+- Valid time: 2010-01-01T18:00:00Z
+  Geometry: L40x21 [840]
+  Fields:
+    air_temperature: 4.6315378380020285e+01
 CostJb   : Nonlinear Jb = 8.8604804400673096e+00
 CostJo   : Nonlinear Jo(air_temperature_06) = 0.0000000000000000e+00 --- No Observations
 CostJo   : Nonlinear Jo(air_temperature_12) = 1.2752696779195256e+01, nobs = 30, Jo/n = 4.2508989263984187e-01, err = 1.0000000149011612e-01

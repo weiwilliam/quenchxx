@@ -6,7 +6,10 @@
 #include "quenchxx/ObsVector.h"
 
 #include <math.h>
+
+#include <algorithm>
 #include <limits>
+#include <sstream>
 
 #include "eckit/config/Configuration.h"
 #include "eckit/exception/Exceptions.h"
@@ -326,14 +329,29 @@ void ObsVector::set(const size_t & jvar,
 
 // -----------------------------------------------------------------------------
 
-Eigen::VectorXd ObsVector::packEigen(const ObsVector & mask) const {
-  oops::Log::trace() << classname() << "::packEigen starting" << std::endl;
+void ObsVector::maskAndSerialize(const ObsVector & mask,
+                                 std::vector<double> & values) const {
+  oops::Log::trace() << classname() << "::maskAndSerialize starting" << std::endl;
 
   // Check whether halo was setup correctly
   ASSERT(obsSpace_.sizeLoc() > 0);
 
+  // Get size
+  size_t obsSize = 0;
+  for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
+    const atlas::Field maskField = mask.data_[vars_[jvar].name()];
+    const auto maskView = atlas::array::make_view<double, 2>(maskField);
+    atlas::Field field = data_[vars_[jvar].name()];
+    auto view = atlas::array::make_view<double, 2>(field);
+    for (size_t jo = 0; jo < obsSpace_.sizeLoc(); ++jo) {
+      if ((view(jo, 0) != missing_) && (maskView(jo, 0) != missing_)) {
+        obsSize++;
+      }
+    }
+  }
+
   // Pack data
-  Eigen::VectorXd vec(packEigenSize(mask));
+  std::vector<double> newValues(obsSize);
   size_t ii = 0;
   for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
     const atlas::Field maskField = mask.data_[vars_[jvar].name()];
@@ -342,40 +360,44 @@ Eigen::VectorXd ObsVector::packEigen(const ObsVector & mask) const {
     auto view = atlas::array::make_view<double, 2>(field);
     for (size_t jo = 0; jo < obsSpace_.sizeLoc(); ++jo) {
       if ((view(jo, 0) != missing_) && (maskView(jo, 0) != missing_)) {
-        vec(ii++) = view(jo, 0);
+        newValues[ii++] = view(jo, 0);
       }
     }
   }
+  values.insert(values.end(), newValues.begin(), newValues.end());
 
-  oops::Log::trace() << classname() << "::packEigen done" << std::endl;
-  return vec;
+  oops::Log::trace() << classname() << "::maskAndSerialize done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-size_t ObsVector::packEigenSize(const ObsVector & mask) const {
-  oops::Log::trace() << classname() << "::packEigenSize starting" << std::endl;
+std::string ObsVector::info(const std::string & prefix) const {
+  oops::Log::trace() << classname() << "::print starting" << std::endl;
 
-  // Check whether halo was setup correctly
-  ASSERT(obsSpace_.sizeLoc() > 0);
+  std::stringstream ss;
+  this->print(ss);
+  std::string grep = "\n" + prefix;
+  if (!grep.empty() && std::isalnum(grep.back())) grep += ": ";
 
-  size_t ii = 0;
-  for (size_t jvar = 0; jvar < vars_.size(); ++jvar) {
-    const atlas::Field maskField = mask.data_[vars_[jvar].name()];
-    const auto maskView = atlas::array::make_view<double, 2>(maskField);
-    atlas::Field field = data_[vars_[jvar].name()];
-    auto view = atlas::array::make_view<double, 2>(field);
-    for (size_t jo = 0; jo < obsSpace_.sizeLoc(); ++jo) {
-      if ((view(jo, 0) != missing_) && (maskView(jo, 0) != missing_)) {
-        ii++;
-      }
-    }
-  }
-
-  oops::Log::trace() << classname() << "::packEigenSize done" << std::endl;
-  return ii;
+  oops::Log::trace() << classname() << "::print done" << std::endl;
+  return grep + ss.str();
 }
 
+// -----------------------------------------------------------------------------
+/*
+std::string ObsVector::info(const std::string & prefix,
+                            const ObsDataQG<int> &) const {
+  oops::Log::trace() << classname() << "::print starting" << std::endl;
+
+  std::stringstream ss;
+  this->print(ss);
+  std::string grep = "\n" + prefix;
+  if (!grep.empty() && std::isalnum(grep.back())) grep += ": ";
+
+  oops::Log::trace() << classname() << "::print done" << std::endl;
+  return grep + ss.str();
+}
+*/
 // -----------------------------------------------------------------------------
 
 void ObsVector::print(std::ostream & os) const {

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.h.tmp.bak	2025-01-28 13:35:39.813325913 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.h	2025-01-28 13:36:18.025565106 +0100
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.h.tmp.bak	2025-03-26 11:01:17.066244964 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.h	2025-03-15 18:32:59.856847973 +0100
 @@ -8,20 +8,28 @@
  
  #pragma once
@@ -71,7 +71,7 @@
      {return vars_;}
    const util::DateTime & time() const
      {return time_;}
-@@ -94,6 +111,10 @@
+@@ -94,9 +111,13 @@
    void serialize(std::vector<double> &) const;
    void deserialize(const std::vector<double> &,
                     size_t &);
@@ -81,7 +81,11 @@
 +                                    Fields &);
  
    // Grid interpolations
-   static std::vector<quenchxx::Interpolation>& interpolations();
+-  static std::vector<quenchxx::Interpolation>& interpolations();
++  static std::vector<quenchxx::Interpolation> & interpolations();
+ 
+   // Duplicate points
+   void resetDuplicatePoints();
 @@ -108,11 +129,17 @@
    // Return grid interpolation
    std::vector<quenchxx::Interpolation>::iterator setupGridInterpolation(const Geometry &) const;

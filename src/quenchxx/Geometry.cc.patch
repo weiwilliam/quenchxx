@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.cc.tmp.bak	2025-02-03 11:29:31.388090557 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.cc	2025-02-03 11:30:16.155348984 +0100
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.cc.tmp.bak	2025-03-26 12:13:40.437356966 +0100
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.cc	2025-03-26 12:11:58.595899995 +0100
 @@ -30,6 +30,7 @@
  #include "oops/util/Logger.h"
  
@@ -89,15 +89,6 @@
  void Geometry::print(std::ostream & os) const {
    oops::Log::trace() << classname() << "::print starting" << std::endl;
  
-@@ -456,7 +497,7 @@
-     std::vector<float> zlat(nlat);
-     std::vector<uint8_t> zlsm(nlat*nlon);
-     if ((retval = nc_get_var_float(ncid, lon_id, zlon.data()))) ERR(retval, "lon");
--    if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval, "lon");
-+    if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval, "lat");
-     if ((retval = nc_get_var_ubyte(ncid, lsm_id, zlsm.data()))) ERR(retval, "LMASK");
- 
-     // Copy data
 @@ -542,5 +583,23 @@
  }
  

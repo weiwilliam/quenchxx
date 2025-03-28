@@ -98,6 +98,7 @@ testinput/ec/evil_truth.json
 testinput/ec/glb_3dvar.json
 testinput/ec/glb_3densvar.json
 testinput/ec/glb_4densvar.json
+testinput/ec/glb_4denvar.json
 testinput/ec/glb_background_06.json
 testinput/ec/glb_background_12.json
 testinput/ec/glb_background_18.json
@@ -124,6 +125,7 @@ testinput/ec/glb_truth_18.json
 testinput/ec/reg_3dvar.json
 testinput/ec/reg_3densvar.json
 testinput/ec/reg_4densvar.json
+testinput/ec/reg_4denvar.json
 testinput/ec/reg_background_06.json
 testinput/ec/reg_background_12.json
 testinput/ec/reg_background_18.json
@@ -289,6 +291,7 @@ testref/ec/evil_truth.ref
 testref/ec/glb_3dvar.ref
 testref/ec/glb_3densvar.ref
 testref/ec/glb_4densvar.ref
+testref/ec/glb_4denvar.ref
 testref/ec/glb_getkf_nonlinear.ref
 testref/ec/glb_hofx.ref
 testref/ec/glb_letkf_linear.ref
@@ -301,6 +304,7 @@ testref/ec/glb_letkf_read_members.ref
 testref/ec/reg_3dvar.ref
 testref/ec/reg_3densvar.ref
 testref/ec/reg_4densvar.ref
+testref/ec/reg_4denvar.ref
 testref/ec/reg_getkf_nonlinear.ref
 testref/ec/reg_hofx.ref
 testref/ec/reg_letkf_linear.ref
@@ -397,6 +401,9 @@ foreach( mpi "1" "4" )
         create_test( ${domain}_3dvar ${mpi} variational )
         create_test( ${domain}_3densvar ${mpi} variational )
         create_test( ${domain}_4densvar ${mpi} variational )
+        if( ECSABER )
+            create_test( ${domain}_4denvar ${mpi} variational )
+        endif()
         create_test( ${domain}_getkf_nonlinear ${mpi} letkf )
         create_test( ${domain}_letkf_linear ${mpi} letkf )
         create_test( ${domain}_letkf_linear_4d ${mpi} letkf )

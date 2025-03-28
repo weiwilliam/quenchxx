@@ -109,7 +109,7 @@ Geometry::Geometry(const eckit::Configuration & config,
       eckit::LocalConfiguration fileGeomConfig(config);
       std::vector<eckit::LocalConfiguration> groupsConfig(1);
       groupsConfig[0].set("variables", vert_coordVars);
-      groupsConfig[0].set("levels", 1);
+      groupsConfig[0].set("levels", group.levels_);
       fileGeomConfig.set("groups", groupsConfig);
       Geometry fileGeom(fileGeomConfig);
       Fields field(fileGeom, vert_coordVar, util::DateTime());

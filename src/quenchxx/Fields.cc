@@ -54,7 +54,7 @@ static std::vector<quenchxx::Interpolation> interpolationsVector;
 
 // -----------------------------------------------------------------------------
 
-std::vector<quenchxx::Interpolation>& Fields::interpolations() {
+std::vector<quenchxx::Interpolation> & Fields::interpolations() {
   return interpolationsVector;
 }
 
@@ -1412,12 +1412,13 @@ void Fields::print(std::ostream & os) const {
   oops::Log::trace() << classname() << "::print starting" << std::endl;
 
   os << std::endl;
-  os << *geom_;
   std::string prefix;
   if (os.rdbuf() == oops::Log::info().rdbuf()) {
     prefix = "Info     : ";
   }
-  os << prefix << "Fields:";
+  os << prefix << "  Geometry: " << geom_->grid().name() << " [" << geom_->grid().size() << "]"
+    << std::endl;
+  os << prefix << "  Fields:";
   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
   for (const auto & var : vars_) {
     os << std::endl;
@@ -1437,7 +1438,7 @@ void Fields::print(std::ostream & os) const {
     }
     geom_->getComm().allReduceInPlace(zz, eckit::mpi::sum());
     zz = sqrt(zz);
-    os << prefix << "  " << var.name() << ": " << zz;
+    os << prefix << "    " << var.name() << ": " << zz;
   }
 
   oops::Log::trace() << classname() << "::print done" << std::endl;
@@ -1562,7 +1563,7 @@ std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geomet
                               geomUid);
 
   // Insert new interpolation
-  interpolations().push_back(interpolation);
+  interpolations().emplace_back(interpolation);
 
   oops::Log::trace() << classname() << "::setupGridInterpolation done" << std::endl;
   return std::prev(interpolations().end());
