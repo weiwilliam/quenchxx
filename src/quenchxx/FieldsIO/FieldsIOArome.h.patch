@@ -1,0 +1,21 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.h.tmp	2025-03-31 09:48:22.923901652 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.h	2025-03-31 09:43:41.636257485 +0200
+@@ -9,16 +9,15 @@
+ 
+ #include "eckit/config/Configuration.h"
+ 
+-#include "oops/base/Variables.h"
+-
+ #include "quenchxx/Geometry.h"
++#include "quenchxx/VariablesSwitch.h"
+ 
+ namespace quenchxx {
+ 
+ // -----------------------------------------------------------------------------
+ 
+ void readArome(const Geometry &,
+-               const oops::Variables &,
++               const varns::Variables &,
+                const eckit::Configuration &,
+                atlas::FieldSet &);
+ 

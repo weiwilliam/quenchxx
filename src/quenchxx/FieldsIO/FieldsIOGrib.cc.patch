@@ -1,0 +1,11 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOGrib.cc.tmp	2025-03-31 09:48:22.872901363 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOGrib.cc	2025-03-31 09:44:29.011542589 +0200
+@@ -26,7 +26,7 @@
+ // -----------------------------------------------------------------------------
+ 
+ void readGrib(const Geometry & geom,
+-              const oops::Variables & vars_in_file,
++              const varns::Variables & vars_in_file,
+               const eckit::Configuration & config,
+               atlas::FieldSet & fset) {
+   oops::Log::trace() << "quenchxx::readGrib starting" << std::endl;

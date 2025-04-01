@@ -1,0 +1,13 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOGmsh.h.tmp	2025-03-31 09:48:22.889901459 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOGmsh.h	2025-03-31 09:43:12.979083038 +0200
+@@ -9,9 +9,8 @@
+ 
+ #include "eckit/config/Configuration.h"
+ 
+-#include "oops/base/Variables.h"
+-
+ #include "quenchxx/Geometry.h"
++#include "quenchxx/VariablesSwitch.h"
+ 
+ namespace quenchxx {
+ 

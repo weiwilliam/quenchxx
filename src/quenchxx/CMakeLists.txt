@@ -11,6 +11,14 @@ Constants.h
 Covariance.h
 Fields.cc
 Fields.h
+FieldsIO/FieldsIOArome.cc
+FieldsIO/FieldsIOArome.h
+FieldsIO/FieldsIODefault.cc
+FieldsIO/FieldsIODefault.h
+FieldsIO/FieldsIOGmsh.cc
+FieldsIO/FieldsIOGmsh.h
+FieldsIO/FieldsIOGrib.cc
+FieldsIO/FieldsIOGrib.h
 Geometry.cc
 Geometry.h
 GeometryIterator.cc

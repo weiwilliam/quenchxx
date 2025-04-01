@@ -1,0 +1,20 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc.tmp.bak	2025-04-01 13:42:44.411052824 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc	2025-04-01 13:02:31.326771901 +0200
+@@ -20,7 +20,7 @@
+ // -----------------------------------------------------------------------------
+ 
+ void readArome(const Geometry & geom,
+-               const oops::Variables & vars,
++               const varns::Variables & vars,
+                const eckit::Configuration & config,
+                atlas::FieldSet & fset) {
+   oops::Log::trace() << "quenchxx::readArome starting" << std::endl;
+@@ -41,7 +41,7 @@
+   fset.clear();
+ 
+   // Variables to copy / to read
+-  oops::Variables varsToRead;
++  varns::Variables varsToRead;
+   for (const auto & var : vars) {
+     if (var.name() == "air_pressure") {
+       // Copy air_pressure from vertical coordinates

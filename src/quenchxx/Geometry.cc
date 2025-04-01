@@ -59,6 +59,54 @@ Geometry::Geometry(const eckit::Configuration & config,
   // Add owned points mask -- this mask does not depend on the group so was precomputed
   fields_->add(fieldsetOwnedMask.field("owned"));
 
+  // Levels direction
+  levelsAreTopDown_ = params.levelsAreTopDown.value();
+
+  // Model data
+  modelData_ = params.modelData.value();
+
+  // Variable name alias
+  for (const auto & item : params.alias.value()) {
+    eckit::LocalConfiguration confItem;
+    item.serialize(confItem);
+    alias_.push_back(confItem);
+  }
+
+  if (params.checkAliasConsistency.value()) {
+    // Check alias consistency
+    std::vector<std::string> vars;
+    for (const auto & groupParams : params.groups.value()) {
+      const std::vector<std::string> grpVars = groupParams.variables.value();
+      vars.insert(vars.end(), grpVars.begin(), grpVars.end());
+    }
+    for (const auto & item : alias_) {
+      const std::string codeVar = item.getString("in code");
+      if (std::find(vars.begin(), vars.end(), codeVar) == vars.end()) {
+        // Code variable not available in the list of variables anymore
+        throw eckit::UserError("Alias error: code variable not available anymore", Here());
+     } else {
+        // Remove code variable from the list of available variables
+        vars.erase(std::remove(vars.begin(), vars.end(), codeVar), vars.end());
+      }
+    }
+    for (const auto & item : alias_) {
+      const std::string fileVar = item.getString("in file");
+      if (std::find(vars.begin(), vars.end(), fileVar) == vars.end()) {
+        // Add file variable to the list of variables
+        vars.push_back(fileVar);
+      } else {
+        // File variable is already present in the list of variables
+        throw eckit::UserError("Alias error: duplicated file variable", Here());
+      }
+    }
+  }
+
+  // Latitudes from south to north in files
+  latSouthToNorth_ = params.latSouthToNorth.value();
+
+  // Get ghost view
+  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
+
   // Groups
   size_t groupIndex = 0;
   for (const auto & groupParams : params.groups.value()) {
@@ -82,94 +130,7 @@ Geometry::Geometry(const eckit::Configuration & config,
     group.lev2d_ = groupParams.lev2d.value();
 
     // Vertical coordinate
-    const boost::optional<std::vector<double>> &vert_coordParams = groupParams.vert_coord.value();
-    const boost::optional<eckit::LocalConfiguration> &vert_coordParamsFromFile =
-      groupParams.vert_coordFromFile.value();
-    const std::string vert_coordName = "vert_coord_" + std::to_string(groupIndex);
-    group.vert_coord_ = functionSpace_.createField<double>(
-      atlas::option::name(vert_coordName) | atlas::option::levels(group.levels_));
-    group.vert_coord_.metadata().set("interp_type", "default");
-    auto vert_coordView = atlas::array::make_view<double, 2>(group.vert_coord_);
-    if (vert_coordParams != boost::none) {
-      // From a vector of doubles (one for each level)
-      if (vert_coordParams->size() != group.levels_) {
-        throw eckit::UserError("Wrong number of levels in the user-specified vertical coordinate",
-          Here());
-      }
-      for (atlas::idx_t jnode = 0; jnode < group.vert_coord_.shape(0); ++jnode) {
-        for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
-          vert_coordView(jnode, jlevel) = (*vert_coordParams)[jlevel];
-        }
-      }
-    } else if (vert_coordParamsFromFile != boost::none) {
-      // From a file
-      const std::vector<std::string> vert_coordVars =
-        vert_coordParamsFromFile->getStringVector("variables");
-      const varns::Variables vert_coordVar(vert_coordVars);
-      eckit::LocalConfiguration fileGeomConfig(config);
-      std::vector<eckit::LocalConfiguration> groupsConfig(1);
-      groupsConfig[0].set("variables", vert_coordVars);
-      groupsConfig[0].set("levels", group.levels_);
-      fileGeomConfig.set("groups", groupsConfig);
-      Geometry fileGeom(fileGeomConfig);
-      Fields field(fileGeom, vert_coordVar, util::DateTime());
-      field.read(*vert_coordParamsFromFile);
-      const auto view = atlas::array::make_view<double, 2>(field.fieldSet()[vert_coordVars[0]]);
-      for (atlas::idx_t jnode = 0; jnode < group.vert_coord_.shape(0); ++jnode) {
-        for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
-          vert_coordView(jnode, jlevel) = view(jnode, jlevel);
-        }
-      }
-    } else {
-      // From level index
-      for (atlas::idx_t jnode = 0; jnode < group.vert_coord_.shape(0); ++jnode) {
-        for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
-          vert_coordView(jnode, jlevel) = static_cast<double>(jlevel+1);
-        }
-      }
-    }
-
-    // Average vertical coordinate
-    const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
-    const auto ownedView = atlas::array::make_view<int, 2>(fields_.field("owned"));
-    for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
-      double avg = 0.0;
-      double counter = 0.0;
-      for (atlas::idx_t jnode = 0; jnode < group.vert_coord_.shape(0); ++jnode) {
-        if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
-          avg += vert_coordView(jnode, jlevel);
-          counter += 1.0;
-        }
-      }
-      comm_.allReduceInPlace(avg, eckit::mpi::sum());
-      comm_.allReduceInPlace(counter, eckit::mpi::sum());
-      if (counter > 0.0) {
-        avg /= counter;
-      }
-      group.vert_coord_avg_.push_back(avg);
-    }
-
-    // Add orography (mountain) on bottom level
-    const boost::optional<OrographyParameters> &orographyParams = groupParams.orography.value();
-    if (orographyParams != boost::none) {
-      const atlas::PointLonLat topPoint({orographyParams->topLon.value(),
-        orographyParams->topLat.value()});
-      const auto lonlatView = atlas::array::make_view<double, 2>(functionSpace_.lonlat());
-      for (atlas::idx_t jnode = 0; jnode < lonlatView.shape(0); ++jnode) {
-        const double delta = (group.levels_ == 1) ? 1.0 :
-          vert_coordView(jnode, group.levels_-2)-vert_coordView(jnode, group.levels_-1);
-        const atlas::PointLonLat xPoint({lonlatView(jnode, 0), orographyParams->topLat.value()});
-        const atlas::PointLonLat yPoint({orographyParams->topLon.value(), lonlatView(jnode, 1)});
-        double dxNorm = atlas::util::Earth().distance(xPoint, topPoint)
-          /orographyParams->zonalLength.value();
-        double dyNorm = atlas::util::Earth().distance(yPoint, topPoint)
-          /orographyParams->meridionalLength.value();
-        double distNorm = std::sqrt(dxNorm*dxNorm+dyNorm*dyNorm);
-        double orography = delta*orographyParams->height.value()*oops::gc99(distNorm);
-        vert_coordView(jnode, group.levels_-1) += orography;
-      }
-    }
-    fields_->add(group.vert_coord_);
+    setupVertCoord(config, groupParams, groupIndex, group);
 
     // Default mask, set to 1 (true)
     const std::string gmaskName = "gmask_" + std::to_string(groupIndex);
@@ -216,49 +177,6 @@ Geometry::Geometry(const eckit::Configuration & config,
     groupIndex++;
   }
 
-  // Levels direction
-  levelsAreTopDown_ = params.levelsAreTopDown.value();
-
-  // Model data
-  modelData_ = params.modelData.value();
-
-  // Alias
-  for (const auto & item : params.alias.value()) {
-    eckit::LocalConfiguration confItem;
-    item.serialize(confItem);
-    alias_.push_back(confItem);
-  }
-
-  // Check alias consistency
-  std::vector<std::string> vars;
-  for (const auto & groupParams : params.groups.value()) {
-    const std::vector grpVars = groupParams.variables.value();
-    vars.insert(vars.end(), grpVars.begin(), grpVars.end());
-  }
-  for (const auto & item : alias_) {
-    const std::string codeVar = item.getString("in code");
-    if (std::find(vars.begin(), vars.end(), codeVar) == vars.end()) {
-      // Code variable not available in the list of variables anymore
-      throw eckit::UserError("Alias error: duplicated code variable", Here());
-    } else {
-      // Remove code variable from the list of available variables
-      vars.erase(std::remove(vars.begin(), vars.end(), codeVar), vars.end());
-    }
-  }
-  for (const auto & item : alias_) {
-    const std::string fileVar = item.getString("in file");
-    if (std::find(vars.begin(), vars.end(), fileVar) == vars.end()) {
-      // Add file variable to the list of variables
-      vars.push_back(fileVar);
-    } else {
-      // File variable is already present in the list of variables
-      throw eckit::UserError("Alias error: duplicated file variable", Here());
-    }
-  }
-
-  // Latitudes from south to north in files
-  latSouthToNorth_ = params.latSouthToNorth.value();
-
   // Interpolation
   const boost::optional<InterpolationParameters> &interpParams = params.interpolation.value();
   if (interpParams != boost::none) {
@@ -269,7 +187,6 @@ Geometry::Geometry(const eckit::Configuration & config,
   }
 
   // Check for duplicate points
-  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
   const auto ownedView = atlas::array::make_view<int, 2>(fields_.field("owned"));
   size_t duplicatedPointsCount = 0;
   for (atlas::idx_t jnode = 0; jnode < fields_.field("owned").shape(0); ++jnode) {
@@ -285,27 +202,30 @@ Geometry::Geometry(const eckit::Configuration & config,
   iteratorDimension_ = config.getInt("iterator dimension", 2);
   ASSERT((iteratorDimension_ == 2) || (iteratorDimension_ == 3));
 
+  // First group vertical coordinate field
+  const auto vertCoord = groups_[0].vertCoord_;
+
   // Domain size
-  nnodes_ = fields().field("vert_coord_0").shape(0);
-  nlevs_ = fields().field("vert_coord_0").shape(1);
+  nnodes_ = vertCoord.shape(0);
+  nlevs_ = vertCoord.shape(1);
 
   // Averaged vertical coordinate
-  const auto vert_coordView = atlas::array::make_view<double, 2>(fields().field("vert_coord_0"));
+  const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoord);
   for (atlas::idx_t jlevel = 0; jlevel < nlevs_; ++jlevel) {
-    double vert_coord_avg = 0.0;
+    double vertCoordAvg = 0.0;
     double counter = 0.0;
     for (atlas::idx_t jnode = 0; jnode < nnodes_; ++jnode) {
       if (ghostView(jnode) == 0) {
-        vert_coord_avg += vert_coordView(jnode, jlevel);
+        vertCoordAvg += vertCoordView(jnode, jlevel);
         counter += 1.0;
       }
     }
-    comm.allReduceInPlace(vert_coord_avg, eckit::mpi::sum());
+    comm.allReduceInPlace(vertCoordAvg, eckit::mpi::sum());
     comm.allReduceInPlace(counter, eckit::mpi::sum());
     if (counter > 0.0) {
-      vert_coord_avg /= counter;
+      vertCoordAvg /= counter;
     }
-    vert_coord_avg_.push_back(vert_coord_avg);
+    vertCoordAvg_.push_back(vertCoordAvg);
   }
 
   // GeometryData
@@ -313,8 +233,16 @@ Geometry::Geometry(const eckit::Configuration & config,
     geomData_.reset(new oops::GeometryData(functionSpace_, fields_, levelsAreTopDown_, comm_));
   }
 
+  // Check lon/lat from files 
+  const boost::optional<eckit::LocalConfiguration> &checkLonLatParams = params.checkLonLat.value();
+  if (checkLonLatParams != boost::none) {
+    checkLonLat(config, *checkLonLatParams);
+  }
+
   // Print summary
-  this->print(oops::Log::info());
+  if (params.printSummary.value()) {
+    this->print(oops::Log::info());
+  }
 
   oops::Log::trace() << classname() << "::Geometry done" << std::endl;
 }
@@ -327,7 +255,7 @@ Geometry::Geometry(const Geometry & other)
   levelsAreTopDown_(other.levelsAreTopDown_), modelData_(other.modelData_), alias_(other.alias_),
   latSouthToNorth_(other.latSouthToNorth_), interpolation_(other.interpolation_),
   duplicatePoints_(other.duplicatePoints_), iteratorDimension_(other.iteratorDimension_),
-  nnodes_(other.nnodes_), nlevs_(other.nlevs_), vert_coord_avg_(other.vert_coord_avg_) {
+  nnodes_(other.nnodes_), nlevs_(other.nlevs_), vertCoordAvg_(other.vertCoordAvg_) {
   oops::Log::trace() << classname() << "::Geometry starting" << std::endl;
 
   // Copy function space
@@ -366,10 +294,10 @@ Geometry::Geometry(const Geometry & other)
     group.lev2d_ = other.groups_[groupIndex].lev2d_;
 
     // Copy vertical coordinate
-    group.vert_coord_ = other.groups_[groupIndex].vert_coord_;
+    group.vertCoord_ = other.groups_[groupIndex].vertCoord_;
 
     // Copy averaged vertical coordinate
-    group.vert_coord_avg_ = other.groups_[groupIndex].vert_coord_avg_;
+    group.vertCoordAvg_ = other.groups_[groupIndex].vertCoordAvg_;
 
     // Copy mask size
     group.gmaskSize_ = other.groups_[groupIndex].gmaskSize_;
@@ -384,6 +312,20 @@ Geometry::Geometry(const Geometry & other)
   }
 
   oops::Log::trace() << classname() << "::Geometry done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+size_t Geometry::groupIndex(const std::string & var) const {
+  oops::Log::trace() << classname() << "::groupIndex starting" << std::endl;
+
+  if (groupIndex_.find(var) == groupIndex_.end()) {
+    throw eckit::Exception("cannot find group index for variable " + var, Here());
+  }
+  const size_t groupIndex = groupIndex_.at(var);
+
+  oops::Log::trace() << classname() << "::groupIndex done" << std::endl;
+  return groupIndex;
 }
 
 // -----------------------------------------------------------------------------
@@ -439,7 +381,7 @@ void Geometry::print(std::ostream & os) const {
     os << prefix << "- Group " << groupIndex << ":" << std::endl;
     os << prefix << "  Vertical levels: " << std::endl;
     os << prefix << "  - number: " << levels(groupIndex) << std::endl;
-    os << prefix << "  - vert_coord: " << groups_[groupIndex].vert_coord_avg_ << std::endl;
+    os << prefix << "  - vertCoord: " << groups_[groupIndex].vertCoordAvg_ << std::endl;
     os << prefix << "  Mask size: " << static_cast<int>(groups_[groupIndex].gmaskSize_*100.0)
        << "%" << std::endl;
   }
@@ -584,6 +526,292 @@ void Geometry::readSeaMask(const std::string & maskPath,
 
 // -----------------------------------------------------------------------------
 
+void Geometry::checkLonLat(const eckit::Configuration & config,
+                           const eckit::Configuration & checkLonLatParams) {
+  oops::Log::trace() << classname() << "::checkLonLat starting" << std::endl;
+
+  // Return if configuration is empty
+  if (checkLonLatParams.empty()) {
+    return;
+  }
+
+  // Get variable to read
+  const std::string lonName = checkLonLatParams.getString("longitude", "longitude");
+  const std::string latName = checkLonLatParams.getString("latitude", "latitude");
+  const oops::Variables lonLatVars(std::vector<std::string>({lonName, latName}));
+
+  // Add new group to read coordinates
+  groupData coordGroup;
+  coordGroup.levels_ = 1;
+  groupIndex_["longitude"] = groups_.size();
+  groupIndex_["latitude"] = groups_.size();
+  groups_.push_back(coordGroup);
+
+  // Create field
+  Fields field(*this, lonLatVars, util::DateTime());
+
+  // Read field
+  field.read(checkLonLatParams);
+
+  // Get views
+  const auto lonView = atlas::array::make_view<double, 2>(field.fieldSet()[lonName]);
+  const auto latView = atlas::array::make_view<double, 2>(field.fieldSet()[latName]);
+
+  // Get lon/lat view
+  const auto lonlatView = atlas::array::make_view<double, 2>(functionSpace_.lonlat());
+
+  // Get ghost view
+  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
+
+  // Check lon/lat
+  for (atlas::idx_t jnode = 0; jnode < functionSpace_.lonlat().shape(0); ++jnode) {
+    if (ghostView(jnode) == 0) {
+      if (std::abs(lonView(jnode, 0)-lonlatView(jnode, 0)) > 1.0e-6) {
+        std::cout << lonView(jnode, 0) << " = " << lonlatView(jnode, 0) << std::endl;
+        throw eckit::Exception("inaccurate longitude", Here());
+      }
+      if (std::abs(latView(jnode, 0)-lonlatView(jnode, 1)) > 1.0e-6) {
+        std::cout << latView(jnode, 0) << " = " << lonlatView(jnode, 1) << std::endl;
+        throw eckit::Exception("inaccurate latitude", Here());
+      }
+    }
+  }
+
+  oops::Log::trace() << classname() << "::checkLonLat starting" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void Geometry::setupVertCoord(const eckit::Configuration & config,
+                              const GroupParameters & groupParams,
+                              const size_t & groupIndex,
+                              groupData & group) {
+  oops::Log::trace() << classname() << "::setupVertCoord starting" << std::endl;
+
+  // Get optional parameters
+  const boost::optional<eckit::LocalConfiguration> &vertCoordConf =
+    groupParams.vertCoordConf.value();
+
+  // Get vertical coordinate name
+  std::string vertCoordName = "vert_coord_" + std::to_string(groupIndex);
+  if (vertCoordConf != boost::none) {
+    if (vertCoordConf->has("name")) {
+      vertCoordName = vertCoordConf->getString("name");
+    }
+  }
+
+  // Create vertical coordinate
+  group.vertCoord_ = functionSpace_.createField<double>(
+    atlas::option::name(vertCoordName) | atlas::option::levels(group.levels_));
+
+  // Set interpolation metadata
+  group.vertCoord_.metadata().set("interp_type", "default");
+
+  // Get view
+  auto vertCoordView = atlas::array::make_view<double, 2>(group.vertCoord_);
+
+  if (vertCoordConf != boost::none) {
+    // Vertical coordinate from a configuration
+    if (vertCoordConf->has("profile")) {
+      // From a vector of doubles (one for each level)
+      const std::vector<double> profile = vertCoordConf->getDoubleVector("profile");
+      if (profile.size() != group.levels_) {
+        throw eckit::UserError("Wrong number of levels in the user-specified vertical coordinate",
+          Here());
+      }
+      for (atlas::idx_t jnode = 0; jnode < group.vertCoord_.shape(0); ++jnode) {
+        for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
+          vertCoordView(jnode, jlevel) = profile[jlevel];
+        }
+      }
+    } else {
+      // From a file
+      const bool hybridVertCoord = (vertCoordConf->has("ak") && vertCoordConf->has("bk"));
+
+      // Get variable to read
+      const std::string varName = vertCoordConf->getString("variable");
+      const oops::Variables vertCoordVars(std::vector<std::string>({varName}));
+
+      // Prepare geometry configuration
+      eckit::LocalConfiguration fileGeomConfig(config);
+      std::vector<eckit::LocalConfiguration> groupsConfig(1);
+      groupsConfig[0].set("variables", vertCoordVars.variables());
+      if (hybridVertCoord) {
+        // Read surface pressure only
+        groupsConfig[0].set("levels", 1);
+      } else {
+        // Read 3D field
+        groupsConfig[0].set("levels", group.levels_);
+      }
+      fileGeomConfig.set("groups", groupsConfig);
+      fileGeomConfig.set("check alias consistency", false);
+      fileGeomConfig.set("print summary", false);
+      fileGeomConfig.set("check lon/lat from file", eckit::LocalConfiguration());
+
+      // Create geometry
+      Geometry fileGeom(fileGeomConfig);
+
+      // Create field
+      Fields field(fileGeom, vertCoordVars, util::DateTime());
+
+      // Read field
+      field.read(*vertCoordConf);
+
+      // Get view
+      const auto view = atlas::array::make_view<double, 2>(field.fieldSet()[varName]);
+
+      if (hybridVertCoord) {
+        // Hybrid coordinates
+        std::vector<double> ak(group.levels_);
+        std::vector<double> bk(group.levels_);
+        if (comm_.rank() == 0) {
+          // NetCDF file path
+          const std::string ncFilePath = vertCoordConf->getString("filepath") + ".nc";
+
+          // NetCDF IDs
+          int ncid, retval, dim_id, ak_id, bk_id;
+          size_t nab;
+
+          // Open NetCDF file
+          if ((retval = nc_open(ncFilePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncFilePath);
+
+          // Get hybrid coordinates IDs
+          const std::string akName = vertCoordConf->getString("ak");
+          const std::string bkName = vertCoordConf->getString("bk");
+          if ((retval = nc_inq_varid(ncid, akName.c_str(), &ak_id))) ERR(retval, akName);
+          if ((retval = nc_inq_varid(ncid, bkName.c_str(), &bk_id))) ERR(retval, bkName);
+
+          // Get hybrid coordinates dimension
+          if ((retval = nc_inq_vardimid(ncid, ak_id, &dim_id))) ERR(retval, akName);
+          if ((retval = nc_inq_dimlen(ncid, dim_id, &nab))) ERR(retval, "nab");
+
+          // Read data
+          std::vector<double> akFromFile(nab);
+          std::vector<double> bkFromFile(nab);
+          if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data()))) ERR(retval, akName);
+          if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data()))) ERR(retval, bkName);
+
+          // Close file
+          if ((retval = nc_close(ncid))) ERR(retval, ncFilePath);
+
+          if (nab == group.levels_) {
+            // Copy hybrid coefficients
+            for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
+              ak[jlevel] = akFromFile[jlevel];
+              bk[jlevel] = bkFromFile[jlevel+1];
+            }
+          } else if (nab == group.levels_+1) {
+            // Assuming field levels at hybrid coefficients half levels
+            for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
+              ak[jlevel] = 0.5*(akFromFile[jlevel]+akFromFile[jlevel+1]);
+              bk[jlevel] = 0.5*(bkFromFile[jlevel]+bkFromFile[jlevel+1]);
+            }
+          } else {
+            throw eckit::Exception("wrong number of levels in hybrid vertical coordinates", Here());
+          }
+        }
+
+        // Broadcast hybrid coordinates
+        comm_.broadcast(ak.begin(), ak.end(), 0);
+        comm_.broadcast(bk.begin(), bk.end(), 0);
+
+        // Compute hybrid vertical coordinate
+        for (atlas::idx_t jnode = 0; jnode < group.vertCoord_.shape(0); ++jnode) {
+          for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
+            vertCoordView(jnode, jlevel) = ak[jlevel] + bk[jlevel]*view(jnode, 0);
+          }
+        }
+      } else {
+        // Copy 3D field
+        for (atlas::idx_t jnode = 0; jnode < group.vertCoord_.shape(0); ++jnode) {
+          for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
+            vertCoordView(jnode, jlevel) = view(jnode, jlevel);
+          }
+        }
+      }
+    }
+  } else {
+    // From level index (default)
+    for (atlas::idx_t jnode = 0; jnode < group.vertCoord_.shape(0); ++jnode) {
+      for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
+        vertCoordView(jnode, jlevel) = static_cast<double>(jlevel+1);
+      }
+    }
+  }
+
+  // Get ghost and owned views
+  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
+  const auto ownedView = atlas::array::make_view<int, 2>(fields_.field("owned"));
+
+  // Average vertical coordinate
+  for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
+    // Initialization
+    double avg = 0.0;
+    double counter = 0.0;
+
+    // Loop over owned points
+    for (atlas::idx_t jnode = 0; jnode < group.vertCoord_.shape(0); ++jnode) {
+      if (ghostView(jnode) == 0 && ownedView(jnode, 0) == 1) {
+        avg += vertCoordView(jnode, jlevel);
+        counter += 1.0;
+      }
+    }
+
+    // Communication
+    comm_.allReduceInPlace(avg, eckit::mpi::sum());
+    comm_.allReduceInPlace(counter, eckit::mpi::sum());
+
+    // Normalization
+    if (counter > 0.0) {
+      avg /= counter;
+    }
+
+    // Update profile
+    group.vertCoordAvg_.push_back(avg);
+  }
+
+  // Add orography (mountain) on bottom level
+  const boost::optional<OrographyParameters> &orographyParams = groupParams.orography.value();
+  if (orographyParams != boost::none) {
+    // Get top latitude value
+    const atlas::PointLonLat topPoint({orographyParams->topLon.value(),
+      orographyParams->topLat.value()});
+
+    // Get lon/lat view
+    const auto lonlatView = atlas::array::make_view<double, 2>(functionSpace_.lonlat());
+
+    for (atlas::idx_t jnode = 0; jnode < lonlatView.shape(0); ++jnode) {
+      // Get delta
+      const double delta = (group.levels_ == 1) ? 1.0 :
+        vertCoordView(jnode, group.levels_-2)-vertCoordView(jnode, group.levels_-1);
+
+      // Get x and y points
+      const atlas::PointLonLat xPoint({lonlatView(jnode, 0), orographyParams->topLat.value()});
+      const atlas::PointLonLat yPoint({orographyParams->topLon.value(), lonlatView(jnode, 1)});
+
+      // Compute normalization
+      const double dxNorm = atlas::util::Earth().distance(xPoint, topPoint)
+        /orographyParams->zonalLength.value();
+      const double dyNorm = atlas::util::Earth().distance(yPoint, topPoint)
+        /orographyParams->meridionalLength.value();
+      const double distNorm = std::sqrt(dxNorm*dxNorm+dyNorm*dyNorm);
+
+      // Define orography
+      const double orography = delta*orographyParams->height.value()*oops::gc99(distNorm);
+
+      // Add orography to existing vertical coordinate
+      vertCoordView(jnode, group.levels_-1) += orography;
+    }
+  }
+
+  // Add vertical coordinate in Geometry fields
+  fields_->add(group.vertCoord_);
+
+  oops::Log::trace() << classname() << "::setupVertCoord starting" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
 GeometryIterator Geometry::begin() const {
   return GeometryIterator(*this, 0, 0);
 }
@@ -597,7 +825,7 @@ GeometryIterator Geometry::end() const {
 // -----------------------------------------------------------------------------
 
 std::vector<double> Geometry::verticalCoord(std::string & vcUnits) const {
-  return vert_coord_avg_;
+  return vertCoordAvg_;
 }
 
 // -----------------------------------------------------------------------------

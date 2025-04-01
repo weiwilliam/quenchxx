@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h.tmp.bak	2025-01-18 06:56:55.382721345 +0100
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h	2024-12-07 08:12:29.858178952 +0100
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h.tmp.bak	2025-04-01 13:53:54.343698059 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h	2025-04-01 13:54:38.411936342 +0200
 @@ -21,7 +21,6 @@
  #include "eckit/mpi/Comm.h"
  
@@ -23,7 +23,7 @@
  
  // -----------------------------------------------------------------------------
  /// Orography parameters
-@@ -173,7 +175,8 @@
+@@ -179,7 +181,8 @@
    Geometry(const Geometry &);
  
    // Variables sizes
@@ -33,14 +33,16 @@
  
    // Levels direction
    bool levelsAreTopDown() const
-@@ -214,9 +217,24 @@
+@@ -219,9 +222,26 @@
      {return interpolation_;}
    bool duplicatePoints() const
      {return duplicatePoints_;}
 +  const eckit::mpi::Comm & timeComm() const
 +    {return eckit::mpi::self();}
-+  const std::vector<double> & vert_coord_avg(const std::string & var) const
-+    {return groups_[groupIndex_.at(var)].vert_coord_avg_;}
++  const atlas::Field & vertCoord(const std::string & var) const
++    {return groups_[groupIndex(var)].vertCoord_;}
++  const std::vector<double> & vertCoordAvg(const std::string & var) const
++    {return groups_[groupIndex(var)].vertCoordAvg_;}
    const oops::GeometryData & generic() const
      {return *geomData_;}
  
@@ -56,9 +58,9 @@
 +    {return nlevs_;}
 +
   private:
-   // Print
-   void print(std::ostream &) const;
-@@ -284,6 +302,12 @@
+   // Communicator
+   const eckit::mpi::Comm & comm_;
+@@ -280,6 +300,12 @@
    // Duplicate points
    bool duplicatePoints_;
  
@@ -66,8 +68,8 @@
 +  size_t iteratorDimension_;
 +  size_t nnodes_;
 +  size_t nlevs_;
-+  std::vector<double> vert_coord_avg_;
++  std::vector<double> vertCoordAvg_;
 +
    // Geometry data structure
    std::unique_ptr<oops::GeometryData> geomData_;
- };
+ 
