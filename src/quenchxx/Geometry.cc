@@ -65,47 +65,11 @@ Geometry::Geometry(const eckit::Configuration & config,
   // Model data
   modelData_ = params.modelData.value();
 
-  // Variable name alias
-  for (const auto & item : params.alias.value()) {
-    eckit::LocalConfiguration confItem;
-    item.serialize(confItem);
-    alias_.push_back(confItem);
-  }
-
-  if (params.checkAliasConsistency.value()) {
-    // Check alias consistency
-    std::vector<std::string> vars;
-    for (const auto & groupParams : params.groups.value()) {
-      const std::vector<std::string> grpVars = groupParams.variables.value();
-      vars.insert(vars.end(), grpVars.begin(), grpVars.end());
-    }
-    for (const auto & item : alias_) {
-      const std::string codeVar = item.getString("in code");
-      if (std::find(vars.begin(), vars.end(), codeVar) == vars.end()) {
-        // Code variable not available in the list of variables anymore
-        throw eckit::UserError("Alias error: code variable not available anymore", Here());
-     } else {
-        // Remove code variable from the list of available variables
-        vars.erase(std::remove(vars.begin(), vars.end(), codeVar), vars.end());
-      }
-    }
-    for (const auto & item : alias_) {
-      const std::string fileVar = item.getString("in file");
-      if (std::find(vars.begin(), vars.end(), fileVar) == vars.end()) {
-        // Add file variable to the list of variables
-        vars.push_back(fileVar);
-      } else {
-        // File variable is already present in the list of variables
-        throw eckit::UserError("Alias error: duplicated file variable", Here());
-      }
-    }
-  }
-
   // Latitudes from south to north in files
   latSouthToNorth_ = params.latSouthToNorth.value();
 
-  // Get ghost view
-  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
+  // Variable name alias
+  setupAlias(params);
 
   // Groups
   size_t groupIndex = 0;
@@ -130,45 +94,10 @@ Geometry::Geometry(const eckit::Configuration & config,
     group.lev2d_ = groupParams.lev2d.value();
 
     // Vertical coordinate
-    setupVertCoord(config, groupParams, groupIndex, group);
+    setupVertCoord(groupParams, groupIndex, group);
 
-    // Default mask, set to 1 (true)
-    const std::string gmaskName = "gmask_" + std::to_string(groupIndex);
-    atlas::Field gmask = functionSpace_.createField<int>(
-      atlas::option::name(gmaskName) | atlas::option::levels(group.levels_));
-    auto maskView = atlas::array::make_view<int, 2>(gmask);
-    maskView.assign(1);
-
-    // Specific mask
-    if (groupParams.maskType.value() == "none") {
-      // No mask
-    } else if (groupParams.maskType.value() == "sea") {
-      // Read sea mask
-      ASSERT(groupParams.maskPath.value());
-      readSeaMask(*groupParams.maskPath.value(), group.levels_, group.lev2d_, gmask);
-    } else {
-      throw eckit::UserError("Wrong mask type", Here());
-    }
-    fields_->add(gmask);
-
-    // Mask size
-    group.gmaskSize_ = 0.0;
-    size_t domainSize = 0.0;
-    for (atlas::idx_t jnode = 0; jnode < gmask.shape(0); ++jnode) {
-      for (atlas::idx_t jlevel = 0; jlevel < gmask.shape(1); ++jlevel) {
-        if (ghostView(jnode) == 0) {
-          if (maskView(jnode, jlevel) == 1) {
-            group.gmaskSize_ += 1.0;
-          }
-          domainSize++;
-        }
-      }
-    }
-    comm_.allReduceInPlace(group.gmaskSize_, eckit::mpi::sum());
-    comm_.allReduceInPlace(domainSize, eckit::mpi::sum());
-    if (domainSize > 0) {
-      group.gmaskSize_ = group.gmaskSize_/static_cast<double>(domainSize);
-    }
+    // Setup mask
+    setupMask(groupParams, groupIndex, group);
 
     // Save group
     groups_.push_back(group);
@@ -178,7 +107,7 @@ Geometry::Geometry(const eckit::Configuration & config,
   }
 
   // Interpolation
-  const boost::optional<InterpolationParameters> &interpParams = params.interpolation.value();
+  const auto &interpParams = params.interpolation.value();
   if (interpParams != boost::none) {
     interpolation_ = interpParams->toConfiguration();
   } else {
@@ -186,7 +115,13 @@ Geometry::Geometry(const eckit::Configuration & config,
       interpolation_.set("interpolation type", "unstructured");
   }
 
+  // GeometryData
+  if (interpolation_.getString("interpolation type") == "unstructured") {
+    geomData_.reset(new oops::GeometryData(functionSpace_, fields_, levelsAreTopDown_, comm_));
+  }
+
   // Check for duplicate points
+  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
   const auto ownedView = atlas::array::make_view<int, 2>(fields_.field("owned"));
   size_t duplicatedPointsCount = 0;
   for (atlas::idx_t jnode = 0; jnode < fields_.field("owned").shape(0); ++jnode) {
@@ -197,6 +132,12 @@ Geometry::Geometry(const eckit::Configuration & config,
   }
   comm_.allReduceInPlace(duplicatedPointsCount, eckit::mpi::sum());
   duplicatePoints_ = (duplicatedPointsCount > 0);
+
+  // Check lon/lat from files
+  const auto &checkLonLatConf = params.checkLonLat.value();
+  if (checkLonLatConf != boost::none) {
+    checkLonLat(*checkLonLatConf);
+  }
 
   // Iterator dimension
   iteratorDimension_ = config.getInt("iterator dimension", 2);
@@ -226,17 +167,6 @@ Geometry::Geometry(const eckit::Configuration & config,
       vertCoordAvg /= counter;
     }
     vertCoordAvg_.push_back(vertCoordAvg);
-  }
-
-  // GeometryData
-  if (interpolation_.getString("interpolation type") == "unstructured") {
-    geomData_.reset(new oops::GeometryData(functionSpace_, fields_, levelsAreTopDown_, comm_));
-  }
-
-  // Check lon/lat from files 
-  const boost::optional<eckit::LocalConfiguration> &checkLonLatParams = params.checkLonLat.value();
-  if (checkLonLatParams != boost::none) {
-    checkLonLat(config, *checkLonLatParams);
   }
 
   // Print summary
@@ -395,202 +325,56 @@ void Geometry::print(std::ostream & os) const {
 
 // -----------------------------------------------------------------------------
 
-void Geometry::readSeaMask(const std::string & maskPath,
-                           const size_t & levels,
-                           const std::string & lev2d,
-                           atlas::Field & gmask) const {
-  oops::Log::trace() << classname() << "::readSeaMask starting" << std::endl;
+void Geometry::setupAlias(const GeometryParameters & params) {
+  oops::Log::trace() << classname() << "::setupAlias starting" << std::endl;
 
-  // Lon/lat sizes
-  size_t nlon = 0;
-  size_t nlat = 0;
-
-  // NetCDF IDs
-  int ncid, retval, nlon_id, nlat_id, lon_id, lat_id, lsm_id;
-
-  if (comm_.rank() == 0) {
-    // Open NetCDF file
-    if ((retval = nc_open(maskPath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, maskPath);
-
-    // Get lon/lat sizes
-    if ((retval = nc_inq_dimid(ncid, "lon", &nlon_id))) ERR(retval, "lon");
-    if ((retval = nc_inq_dimid(ncid, "lat", &nlat_id))) ERR(retval, "lat");
-    if ((retval = nc_inq_dimlen(ncid, nlon_id, &nlon))) ERR(retval, "lon");
-    if ((retval = nc_inq_dimlen(ncid, nlat_id, &nlat))) ERR(retval, "lat");
+  for (const auto & item : params.alias.value()) {
+    eckit::LocalConfiguration confItem;
+    item.serialize(confItem);
+    alias_.push_back(confItem);
   }
 
-  // Broadcast lon/lat sizes
-  comm_.broadcast(nlon, 0);
-  comm_.broadcast(nlat, 0);
-
-  // Coordinates and land-sea mask
-  std::vector<double> lon(nlon);
-  std::vector<double> lat(nlat);
-  std::vector<int> lsm(nlat*nlon);
-
-  if (comm_.rank() == 0) {
-    // Get lon/lat
-    if ((retval = nc_inq_varid(ncid, "lon", &lon_id))) ERR(retval, "lon");
-    if ((retval = nc_inq_varid(ncid, "lat", &lat_id))) ERR(retval, "lat");
-    if ((retval = nc_inq_varid(ncid, "LSMASK", &lsm_id))) ERR(retval, "LMASK");
-
-    // Read data
-    std::vector<float> zlon(nlon);
-    std::vector<float> zlat(nlat);
-    std::vector<uint8_t> zlsm(nlat*nlon);
-    if ((retval = nc_get_var_float(ncid, lon_id, zlon.data()))) ERR(retval, "lon");
-    if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval, "lat");
-    if ((retval = nc_get_var_ubyte(ncid, lsm_id, zlsm.data()))) ERR(retval, "LMASK");
-
-    // Copy data
-    for (size_t ilon = 0; ilon < nlon; ++ilon) {
-      lon[ilon] = static_cast<double>(zlon[ilon]);
+  if (params.checkAliasConsistency.value()) {
+    // Check alias consistency
+    std::vector<std::string> vars;
+    for (const auto & groupParams : params.groups.value()) {
+      const std::vector<std::string> grpVars = groupParams.variables.value();
+      vars.insert(vars.end(), grpVars.begin(), grpVars.end());
     }
-    for (size_t ilat = 0; ilat < nlat; ++ilat) {
-      lat[ilat] = static_cast<double>(zlat[ilat]);
-    }
-    for (size_t ilat = 0; ilat < nlat; ++ilat) {
-     for (size_t ilon = 0; ilon < nlon; ++ilon) {
-        lsm[ilat*nlon+ilon] = static_cast<int>(zlsm[ilat*nlon+ilon]);
+    for (const auto & item : alias_) {
+      const std::string codeVar = item.getString("in code");
+      if (std::find(vars.begin(), vars.end(), codeVar) == vars.end()) {
+        // Code variable not available in the list of variables anymore
+        throw eckit::UserError("Alias error: code variable not available anymore", Here());
+     } else {
+        // Remove code variable from the list of available variables
+        vars.erase(std::remove(vars.begin(), vars.end(), codeVar), vars.end());
       }
     }
-
-    // Close file
-    if ((retval = nc_close(ncid))) ERR(retval, maskPath);
-  }
-
-  // Broadcast coordinates and land-sea mask
-  comm_.broadcast(lon.begin(), lon.end(), 0);
-  comm_.broadcast(lat.begin(), lat.end(), 0);
-  comm_.broadcast(lsm.begin(), lsm.end(), 0);
-
-  // Build KD-tree
-  atlas::Geometry geometry(atlas::util::Earth::radius());
-  atlas::util::IndexKDTree2D search(geometry);
-  search.reserve(nlat*nlon);
-  std::vector<double> lon2d;
-  std::vector<double> lat2d;
-  std::vector<size_t> payload2d;
-  int jnode = 0;
-  for (size_t ilat = 0; ilat < nlat; ++ilat) {
-    for (size_t ilon = 0; ilon < nlon; ++ilon) {
-      lon2d.push_back(lon[ilon]);
-      lat2d.push_back(lat[ilat]);
-      payload2d.push_back(jnode);
-      ++jnode;
-    }
-  }
-  search.build(lon2d, lat2d, payload2d);
-
-  // Ghost points
-  atlas::Field ghost = functionSpace_.ghost();
-  auto ghostView = atlas::array::make_view<int, 1>(ghost);
-
-  if (functionSpace_.type() == "StructuredColumns") {
-    // StructuredColumns
-    atlas::functionspace::StructuredColumns fs(functionSpace_);
-    auto lonlatView = atlas::array::make_view<double, 2>(fs.xy());
-    auto maskView = atlas::array::make_view<int, 2>(gmask);
-    for (atlas::idx_t jnode = 0; jnode < fs.xy().shape(0); ++jnode) {
-      if (ghostView(jnode) == 0) {
-        // Find nearest neighbor
-        size_t nn = search.closestPoint(atlas::PointLonLat{lonlatView(jnode, 0),
-          lonlatView(jnode, 1)}).payload();
-
-        // Ocean points for all levels
-        for (size_t jlevel = 0; jlevel < levels; ++jlevel) {
-          if (lsm[nn] == 0) {
-             maskView(jnode, jlevel) = 1;
-           } else {
-             maskView(jnode, jlevel) = 0;
-           }
-         }
-
-        // Ocean + small islands for:
-        // - the first level of 3D fields,
-        // - the 2D fields if lev2d = "first"
-        if (lsm[nn] == 3) {
-          if ((levels > 1) || (lev2d == "first")) {
-            maskView(jnode, 0) = 1;
-          }
-        }
+    for (const auto & item : alias_) {
+      const std::string fileVar = item.getString("in file");
+      if (std::find(vars.begin(), vars.end(), fileVar) == vars.end()) {
+        // Add file variable to the list of variables
+        vars.push_back(fileVar);
+      } else {
+        // File variable is already present in the list of variables
+        throw eckit::UserError("Alias error: duplicated file variable", Here());
       }
     }
-  } else {
-    throw eckit::NotImplemented("Sea mask not supported for " + functionSpace_.type() + " yet",
-      Here());
   }
 
-  oops::Log::trace() << classname() << "::readSeaMask done" << std::endl;
+  oops::Log::trace() << classname() << "::setupAlias done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
 
-void Geometry::checkLonLat(const eckit::Configuration & config,
-                           const eckit::Configuration & checkLonLatParams) {
-  oops::Log::trace() << classname() << "::checkLonLat starting" << std::endl;
-
-  // Return if configuration is empty
-  if (checkLonLatParams.empty()) {
-    return;
-  }
-
-  // Get variable to read
-  const std::string lonName = checkLonLatParams.getString("longitude", "longitude");
-  const std::string latName = checkLonLatParams.getString("latitude", "latitude");
-  const oops::Variables lonLatVars(std::vector<std::string>({lonName, latName}));
-
-  // Add new group to read coordinates
-  groupData coordGroup;
-  coordGroup.levels_ = 1;
-  groupIndex_["longitude"] = groups_.size();
-  groupIndex_["latitude"] = groups_.size();
-  groups_.push_back(coordGroup);
-
-  // Create field
-  Fields field(*this, lonLatVars, util::DateTime());
-
-  // Read field
-  field.read(checkLonLatParams);
-
-  // Get views
-  const auto lonView = atlas::array::make_view<double, 2>(field.fieldSet()[lonName]);
-  const auto latView = atlas::array::make_view<double, 2>(field.fieldSet()[latName]);
-
-  // Get lon/lat view
-  const auto lonlatView = atlas::array::make_view<double, 2>(functionSpace_.lonlat());
-
-  // Get ghost view
-  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
-
-  // Check lon/lat
-  for (atlas::idx_t jnode = 0; jnode < functionSpace_.lonlat().shape(0); ++jnode) {
-    if (ghostView(jnode) == 0) {
-      if (std::abs(lonView(jnode, 0)-lonlatView(jnode, 0)) > 1.0e-6) {
-        std::cout << lonView(jnode, 0) << " = " << lonlatView(jnode, 0) << std::endl;
-        throw eckit::Exception("inaccurate longitude", Here());
-      }
-      if (std::abs(latView(jnode, 0)-lonlatView(jnode, 1)) > 1.0e-6) {
-        std::cout << latView(jnode, 0) << " = " << lonlatView(jnode, 1) << std::endl;
-        throw eckit::Exception("inaccurate latitude", Here());
-      }
-    }
-  }
-
-  oops::Log::trace() << classname() << "::checkLonLat starting" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
-void Geometry::setupVertCoord(const eckit::Configuration & config,
-                              const GroupParameters & groupParams,
+void Geometry::setupVertCoord(const GroupParameters & groupParams,
                               const size_t & groupIndex,
                               groupData & group) {
   oops::Log::trace() << classname() << "::setupVertCoord starting" << std::endl;
 
   // Get optional parameters
-  const boost::optional<eckit::LocalConfiguration> &vertCoordConf =
-    groupParams.vertCoordConf.value();
+  const auto &vertCoordConf = groupParams.vertCoordConf.value();
 
   // Get vertical coordinate name
   std::string vertCoordName = "vert_coord_" + std::to_string(groupIndex);
@@ -632,27 +416,8 @@ void Geometry::setupVertCoord(const eckit::Configuration & config,
       const std::string varName = vertCoordConf->getString("variable");
       const oops::Variables vertCoordVars(std::vector<std::string>({varName}));
 
-      // Prepare geometry configuration
-      eckit::LocalConfiguration fileGeomConfig(config);
-      std::vector<eckit::LocalConfiguration> groupsConfig(1);
-      groupsConfig[0].set("variables", vertCoordVars.variables());
-      if (hybridVertCoord) {
-        // Read surface pressure only
-        groupsConfig[0].set("levels", 1);
-      } else {
-        // Read 3D field
-        groupsConfig[0].set("levels", group.levels_);
-      }
-      fileGeomConfig.set("groups", groupsConfig);
-      fileGeomConfig.set("check alias consistency", false);
-      fileGeomConfig.set("print summary", false);
-      fileGeomConfig.set("check lon/lat from file", eckit::LocalConfiguration());
-
-      // Create geometry
-      Geometry fileGeom(fileGeomConfig);
-
       // Create field
-      Fields field(fileGeom, vertCoordVars, util::DateTime());
+      Fields field(*this, vertCoordVars, util::DateTime());
 
       // Read field
       field.read(*vertCoordConf);
@@ -771,7 +536,7 @@ void Geometry::setupVertCoord(const eckit::Configuration & config,
   }
 
   // Add orography (mountain) on bottom level
-  const boost::optional<OrographyParameters> &orographyParams = groupParams.orography.value();
+  const auto &orographyParams = groupParams.orography.value();
   if (orographyParams != boost::none) {
     // Get top latitude value
     const atlas::PointLonLat topPoint({orographyParams->topLon.value(),
@@ -808,6 +573,224 @@ void Geometry::setupVertCoord(const eckit::Configuration & config,
   fields_->add(group.vertCoord_);
 
   oops::Log::trace() << classname() << "::setupVertCoord starting" << std::endl;
+}
+
+
+// -----------------------------------------------------------------------------
+
+void Geometry::setupMask(const GroupParameters & groupParams,
+                         const size_t & groupIndex,
+                         groupData & group) {
+  oops::Log::trace() << classname() << "::setupMask starting" << std::endl;
+
+  // Default mask, set to 1 (true)
+  const std::string gmaskName = "gmask_" + std::to_string(groupIndex);
+  atlas::Field gmask = functionSpace_.createField<int>(
+    atlas::option::name(gmaskName) | atlas::option::levels(group.levels_));
+  auto maskView = atlas::array::make_view<int, 2>(gmask);
+  maskView.assign(1);
+
+  // Ghost view
+  auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
+
+  // Specific mask
+  if (groupParams.maskType.value() == "none") {
+    // No mask
+  } else if (groupParams.maskType.value() == "sea") {
+    // Read sea mask
+
+    // Lon/lat sizes
+    size_t nlon = 0;
+    size_t nlat = 0;
+
+    // File path
+    ASSERT(groupParams.maskPath.value());
+    const std::string ncFilePath = *groupParams.maskPath.value();
+
+    // NetCDF IDs
+    int ncid, retval, nlon_id, nlat_id, lon_id, lat_id, lsm_id;
+
+    if (comm_.rank() == 0) {
+      // Open NetCDF file
+      if ((retval = nc_open(ncFilePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncFilePath);
+
+      // Get lon/lat sizes
+      if ((retval = nc_inq_dimid(ncid, "lon", &nlon_id))) ERR(retval, "lon");
+      if ((retval = nc_inq_dimid(ncid, "lat", &nlat_id))) ERR(retval, "lat");
+      if ((retval = nc_inq_dimlen(ncid, nlon_id, &nlon))) ERR(retval, "lon");
+      if ((retval = nc_inq_dimlen(ncid, nlat_id, &nlat))) ERR(retval, "lat");
+    }
+
+    // Broadcast lon/lat sizes
+    comm_.broadcast(nlon, 0);
+    comm_.broadcast(nlat, 0);
+
+    // Coordinates and land-sea mask
+    std::vector<double> lon(nlon);
+    std::vector<double> lat(nlat);
+    std::vector<int> lsm(nlat*nlon);
+
+    if (comm_.rank() == 0) {
+      // Get lon/lat
+      if ((retval = nc_inq_varid(ncid, "lon", &lon_id))) ERR(retval, "lon");
+      if ((retval = nc_inq_varid(ncid, "lat", &lat_id))) ERR(retval, "lat");
+      if ((retval = nc_inq_varid(ncid, "LSMASK", &lsm_id))) ERR(retval, "LMASK");
+
+      // Read data
+      std::vector<float> zlon(nlon);
+      std::vector<float> zlat(nlat);
+      std::vector<uint8_t> zlsm(nlat*nlon);
+      if ((retval = nc_get_var_float(ncid, lon_id, zlon.data()))) ERR(retval, "lon");
+      if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval, "lat");
+      if ((retval = nc_get_var_ubyte(ncid, lsm_id, zlsm.data()))) ERR(retval, "LMASK");
+
+      // Copy data
+      for (size_t ilon = 0; ilon < nlon; ++ilon) {
+        lon[ilon] = static_cast<double>(zlon[ilon]);
+      }
+      for (size_t ilat = 0; ilat < nlat; ++ilat) {
+        lat[ilat] = static_cast<double>(zlat[ilat]);
+      }
+      for (size_t ilat = 0; ilat < nlat; ++ilat) {
+       for (size_t ilon = 0; ilon < nlon; ++ilon) {
+          lsm[ilat*nlon+ilon] = static_cast<int>(zlsm[ilat*nlon+ilon]);
+        }
+      }
+
+      // Close file
+      if ((retval = nc_close(ncid))) ERR(retval, ncFilePath);
+    }
+
+    // Broadcast coordinates and land-sea mask
+    comm_.broadcast(lon.begin(), lon.end(), 0);
+    comm_.broadcast(lat.begin(), lat.end(), 0);
+    comm_.broadcast(lsm.begin(), lsm.end(), 0);
+
+    // Build KD-tree
+    atlas::Geometry geometry(atlas::util::Earth::radius());
+    atlas::util::IndexKDTree2D search(geometry);
+    search.reserve(nlat*nlon);
+    std::vector<double> lon2d;
+    std::vector<double> lat2d;
+    std::vector<size_t> payload2d;
+    int jnode = 0;
+    for (size_t ilat = 0; ilat < nlat; ++ilat) {
+      for (size_t ilon = 0; ilon < nlon; ++ilon) {
+        lon2d.push_back(lon[ilon]);
+        lat2d.push_back(lat[ilat]);
+        payload2d.push_back(jnode);
+        ++jnode;
+      }
+    }
+    search.build(lon2d, lat2d, payload2d);
+
+    if (functionSpace_.type() == "StructuredColumns") {
+      // StructuredColumns
+      atlas::functionspace::StructuredColumns fs(functionSpace_);
+      auto lonlatView = atlas::array::make_view<double, 2>(fs.xy());
+      auto maskView = atlas::array::make_view<int, 2>(gmask);
+      for (atlas::idx_t jnode = 0; jnode < fs.xy().shape(0); ++jnode) {
+        if (ghostView(jnode) == 0) {
+          // Find nearest neighbor
+          size_t nn = search.closestPoint(atlas::PointLonLat{lonlatView(jnode, 0),
+            lonlatView(jnode, 1)}).payload();
+
+          // Ocean points for all levels
+          for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
+            if (lsm[nn] == 0) {
+               maskView(jnode, jlevel) = 1;
+             } else {
+               maskView(jnode, jlevel) = 0;
+             }
+           }
+
+          // Ocean + small islands for:
+          // - the first level of 3D fields,
+          // - the 2D fields if lev2d = "first"
+          if (lsm[nn] == 3) {
+            if ((group.levels_ > 1) || (group.lev2d_ == "first")) {
+              maskView(jnode, 0) = 1;
+            }
+          }
+        }
+      }
+    } else {
+      throw eckit::NotImplemented("Sea mask not supported for " + functionSpace_.type() + " yet",
+        Here());
+    }
+  } else {
+    throw eckit::UserError("Wrong mask type", Here());
+  }
+  fields_->add(gmask);
+
+  // Mask size
+  group.gmaskSize_ = 0.0;
+  size_t domainSize = 0.0;
+  for (atlas::idx_t jnode = 0; jnode < gmask.shape(0); ++jnode) {
+    for (atlas::idx_t jlevel = 0; jlevel < gmask.shape(1); ++jlevel) {
+      if (ghostView(jnode) == 0) {
+        if (maskView(jnode, jlevel) == 1) {
+          group.gmaskSize_ += 1.0;
+        }
+        domainSize++;
+      }
+    }
+  }
+  comm_.allReduceInPlace(group.gmaskSize_, eckit::mpi::sum());
+  comm_.allReduceInPlace(domainSize, eckit::mpi::sum());
+  if (domainSize > 0) {
+    group.gmaskSize_ = group.gmaskSize_/static_cast<double>(domainSize);
+  }
+
+  oops::Log::trace() << classname() << "::setupMask done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void Geometry::checkLonLat(const eckit::Configuration & checkLonLatConf) const {
+  oops::Log::trace() << classname() << "::checkLonLat starting" << std::endl;
+
+  // Return if configuration is empty
+  if (checkLonLatConf.empty()) {
+    return;
+  }
+
+  // Get variable to read
+  const std::string lonName = checkLonLatConf.getString("longitude", "longitude");
+  const std::string latName = checkLonLatConf.getString("latitude", "latitude");
+  const oops::Variables lonLatVars(std::vector<std::string>({lonName, latName}));
+
+  // Create field
+  Fields field(*this, lonLatVars, util::DateTime());
+
+  // Read field
+  field.read(checkLonLatConf);
+
+  // Get views
+  const auto lonView = atlas::array::make_view<double, 2>(field.fieldSet()[lonName]);
+  const auto latView = atlas::array::make_view<double, 2>(field.fieldSet()[latName]);
+
+  // Get lon/lat view
+  const auto lonlatView = atlas::array::make_view<double, 2>(functionSpace_.lonlat());
+
+  // Get ghost view
+  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
+
+  // Check lon/lat
+  for (atlas::idx_t jnode = 0; jnode < functionSpace_.lonlat().shape(0); ++jnode) {
+    if (ghostView(jnode) == 0) {
+      if (std::abs(lonView(jnode, 0)-lonlatView(jnode, 0)) > 1.0e-6) {
+        std::cout << lonView(jnode, 0) << " = " << lonlatView(jnode, 0) << std::endl;
+        throw eckit::Exception("inaccurate longitude", Here());
+      }
+      if (std::abs(latView(jnode, 0)-lonlatView(jnode, 1)) > 1.0e-6) {
+        std::cout << latView(jnode, 0) << " = " << lonlatView(jnode, 1) << std::endl;
+        throw eckit::Exception("inaccurate latitude", Here());
+      }
+    }
+  }
+
+  oops::Log::trace() << classname() << "::checkLonLat starting" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

@@ -15,14 +15,14 @@ namespace quenchxx {
 // -----------------------------------------------------------------------------
 
 void readDefault(const Geometry & geom,
-                 const varns::Variables & vars_in_file,
+                 const varns::Variables & vars,
                  const eckit::Configuration & config,
                  atlas::FieldSet & fset) {
   oops::Log::trace() << "quenchxx::readDefault starting" << std::endl;
 
   // Create variableSizes
   std::vector<size_t> variableSizes;
-  for (const auto & var : vars_in_file) {
+  for (const auto & var : vars) {
     variableSizes.push_back(var.getLevels());
   }
 
@@ -36,7 +36,7 @@ void readDefault(const Geometry & geom,
   util::readFieldSet(geom.getComm(),
                      geom.functionSpace(),
                      variableSizes,
-                     vars_in_file.variables(),
+                     vars.variables(),
                      conf,
                      fset);
 

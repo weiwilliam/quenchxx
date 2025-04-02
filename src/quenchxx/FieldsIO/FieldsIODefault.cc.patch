@@ -1,11 +1,11 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIODefault.cc.tmp	2025-03-31 09:48:22.905901550 +0200
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIODefault.cc	2025-03-31 09:45:08.228775768 +0200
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIODefault.cc.tmp.bak	2025-04-02 10:55:31.070046009 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIODefault.cc	2025-04-02 11:10:07.113047808 +0200
 @@ -15,7 +15,7 @@
  // -----------------------------------------------------------------------------
  
  void readDefault(const Geometry & geom,
--                 const oops::Variables & vars_in_file,
-+                 const varns::Variables & vars_in_file,
+-                 const oops::Variables & vars,
++                 const varns::Variables & vars,
                   const eckit::Configuration & config,
                   atlas::FieldSet & fset) {
    oops::Log::trace() << "quenchxx::readDefault starting" << std::endl;

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h.tmp.bak	2025-04-01 13:53:54.343698059 +0200
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h	2025-04-01 13:54:38.411936342 +0200
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h.tmp.bak	2025-04-02 10:55:30.919045005 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h	2025-04-02 11:01:07.212315665 +0200
 @@ -21,7 +21,6 @@
  #include "eckit/mpi/Comm.h"
  

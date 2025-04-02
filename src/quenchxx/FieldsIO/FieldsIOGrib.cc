@@ -26,7 +26,7 @@ namespace quenchxx {
 // -----------------------------------------------------------------------------
 
 void readGrib(const Geometry & geom,
-              const varns::Variables & vars_in_file,
+              const varns::Variables & vars,
               const eckit::Configuration & config,
               atlas::FieldSet & fset) {
   oops::Log::trace() << "quenchxx::readGrib starting" << std::endl;
@@ -47,13 +47,13 @@ void readGrib(const Geometry & geom,
   gribfilepath.append(config.getString("grib extension", "grib2"));
 
   // Get levels
-  std::vector<size_t> levels;
+  std::vector<int> levels;
   if (!config.get("levels", levels)) {
-    size_t levelMax = 0;
-    for (const auto & var : vars_in_file) {
-      levelMax = std::max(levelMax, geom.levels(var.name()));
+    int levelMax = 0;
+    for (const auto & var : vars) {
+      levelMax = std::max(levelMax, var.getLevels());
     }
-    for (size_t k = 0; k < levelMax; ++k) {
+    for (int k = 0; k < levelMax; ++k) {
       levels.push_back(k+1);
     }
   }
@@ -62,9 +62,9 @@ void readGrib(const Geometry & geom,
   fset.clear();
 
   // Create local fieldset
-  for (const auto & var : vars_in_file) {
+  for (const auto & var : vars) {
     atlas::Field field = geom.functionSpace().createField<double>(
-      atlas::option::name(var.name()) | atlas::option::levels(geom.levels(var.name())));
+      atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
     fset.add(field);
   }
 
@@ -76,10 +76,10 @@ void readGrib(const Geometry & geom,
 
   // Global data
   atlas::FieldSet globalData;
-  for (const auto & var : vars_in_file) {
+  for (const auto & var : vars) {
     atlas::Field field = geom.functionSpace().createField<double>(
       atlas::option::name(var.name())
-      | atlas::option::levels(geom.levels(var.name())) | atlas::option::global());
+      | atlas::option::levels(var.getLevels()) | atlas::option::global());
     globalData.add(field);
   }
 
@@ -97,7 +97,7 @@ void readGrib(const Geometry & geom,
       &ret);
     CODES_CHECK(ret, 0);
 
-    for (const auto & var : vars_in_file) {
+    for (const auto & var : vars) {
       // Get field view
       auto varView = atlas::array::make_view<double, 2>(globalData[var.name()]);
 
@@ -105,7 +105,7 @@ void readGrib(const Geometry & geom,
       CODES_CHECK(codes_index_select_string(index, "cfVarName", var.name().c_str()), 0);
       CODES_CHECK(codes_index_select_string(index, "typeOfLevel", "hybrid"), 0);
 
-      for (size_t k = 0; k < geom.levels(var.name()); ++k) {
+      for (int k = 0; k < var.getLevels(); ++k) {
         // Select level
         CODES_CHECK(codes_index_select_long(index, "level", levels[k]), 0);
 

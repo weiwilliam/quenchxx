@@ -314,21 +314,21 @@ class Geometry : public util::Printable,
   // Print
   void print(std::ostream &) const;
 
-  // Read land-sea mask
-  void readSeaMask(const std::string &,
-                   const size_t &,
-                   const std::string &,
-                   atlas::Field &) const;
-
-  // Check longitudes/latitudes from file
-  void checkLonLat(const eckit::Configuration &,
-                   const eckit::Configuration &);
+  // Setup alias
+  void setupAlias(const GeometryParameters &);
 
   // Setup vertical coordinate
-  void setupVertCoord(const eckit::Configuration &,
-                      const GroupParameters &,
+  void setupVertCoord(const GroupParameters &,
                       const size_t &,
                       groupData &);
+
+  // Setup mask
+  void setupMask(const GroupParameters &,
+                 const size_t &,
+                 groupData &);
+
+  // Check longitudes/latitudes from file
+  void checkLonLat(const eckit::Configuration &) const;
 };
 
 // -----------------------------------------------------------------------------
