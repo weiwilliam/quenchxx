@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h.tmp.bak	2025-04-02 10:55:30.919045005 +0200
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h	2025-04-02 11:01:07.212315665 +0200
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h.tmp.bak	2025-04-02 13:14:02.429137583 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h	2025-04-02 12:46:27.445639191 +0200
 @@ -21,7 +21,6 @@
  #include "eckit/mpi/Comm.h"
  
@@ -60,7 +60,7 @@
   private:
    // Communicator
    const eckit::mpi::Comm & comm_;
-@@ -280,6 +300,12 @@
+@@ -282,6 +302,12 @@
    // Duplicate points
    bool duplicatePoints_;
  
@@ -73,3 +73,13 @@
    // Geometry data structure
    std::unique_ptr<oops::GeometryData> geomData_;
  
+@@ -301,6 +327,9 @@
+ 
+   // Check longitudes/latitudes from file
+   void checkLonLat(const eckit::Configuration &);
++
++  // Setup iterator
++  void setupIterator(const eckit::Configuration &);
+ };
+ 
+ // -----------------------------------------------------------------------------

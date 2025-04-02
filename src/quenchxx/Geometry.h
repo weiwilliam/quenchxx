@@ -269,6 +269,8 @@ class Geometry : public util::Printable,
 
   // Group data structure
   struct groupData {
+    GroupParameters params_;
+    size_t index_;
     size_t levels_;
     std::string lev2d_;
     atlas::Field vertCoord_;
@@ -317,18 +319,17 @@ class Geometry : public util::Printable,
   // Setup alias
   void setupAlias(const GeometryParameters &);
 
-  // Setup vertical coordinate
-  void setupVertCoord(const GroupParameters &,
-                      const size_t &,
-                      groupData &);
+  // Setup group vertical coordinate
+  void setupVertCoord(groupData &);
 
-  // Setup mask
-  void setupMask(const GroupParameters &,
-                 const size_t &,
-                 groupData &);
+  // Setup group mask
+  void setupMask(groupData &);
 
   // Check longitudes/latitudes from file
-  void checkLonLat(const eckit::Configuration &) const;
+  void checkLonLat(const eckit::Configuration &);
+
+  // Setup iterator
+  void setupIterator(const eckit::Configuration &);
 };
 
 // -----------------------------------------------------------------------------

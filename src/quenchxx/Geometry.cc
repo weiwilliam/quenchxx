@@ -71,48 +71,13 @@ Geometry::Geometry(const eckit::Configuration & config,
   // Variable name alias
   setupAlias(params);
 
-  // Groups
-  size_t groupIndex = 0;
-  for (const auto & groupParams : params.groups.value()) {
-    // Use this group index for all the group variables
-    for (const auto & var : groupParams.variables.value()) {
-      if (groupIndex_.find(var) != groupIndex_.end()) {
-        throw eckit::UserError(
-          "Same variable present in distinct groups " + var, Here());
-      } else {
-        groupIndex_[var] = groupIndex;
-      }
-    }
-
-    // Define group
-    groupData group;
-
-    // Number of levels
-    group.levels_ = groupParams.levels.value();
-
-    // Corresponding level for 2D variables (first or last)
-    group.lev2d_ = groupParams.lev2d.value();
-
-    // Vertical coordinate
-    setupVertCoord(groupParams, groupIndex, group);
-
-    // Setup mask
-    setupMask(groupParams, groupIndex, group);
-
-    // Save group
-    groups_.push_back(group);
-
-    // Increment group index
-    groupIndex++;
-  }
-
   // Interpolation
   const auto &interpParams = params.interpolation.value();
   if (interpParams != boost::none) {
     interpolation_ = interpParams->toConfiguration();
   } else {
     interpolation_ = eckit::LocalConfiguration();
-      interpolation_.set("interpolation type", "unstructured");
+    interpolation_.set("interpolation type", "unstructured");
   }
 
   // GeometryData
@@ -133,41 +98,59 @@ Geometry::Geometry(const eckit::Configuration & config,
   comm_.allReduceInPlace(duplicatedPointsCount, eckit::mpi::sum());
   duplicatePoints_ = (duplicatedPointsCount > 0);
 
+  // Groups
+  size_t groupIndex = 0;
+  for (const auto & groupParams : params.groups.value()) {
+    // Define group
+    groupData group;
+
+    // Copy group parameters
+    group.params_ = groupParams;
+
+    // Copy group index
+    group.index_ = groupIndex;
+
+    // Use this group index for all the group variables
+    for (const auto & var : groupParams.variables.value()) {
+      if (groupIndex_.find(var) != groupIndex_.end()) {
+        throw eckit::UserError(
+          "Same variable present in distinct groups " + var, Here());
+      } else {
+        groupIndex_[var] = groupIndex;
+      }
+    }
+
+    // Number of levels
+    group.levels_ = groupParams.levels.value();
+
+    // Corresponding level for 2D variables (first or last)
+    group.lev2d_ = groupParams.lev2d.value();
+
+    // Save group
+    groups_.push_back(group);
+
+    // Increment group index
+    groupIndex++;
+  }
+
+  // Vertical coordinate
+  for (auto & group : groups_) {
+    setupVertCoord(group);
+  }
+
+  // Setup mask
+  for (auto & group : groups_) {
+    setupMask(group);
+  }
+
   // Check lon/lat from files
   const auto &checkLonLatConf = params.checkLonLat.value();
   if (checkLonLatConf != boost::none) {
     checkLonLat(*checkLonLatConf);
   }
 
-  // Iterator dimension
-  iteratorDimension_ = config.getInt("iterator dimension", 2);
-  ASSERT((iteratorDimension_ == 2) || (iteratorDimension_ == 3));
-
-  // First group vertical coordinate field
-  const auto vertCoord = groups_[0].vertCoord_;
-
-  // Domain size
-  nnodes_ = vertCoord.shape(0);
-  nlevs_ = vertCoord.shape(1);
-
-  // Averaged vertical coordinate
-  const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoord);
-  for (atlas::idx_t jlevel = 0; jlevel < nlevs_; ++jlevel) {
-    double vertCoordAvg = 0.0;
-    double counter = 0.0;
-    for (atlas::idx_t jnode = 0; jnode < nnodes_; ++jnode) {
-      if (ghostView(jnode) == 0) {
-        vertCoordAvg += vertCoordView(jnode, jlevel);
-        counter += 1.0;
-      }
-    }
-    comm.allReduceInPlace(vertCoordAvg, eckit::mpi::sum());
-    comm.allReduceInPlace(counter, eckit::mpi::sum());
-    if (counter > 0.0) {
-      vertCoordAvg /= counter;
-    }
-    vertCoordAvg_.push_back(vertCoordAvg);
-  }
+  // Setup iterator
+  setupIterator(config);
 
   // Print summary
   if (params.printSummary.value()) {
@@ -368,16 +351,14 @@ void Geometry::setupAlias(const GeometryParameters & params) {
 
 // -----------------------------------------------------------------------------
 
-void Geometry::setupVertCoord(const GroupParameters & groupParams,
-                              const size_t & groupIndex,
-                              groupData & group) {
+void Geometry::setupVertCoord(groupData & group) {
   oops::Log::trace() << classname() << "::setupVertCoord starting" << std::endl;
 
   // Get optional parameters
-  const auto &vertCoordConf = groupParams.vertCoordConf.value();
+  const auto &vertCoordConf = group.params_.vertCoordConf.value();
 
   // Get vertical coordinate name
-  std::string vertCoordName = "vert_coord_" + std::to_string(groupIndex);
+  std::string vertCoordName = "vert_coord_" + std::to_string(group.index_);
   if (vertCoordConf != boost::none) {
     if (vertCoordConf->has("name")) {
       vertCoordName = vertCoordConf->getString("name");
@@ -536,7 +517,7 @@ void Geometry::setupVertCoord(const GroupParameters & groupParams,
   }
 
   // Add orography (mountain) on bottom level
-  const auto &orographyParams = groupParams.orography.value();
+  const auto &orographyParams = group.params_.orography.value();
   if (orographyParams != boost::none) {
     // Get top latitude value
     const atlas::PointLonLat topPoint({orographyParams->topLon.value(),
@@ -578,13 +559,11 @@ void Geometry::setupVertCoord(const GroupParameters & groupParams,
 
 // -----------------------------------------------------------------------------
 
-void Geometry::setupMask(const GroupParameters & groupParams,
-                         const size_t & groupIndex,
-                         groupData & group) {
+void Geometry::setupMask(groupData & group) {
   oops::Log::trace() << classname() << "::setupMask starting" << std::endl;
 
   // Default mask, set to 1 (true)
-  const std::string gmaskName = "gmask_" + std::to_string(groupIndex);
+  const std::string gmaskName = "gmask_" + std::to_string(group.index_);
   atlas::Field gmask = functionSpace_.createField<int>(
     atlas::option::name(gmaskName) | atlas::option::levels(group.levels_));
   auto maskView = atlas::array::make_view<int, 2>(gmask);
@@ -594,9 +573,9 @@ void Geometry::setupMask(const GroupParameters & groupParams,
   auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
 
   // Specific mask
-  if (groupParams.maskType.value() == "none") {
+  if (group.params_.maskType.value() == "none") {
     // No mask
-  } else if (groupParams.maskType.value() == "sea") {
+  } else if (group.params_.maskType.value() == "sea") {
     // Read sea mask
 
     // Lon/lat sizes
@@ -604,8 +583,8 @@ void Geometry::setupMask(const GroupParameters & groupParams,
     size_t nlat = 0;
 
     // File path
-    ASSERT(groupParams.maskPath.value());
-    const std::string ncFilePath = *groupParams.maskPath.value();
+    ASSERT(group.params_.maskPath.value());
+    const std::string ncFilePath = *group.params_.maskPath.value();
 
     // NetCDF IDs
     int ncid, retval, nlon_id, nlat_id, lon_id, lat_id, lsm_id;
@@ -747,7 +726,7 @@ void Geometry::setupMask(const GroupParameters & groupParams,
 
 // -----------------------------------------------------------------------------
 
-void Geometry::checkLonLat(const eckit::Configuration & checkLonLatConf) const {
+void Geometry::checkLonLat(const eckit::Configuration & checkLonLatConf) {
   oops::Log::trace() << classname() << "::checkLonLat starting" << std::endl;
 
   // Return if configuration is empty
@@ -759,6 +738,13 @@ void Geometry::checkLonLat(const eckit::Configuration & checkLonLatConf) const {
   const std::string lonName = checkLonLatConf.getString("longitude", "longitude");
   const std::string latName = checkLonLatConf.getString("latitude", "latitude");
   const oops::Variables lonLatVars(std::vector<std::string>({lonName, latName}));
+
+  // Add new group to read coordinates
+  groupData coordGroup;
+  coordGroup.levels_ = 1;
+  groupIndex_["longitude"] = groups_.size();
+  groupIndex_["latitude"] = groups_.size();
+  groups_.push_back(coordGroup);
 
   // Create field
   Fields field(*this, lonLatVars, util::DateTime());
@@ -791,6 +777,56 @@ void Geometry::checkLonLat(const eckit::Configuration & checkLonLatConf) const {
   }
 
   oops::Log::trace() << classname() << "::checkLonLat starting" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void Geometry::setupIterator(const eckit::Configuration & config) {
+  oops::Log::trace() << classname() << "::setupIterator starting" << std::endl;
+
+  // Iterator dimension
+  iteratorDimension_ = config.getInt("iterator dimension", 2);
+  ASSERT((iteratorDimension_ == 2) || (iteratorDimension_ == 3));
+
+  // First group vertical coordinate field
+  const auto vertCoord = groups_[0].vertCoord_;
+
+  // Domain size
+  nnodes_ = vertCoord.shape(0);
+  nlevs_ = vertCoord.shape(1);
+
+  // Get ghost view
+  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
+
+  // Averaged vertical coordinate
+  const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoord);
+  for (atlas::idx_t jlevel = 0; jlevel < nlevs_; ++jlevel) {
+    // Initialization
+    double vertCoordAvg = 0.0;
+    double counter = 0.0;
+
+    // Accumulation
+    for (atlas::idx_t jnode = 0; jnode < nnodes_; ++jnode) {
+      if (ghostView(jnode) == 0) {
+        vertCoordAvg += vertCoordView(jnode, jlevel);
+        counter += 1.0;
+      }
+    }
+
+    // Communication
+    comm_.allReduceInPlace(vertCoordAvg, eckit::mpi::sum());
+    comm_.allReduceInPlace(counter, eckit::mpi::sum());
+
+    // Normalization
+    if (counter > 0.0) {
+      vertCoordAvg /= counter;
+    }
+
+    // Update profile
+    vertCoordAvg_.push_back(vertCoordAvg);
+  }
+
+  oops::Log::trace() << classname() << "::setupIterator done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

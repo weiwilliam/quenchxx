@@ -117,7 +117,7 @@ class Fields : public util::Printable,
                                     Fields &);
 
   // Grid interpolations
-  static std::vector<quenchxx::Interpolation> & interpolations();
+  static std::vector<quenchxx::Interpolation>& interpolations();
 
   // Duplicate points
   void resetDuplicatePoints();
