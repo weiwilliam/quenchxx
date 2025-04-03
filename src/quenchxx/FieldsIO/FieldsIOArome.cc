@@ -44,41 +44,48 @@ void readArome(const Geometry & geom,
   varns::Variables varsToRead;
   for (const auto & var : vars) {
     if (var.name() == "air_pressure") {
-      // Copy air_pressure from vertical coordinates
-      ASSERT(geom.fields().has("air_pressure"));
-      fset.add(geom.fields()["air_pressure"]);
+      // Get surface pressure and retrieve air_pressure from ak/bk
+      varsToRead.push_back("SURFPRESSION");
+      varsToRead["SURFPRESSION"].setLevels(1);
+    } else if (var.name() == "height_above_mean_sea_level_at_surface") {
+      // Get surface geopotential and retrieve surface height
+      varsToRead.push_back("SPECSURFGEOPOTEN");
+      varsToRead["SPECSURFGEOPOTEN"].setLevels(1);
     } else {
       // Variable to read
       varsToRead.push_back(var);
     }
   }
 
+  // Check that both wind components are required or none
+  if (varsToRead.has("WIND.U.PHYS") || varsToRead.has("WIND.V.PHYS")) {
+    ASSERT(varsToRead.has("WIND.U.PHYS") && varsToRead.has("WIND.V.PHYS"));
+  }
+
   // Create local fieldset
   atlas::FieldSet fsetToRead;
-  for (size_t jvar = 0; jvar < varsToRead.size(); ++jvar) {
+  for (const auto & var : varsToRead) {
     atlas::Field field = geom.functionSpace().createField<double>(
-      atlas::option::name(varsToRead[jvar].name()) |
-      atlas::option::levels(varsToRead[jvar].getLevels()));
+      atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
     fsetToRead.add(field);
   }
 
   // Initialize local fieldset
-  for (auto & field : fsetToRead) {
-    auto view = atlas::array::make_view<double, 2>(field);
+  for (auto & varField : fsetToRead) {
+    auto view = atlas::array::make_view<double, 2>(varField);
     view.assign(0.0);
   }
 
   // File variables names
   size_t nVarLev = 0;
   std::vector<std::string> varLevName;
-  for (size_t jvar = 0; jvar < varsToRead.size(); ++jvar) {
-    for (int k = 0; k < varsToRead[jvar].getLevels(); ++k) {
-      if (varsToRead[jvar].name() == "SURFPRESSION") {
-        varLevName.push_back(varsToRead[jvar].name());
+  for (const auto & var : varsToRead) {
+    for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+      if (var.name() == "SURFPRESSION" || var.name() == "SPECSURFGEOPOTEN") {
+        varLevName.push_back(var.name());
       } else {
-        const std::string level = std::to_string(k+1);
-        varLevName.push_back("S" + std::string(3-level.length(), '0') + level
-          + varsToRead[jvar].name());
+        const std::string level = std::to_string(jlevel+1);
+        varLevName.push_back("S" + std::string(3-level.length(), '0') + level + var.name());
       }
       ++nVarLev;
     }
@@ -89,11 +96,11 @@ void readArome(const Geometry & geom,
 
   // Global data
   atlas::FieldSet globalData;
-  for (size_t jvar = 0; jvar < varsToRead.size(); ++jvar) {
-    atlas::Field field = geom.functionSpace().createField<double>(
-      atlas::option::name(varsToRead[jvar].name())
-      | atlas::option::levels(varsToRead[jvar].getLevels()) | atlas::option::global());
-    globalData.add(field);
+  for (const auto & var : varsToRead) {
+    atlas::Field varField = geom.functionSpace().createField<double>(
+      atlas::option::name(var.name())
+      | atlas::option::levels(var.getLevels()) | atlas::option::global());
+    globalData.add(varField);
   }
 
   // StructuredColumns
@@ -104,8 +111,8 @@ void readArome(const Geometry & geom,
     atlas::StructuredGrid grid = fs.grid();
 
     // Get sizes
-    atlas::idx_t nx = grid.nxmax();
-    atlas::idx_t ny = grid.ny();
+    int nx = grid.nxmax();
+    int ny = grid.ny();
 
     oops::Log::info() << "Info     : Reading file: " << ncFilePath << std::endl;
 
@@ -120,10 +127,10 @@ void readArome(const Geometry & geom,
     }
 
     size_t iVarLev = 0;
-    for (size_t jvar = 0; jvar < varsToRead.size(); ++jvar) {
-      auto varField = globalData[varsToRead[jvar].name()];
+    for (const auto & var : varsToRead) {
+      auto varField = globalData[var.name()];
       auto varView = atlas::array::make_view<double, 2>(varField);
-      for (int k = 0; k < varsToRead[jvar].getLevels(); ++k) {
+      for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
         // Read data
         std::vector<double> zvar(ny*nx);
         if ((retval = nc_get_var_double(ncid, var_id[iVarLev], zvar.data()))) {
@@ -132,32 +139,166 @@ void readArome(const Geometry & geom,
         ++iVarLev;
 
         // Copy data
-        for (atlas::idx_t j = 0; j < ny; ++j) {
-          for (atlas::idx_t i = 0; i < grid.nx(j); ++i) {
+        for (int j = 0; j < ny; ++j) {
+          for (int i = 0; i < grid.nx(j); ++i) {
             atlas::gidx_t gidx = grid.index(i, j);
-            varView(gidx, k) = zvar[j*nx+i];
-          }
-        }
-
-        // Get pressure from its logarithm
-        if (varsToRead[jvar].name() == "SURFPRESSION") {
-          for (int jnodeGlb = 0; jnodeGlb < varField.shape(0); ++jnodeGlb) {
-            varView(jnodeGlb, 0) = std::exp(varView(jnodeGlb, 0));
+            varView(gidx, jlevel) = zvar[j*nx+i];
           }
         }
       }
     }
-
-    // Close file
-    if ((retval = nc_close(ncid))) ERR(retval, ncFilePath);
   }
 
   // Scatter data from main processor
   fs.scatter(globalData, fsetToRead);
 
-  // Add fields
-  for (const auto & field : fsetToRead) {
-    fset.add(field);
+  // Get pressure from its logarithm
+  if (fsetToRead.has("SURFPRESSION")) {
+    // Get field
+    auto psField = fsetToRead["SURFPRESSION"];
+
+    // Get view
+    auto psView = atlas::array::make_view<double, 2>(psField);
+
+    // Apply exponential
+    for (int jnode = 0; jnode < psField.shape(0); ++jnode) {
+      psView(jnode, 0) = std::exp(psView(jnode, 0));
+    }
+  }
+
+  // Get eastward and northward winds from local grid winds
+  if (fsetToRead.has("WIND.U.PHYS") || fsetToRead.has("WIND.V.PHYS")) {
+    // Get fields
+    auto uField = fsetToRead["WIND.U.PHYS"];
+    auto vField = fsetToRead["WIND.V.PHYS"];
+
+    // Get views
+    auto uView = atlas::array::make_view<double, 2>(uField);
+    auto vView = atlas::array::make_view<double, 2>(vField);
+
+    // Get lon/lat view
+    const auto lonlatView = atlas::array::make_view<double, 2>(geom.functionSpace().lonlat());
+
+    for (int jnode = 0; jnode < uField.shape(0); ++jnode) {
+      // Get local point
+      atlas::PointLonLat p({lonlatView(jnode, 0), lonlatView(jnode, 1)});
+
+      // Get local Jacobian
+      double dx_dlon = geom.grid().projection().jacobian(p).dx_dlon();
+      double dx_dlat = geom.grid().projection().jacobian(p).dx_dlat();
+      double dy_dlon = geom.grid().projection().jacobian(p).dy_dlon();
+      double dy_dlat = geom.grid().projection().jacobian(p).dy_dlat();
+
+      // Normalize Jacobian
+      const double dlonNorm = 1.0/std::sqrt(dx_dlon*dx_dlon+dy_dlon*dy_dlon);
+      const double dlatNorm = 1.0/std::sqrt(dx_dlat*dx_dlat+dy_dlat*dy_dlat);
+      dx_dlon *= dlonNorm;
+      dy_dlon *= dlonNorm;
+      dx_dlat *= dlatNorm;
+      dy_dlat *= dlatNorm;
+
+      // Apply transform
+      for (int jlevel = 0; jlevel < uField.shape(1); ++jlevel) {
+        const double uPhys = uView(jnode, jlevel);
+        const double vPhys = vView(jnode, jlevel);
+        uView(jnode, jlevel) = uPhys*dx_dlon + vPhys*dy_dlon;
+        vView(jnode, jlevel) = uPhys*dx_dlat + vPhys*dy_dlat;
+      }
+    }
+  }
+
+  // Processing
+  for (const auto & var : vars) {
+    if (var.name() == "air_pressure") {
+      // Retrieve air_pressure from ak/bk
+
+      // Hybrid coordinates
+      std::vector<double> ak(var.getLevels());
+      std::vector<double> bk(var.getLevels());
+
+      if (geom.getComm().rank() == 0) {
+        // NetCDF IDs
+        int ak_id, bk_id, dim_id;
+        size_t nab;
+
+        // Get hybrid coordinates IDs
+        const std::string akName = config.getString("ak", "hybrid_coef_A");
+        const std::string bkName = config.getString("bk", "hybrid_coef_B");
+        if ((retval = nc_inq_varid(ncid, akName.c_str(), &ak_id))) ERR(retval, akName);
+        if ((retval = nc_inq_varid(ncid, bkName.c_str(), &bk_id))) ERR(retval, bkName);
+
+        // Get hybrid coordinates dimension
+        if ((retval = nc_inq_vardimid(ncid, ak_id, &dim_id))) ERR(retval, akName);
+        if ((retval = nc_inq_dimlen(ncid, dim_id, &nab))) ERR(retval, "nab");
+
+        // Read data
+        std::vector<double> akFromFile(nab);
+        std::vector<double> bkFromFile(nab);
+        if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data()))) ERR(retval, akName);
+        if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data()))) ERR(retval, bkName);
+
+        if (static_cast<int>(nab) == var.getLevels()) {
+          // Copy hybrid coefficients
+          for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+            ak[jlevel] = akFromFile[jlevel];
+            bk[jlevel] = bkFromFile[jlevel+1];
+         }
+        } else if (static_cast<int>(nab) == var.getLevels()+1) {
+          // Assuming field levels at hybrid coefficients half levels
+          for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+            ak[jlevel] = 0.5*(akFromFile[jlevel]+akFromFile[jlevel+1]);
+            bk[jlevel] = 0.5*(bkFromFile[jlevel]+bkFromFile[jlevel+1]);
+          }
+        } else {
+          throw eckit::Exception("wrong number of levels in hybrid vertical coordinates", Here());
+        }
+      }
+
+      // Broadcast hybrid coordinates
+      geom.getComm().broadcast(ak.begin(), ak.end(), 0);
+      geom.getComm().broadcast(bk.begin(), bk.end(), 0);
+
+      // Create field
+      atlas::Field varField = geom.functionSpace().createField<double>(
+        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
+      fset.add(varField);
+
+      // Get views
+      const auto psView = atlas::array::make_view<double, 2>(fsetToRead["SURFPRESSION"]);
+      auto varView = atlas::array::make_view<double, 2>(varField);
+
+      // Compute pressure
+      for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
+        for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+          varView(jnode, jlevel) = ak[jlevel] + bk[jlevel]*psView(jnode, 0);
+        }
+      }
+    } else if (var.name() == "height_above_mean_sea_level_at_surface") {
+      // Retrieve surface height
+
+      // Create field
+      atlas::Field varField = geom.functionSpace().createField<double>(
+        atlas::option::name(var.name()) | atlas::option::levels(1));
+      fset.add(varField);
+
+      // Get views
+      const auto zsView = atlas::array::make_view<double, 2>(fsetToRead["SPECSURFGEOPOTEN"]);
+      auto varView = atlas::array::make_view<double, 2>(varField);
+
+      // Compute surface height
+      const double gInv = 1.0/9.81;
+      for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
+        varView(jnode, 0) = zsView(jnode, 0)*gInv;
+      }
+    } else {
+      // Add fields
+      fset.add(fsetToRead[var.name()]);
+    }
+  }
+
+  if (geom.getComm().rank() == 0) {
+    // Close file
+    if ((retval = nc_close(ncid))) ERR(retval, ncFilePath);
   }
 
   // Code is too complicated, mark dirty to be safe

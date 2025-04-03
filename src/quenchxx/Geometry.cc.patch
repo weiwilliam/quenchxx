@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.cc.tmp.bak	2025-04-02 13:14:02.476137170 +0200
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.cc	2025-04-02 13:18:23.602033070 +0200
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.cc.tmp.bak	2025-04-03 08:20:51.521083683 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.cc	2025-04-03 08:21:48.575680090 +0200
 @@ -30,6 +30,7 @@
  #include "oops/util/Logger.h"
  
@@ -56,7 +56,7 @@
  void Geometry::print(std::ostream & os) const {
    oops::Log::trace() << classname() << "::print starting" << std::endl;
  
-@@ -763,5 +780,73 @@
+@@ -697,5 +714,73 @@
  }
  
  // -----------------------------------------------------------------------------

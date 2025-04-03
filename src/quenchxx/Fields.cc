@@ -1373,9 +1373,9 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
         const double z = locs[jo][2];
         double bottom = std::numeric_limits<double>::max();
         double top = -std::numeric_limits<double>::max();
-        for (size_t k = 0; k < var.getLevels(); ++k) {
-          bottom = std::min(bottom, vertCoordView(jo, k));
-          top = std::max(top, vertCoordView(jo, k));
+        for (size_t jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+          bottom = std::min(bottom, vertCoordView(jo, jlevel));
+          top = std::max(top, vertCoordView(jo, jlevel));
         }
         ASSERT(z >= bottom);
         ASSERT(z <= top);
@@ -1383,21 +1383,21 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
         double zsup = std::numeric_limits<double>::max();
         size_t kinf = 0;
         size_t ksup = std::numeric_limits<size_t>::max();
-        for (size_t k = 0; k < var.getLevels(); ++k) {
-          const double level = vertCoordView(jo, k);
+        for (size_t jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+          const double level = vertCoordView(jo, jlevel);
           if (level == z) {
             zinf = level;
             zsup = level;
-            kinf = k;
-            ksup = k;
+            kinf = jlevel;
+            ksup = jlevel;
           } else {
             if (z > level && zinf < level) {
               zinf = level;
-              kinf = k;
+              kinf = jlevel;
             }
             if (z < level && zsup > level) {
               zsup = level;
-              ksup = k;
+              ksup = jlevel;
             }
           }
         }

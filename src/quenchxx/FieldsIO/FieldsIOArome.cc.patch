@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc.tmp.bak	2025-04-01 13:42:44.411052824 +0200
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc	2025-04-01 13:02:31.326771901 +0200
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc.tmp.bak	2025-04-03 08:20:51.619082840 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc	2025-04-03 08:22:36.891466082 +0200
 @@ -20,7 +20,7 @@
  // -----------------------------------------------------------------------------
  
@@ -17,4 +17,4 @@
 +  varns::Variables varsToRead;
    for (const auto & var : vars) {
      if (var.name() == "air_pressure") {
-       // Copy air_pressure from vertical coordinates
+       // Get surface pressure and retrieve air_pressure from ak/bk

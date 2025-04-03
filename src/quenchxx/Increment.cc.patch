@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Increment.cc.tmp.bak	2025-04-02 13:14:02.651135630 +0200
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Increment.cc	2025-04-02 11:55:11.457042772 +0200
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Increment.cc.tmp.bak	2025-04-03 08:20:51.792081350 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Increment.cc	2025-04-02 13:39:02.734623685 +0200
 @@ -19,7 +19,21 @@
  // -----------------------------------------------------------------------------
  
@@ -7,7 +7,7 @@
 -                     const oops::Variables & vars,
 +                     const varns::Variables & vars,
 +                     const util::DateTime & vt)
-+  : geom_(new Geometry(geom)), fields_(new Fields(*geom_, vars, vt)) {
++  : fields_(new Fields(geom, vars, vt)) {
 +  oops::Log::trace() << classname() << "::Increment starting" << std::endl;
 +
 +  fields_->zero();
@@ -21,7 +21,7 @@
 +                     const varns::Variables & vars,
 +                     const util::DateTime &,
                       const util::DateTime & vt)
-   : geom_(new Geometry(geom)), fields_(new Fields(*geom_, vars, vt)) {
+   : fields_(new Fields(geom, vars, vt)) {
    oops::Log::trace() << classname() << "::Increment starting" << std::endl;
 @@ -133,6 +147,85 @@
  }

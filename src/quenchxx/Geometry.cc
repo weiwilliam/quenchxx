@@ -390,12 +390,12 @@ void Geometry::setupVertCoord(groupData & group) {
         }
       }
     } else {
-      // From a file
-      const bool hybridVertCoord = (vertCoordConf->has("ak") && vertCoordConf->has("bk"));
-
       // Get variable to read
       const std::string varName = vertCoordConf->getString("variable");
       const oops::Variables vertCoordVars(std::vector<std::string>({varName}));
+
+      // Add group index for this variable
+      groupIndex_[varName] = group.index_;
 
       // Create field
       Fields field(*this, vertCoordVars, util::DateTime());
@@ -406,73 +406,10 @@ void Geometry::setupVertCoord(groupData & group) {
       // Get view
       const auto view = atlas::array::make_view<double, 2>(field.fieldSet()[varName]);
 
-      if (hybridVertCoord) {
-        // Hybrid coordinates
-        std::vector<double> ak(group.levels_);
-        std::vector<double> bk(group.levels_);
-        if (comm_.rank() == 0) {
-          // NetCDF file path
-          const std::string ncFilePath = vertCoordConf->getString("filepath") + ".nc";
-
-          // NetCDF IDs
-          int ncid, retval, dim_id, ak_id, bk_id;
-          size_t nab;
-
-          // Open NetCDF file
-          if ((retval = nc_open(ncFilePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncFilePath);
-
-          // Get hybrid coordinates IDs
-          const std::string akName = vertCoordConf->getString("ak");
-          const std::string bkName = vertCoordConf->getString("bk");
-          if ((retval = nc_inq_varid(ncid, akName.c_str(), &ak_id))) ERR(retval, akName);
-          if ((retval = nc_inq_varid(ncid, bkName.c_str(), &bk_id))) ERR(retval, bkName);
-
-          // Get hybrid coordinates dimension
-          if ((retval = nc_inq_vardimid(ncid, ak_id, &dim_id))) ERR(retval, akName);
-          if ((retval = nc_inq_dimlen(ncid, dim_id, &nab))) ERR(retval, "nab");
-
-          // Read data
-          std::vector<double> akFromFile(nab);
-          std::vector<double> bkFromFile(nab);
-          if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data()))) ERR(retval, akName);
-          if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data()))) ERR(retval, bkName);
-
-          // Close file
-          if ((retval = nc_close(ncid))) ERR(retval, ncFilePath);
-
-          if (nab == group.levels_) {
-            // Copy hybrid coefficients
-            for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
-              ak[jlevel] = akFromFile[jlevel];
-              bk[jlevel] = bkFromFile[jlevel+1];
-            }
-          } else if (nab == group.levels_+1) {
-            // Assuming field levels at hybrid coefficients half levels
-            for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
-              ak[jlevel] = 0.5*(akFromFile[jlevel]+akFromFile[jlevel+1]);
-              bk[jlevel] = 0.5*(bkFromFile[jlevel]+bkFromFile[jlevel+1]);
-            }
-          } else {
-            throw eckit::Exception("wrong number of levels in hybrid vertical coordinates", Here());
-          }
-        }
-
-        // Broadcast hybrid coordinates
-        comm_.broadcast(ak.begin(), ak.end(), 0);
-        comm_.broadcast(bk.begin(), bk.end(), 0);
-
-        // Compute hybrid vertical coordinate
-        for (atlas::idx_t jnode = 0; jnode < group.vertCoord_.shape(0); ++jnode) {
-          for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
-            vertCoordView(jnode, jlevel) = ak[jlevel] + bk[jlevel]*view(jnode, 0);
-          }
-        }
-      } else {
-        // Copy 3D field
-        for (atlas::idx_t jnode = 0; jnode < group.vertCoord_.shape(0); ++jnode) {
-          for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
-            vertCoordView(jnode, jlevel) = view(jnode, jlevel);
-          }
+      // Copy 3D field
+      for (atlas::idx_t jnode = 0; jnode < group.vertCoord_.shape(0); ++jnode) {
+        for (size_t jlevel = 0; jlevel < group.levels_; ++jlevel) {
+          vertCoordView(jnode, jlevel) = view(jnode, jlevel);
         }
       }
     }

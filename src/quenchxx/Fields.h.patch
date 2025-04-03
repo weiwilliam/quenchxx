@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.h.tmp.bak	2025-04-02 13:14:02.418137680 +0200
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.h	2025-04-02 12:51:49.354200492 +0200
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.h.tmp.bak	2025-04-03 08:20:51.423084527 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.h	2025-04-02 13:38:28.971236555 +0200
 @@ -8,20 +8,28 @@
  
  #pragma once
@@ -54,7 +54,7 @@
  
    // ATLAS FieldSet
    void toFieldSet(atlas::FieldSet &) const;
-@@ -73,12 +89,13 @@
+@@ -73,6 +89,7 @@
      {return fset_;}
    atlas::FieldSet & fieldSet()
      {return fset_;}
@@ -62,14 +62,16 @@
  
    // Utilities
    void read(const eckit::Configuration &);
-   void write(const eckit::Configuration &) const;
+@@ -80,7 +97,7 @@
    double norm() const;
+   std::shared_ptr<const Geometry> geometry() const
+     {return geom_;}
 -  const oops::Variables & variables() const
 +  const varns::Variables & variables() const
      {return vars_;}
    const util::DateTime & time() const
      {return time_;}
-@@ -92,6 +109,10 @@
+@@ -94,6 +111,10 @@
    void serialize(std::vector<double> &) const;
    void deserialize(const std::vector<double> &,
                     size_t &);
@@ -80,7 +82,7 @@
  
    // Grid interpolations
    static std::vector<quenchxx::Interpolation>& interpolations();
-@@ -106,11 +127,17 @@
+@@ -108,11 +129,17 @@
    // Return grid interpolation
    std::vector<quenchxx::Interpolation>::iterator setupGridInterpolation(const Geometry &) const;
  
@@ -91,7 +93,7 @@
 +  void reduceDuplicatePoints();
 +
    // Geometry
-   const Geometry & geom_;
+   std::shared_ptr<const Geometry> geom_;
  
    // Variables
 -  oops::Variables vars_;

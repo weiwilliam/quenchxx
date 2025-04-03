@@ -53,8 +53,8 @@ void readGrib(const Geometry & geom,
     for (const auto & var : vars) {
       levelMax = std::max(levelMax, var.getLevels());
     }
-    for (int k = 0; k < levelMax; ++k) {
-      levels.push_back(k+1);
+    for (int jlevel = 0; jlevel < levelMax; ++jlevel) {
+      levels.push_back(jlevel+1);
     }
   }
 
@@ -105,9 +105,9 @@ void readGrib(const Geometry & geom,
       CODES_CHECK(codes_index_select_string(index, "cfVarName", var.name().c_str()), 0);
       CODES_CHECK(codes_index_select_string(index, "typeOfLevel", "hybrid"), 0);
 
-      for (int k = 0; k < var.getLevels(); ++k) {
+      for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
         // Select level
-        CODES_CHECK(codes_index_select_long(index, "level", levels[k]), 0);
+        CODES_CHECK(codes_index_select_long(index, "level", levels[jlevel]), 0);
 
         // Create handle
         h = codes_handle_new_from_index(index, &ret);
@@ -132,7 +132,7 @@ void readGrib(const Geometry & geom,
 
         // Copy data to FieldSet
         for (size_t jnode = 0; jnode < values_len; ++jnode) {
-          varView(jnode, k) = values[jnode];
+          varView(jnode, jlevel) = values[jnode];
         }
 
         // Delete handle
