@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc.tmp.bak	2025-04-03 08:20:51.619082840 +0200
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc	2025-04-03 08:22:36.891466082 +0200
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc.tmp.bak	2025-04-08 17:32:19.087926592 +0200
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIOArome.cc	2025-04-07 12:24:33.647469243 +0200
 @@ -20,7 +20,7 @@
  // -----------------------------------------------------------------------------
  
@@ -16,5 +16,5 @@
 -  oops::Variables varsToRead;
 +  varns::Variables varsToRead;
    for (const auto & var : vars) {
-     if (var.name() == "air_pressure") {
-       // Get surface pressure and retrieve air_pressure from ak/bk
+     if (var.name() == "air_pressure" || var.name() == "air_pressure_half") {
+       // Get surface pressure and retrieve air_pressure or air_pressure_half from ak/bk

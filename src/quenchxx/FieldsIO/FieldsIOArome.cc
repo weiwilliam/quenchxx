@@ -43,8 +43,8 @@ void readArome(const Geometry & geom,
   // Variables to copy / to read
   varns::Variables varsToRead;
   for (const auto & var : vars) {
-    if (var.name() == "air_pressure") {
-      // Get surface pressure and retrieve air_pressure from ak/bk
+    if (var.name() == "air_pressure" || var.name() == "air_pressure_half") {
+      // Get surface pressure and retrieve air_pressure or air_pressure_half from ak/bk
       varsToRead.push_back("SURFPRESSION");
       varsToRead["SURFPRESSION"].setLevels(1);
     } else if (var.name() == "height_above_mean_sea_level_at_surface") {
@@ -209,8 +209,8 @@ void readArome(const Geometry & geom,
 
   // Processing
   for (const auto & var : vars) {
-    if (var.name() == "air_pressure") {
-      // Retrieve air_pressure from ak/bk
+    if (var.name() == "air_pressure" || var.name() == "air_pressure_half") {
+      // Retrieve air_pressure or air_pressure_half from ak/bk
 
       // Hybrid coordinates
       std::vector<double> ak(var.getLevels());
@@ -237,20 +237,20 @@ void readArome(const Geometry & geom,
         if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data()))) ERR(retval, akName);
         if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data()))) ERR(retval, bkName);
 
-        if (static_cast<int>(nab) == var.getLevels()) {
-          // Copy hybrid coefficients
-          for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
-            ak[jlevel] = akFromFile[jlevel];
-            bk[jlevel] = bkFromFile[jlevel+1];
-         }
-        } else if (static_cast<int>(nab) == var.getLevels()+1) {
-          // Assuming field levels at hybrid coefficients half levels
+        if (var.name() == "air_pressure") {
+          // Pressure at full levels
+          ASSERT(static_cast<int>(nab) == var.getLevels()+1);
           for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
             ak[jlevel] = 0.5*(akFromFile[jlevel]+akFromFile[jlevel+1]);
             bk[jlevel] = 0.5*(bkFromFile[jlevel]+bkFromFile[jlevel+1]);
           }
-        } else {
-          throw eckit::Exception("wrong number of levels in hybrid vertical coordinates", Here());
+        } else if (var.name() == "air_pressure_half") {
+          // Pressure at half levels
+          ASSERT(static_cast<int>(nab) == var.getLevels());
+          for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+            ak[jlevel] = akFromFile[jlevel];
+            bk[jlevel] = bkFromFile[jlevel];
+          }
         }
       }
 

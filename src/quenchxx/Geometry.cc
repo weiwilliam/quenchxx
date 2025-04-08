@@ -392,7 +392,7 @@ void Geometry::setupVertCoord(groupData & group) {
     } else {
       // Get variable to read
       const std::string varName = vertCoordConf->getString("variable");
-      const oops::Variables vertCoordVars(std::vector<std::string>({varName}));
+      const varns::Variables vertCoordVars(std::vector<std::string>({varName}));
 
       // Add group index for this variable
       groupIndex_[varName] = group.index_;
@@ -674,7 +674,7 @@ void Geometry::checkLonLat(const eckit::Configuration & checkLonLatConf) {
   // Get variable to read
   const std::string lonName = checkLonLatConf.getString("longitude", "longitude");
   const std::string latName = checkLonLatConf.getString("latitude", "latitude");
-  const oops::Variables lonLatVars(std::vector<std::string>({lonName, latName}));
+  const varns::Variables lonLatVars(std::vector<std::string>({lonName, latName}));
 
   // Add new group to read coordinates
   groupData coordGroup;

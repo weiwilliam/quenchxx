@@ -1,6 +1,14 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/TraitsFwd.h.tmp.bak	2025-01-18 06:56:55.359721299 +0100
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/TraitsFwd.h	2025-01-18 04:40:37.052834597 +0100
-@@ -14,11 +14,30 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/TraitsFwd.h.tmp.bak	2025-04-03 14:56:04.824302428 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/TraitsFwd.h	2025-04-03 09:50:43.689590823 +0200
+@@ -10,15 +10,38 @@
+ 
+ #include <string>
+ 
++namespace oops {
++class AtlasInterpolator;
++}  // namespace oops
++
+ namespace quenchxx {
  
  class Covariance;
  class Geometry;
@@ -31,7 +39,7 @@
  
  struct Traits {
    static std::string name()
-@@ -26,13 +45,32 @@
+@@ -26,13 +49,33 @@
    static std::string nameCovar()
      {return "quenchxxCovariance";}
  
@@ -52,6 +60,7 @@
 +  using IncrModCtlVec = quenchxx::IncrModCtlVec;
 +  using Interpolator = quenchxx::Interpolator;
 +  using LinearVariableChange = quenchxx::LinearVariableChange;
++//  using LocalInterpolator = oops::AtlasInterpolator;  // TODO(Benjamin)
 +  using LocalizationMatrix = quenchxx::LocalizationMatrix;
 +  using Locations = quenchxx::Locations;
 +  using Model = quenchxx::Model;

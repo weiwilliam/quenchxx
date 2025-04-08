@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "oops/generic/AtlasInterpolator.h"
 #include "quenchxx/Covariance.h"
 #include "quenchxx/Geometry.h"
 #include "quenchxx/GeometryIterator.h"

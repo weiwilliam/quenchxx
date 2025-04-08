@@ -1,5 +1,5 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.cc.tmp.bak	2025-04-03 08:20:51.850080851 +0200
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.cc	2025-04-02 17:08:38.890359907 +0200
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.cc.tmp.bak	2025-04-08 17:24:43.176105298 +0200
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.cc	2025-04-08 17:26:37.734767529 +0200
 @@ -14,6 +14,7 @@
  #include <iterator>
  #include <limits>
@@ -17,7 +17,7 @@
                 const util::DateTime & time)
    : geom_(new Geometry(geom)), vars_(vars), time_(time) {
    oops::Log::trace() << classname() << "::Fields starting" << std::endl;
-@@ -823,6 +824,155 @@
+@@ -831,6 +832,155 @@
  
  // -----------------------------------------------------------------------------
  
@@ -173,7 +173,7 @@
  void Fields::toFieldSet(atlas::FieldSet & fset) const {
    oops::Log::trace() << classname() << "::toFieldSet starting" << std::endl;
  
-@@ -853,7 +1003,7 @@
+@@ -861,7 +1011,7 @@
    fset_ = util::shareFields(fset);
  
    // Reset variables
@@ -182,7 +182,7 @@
    for (const auto & field : fset_) {
      vars_[field.name()].setLevels(field.shape(1));
    }
-@@ -866,11 +1016,22 @@
+@@ -874,11 +1024,22 @@
  
  // -----------------------------------------------------------------------------
  
@@ -206,7 +206,7 @@
    for (const auto & var : vars_) {
      std::string newVar = var.name();
      for (const auto & item : geom_->alias()) {
-@@ -1058,6 +1219,40 @@
+@@ -1066,6 +1227,40 @@
  
  // -----------------------------------------------------------------------------
  
@@ -247,7 +247,7 @@
  std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geometry & srcGeom)
    const {
    oops::Log::trace() << classname() << "::setupGridInterpolation starting" << std::endl;
-@@ -1090,6 +1285,150 @@
+@@ -1098,6 +1293,150 @@
  
  // -----------------------------------------------------------------------------
  
@@ -398,7 +398,7 @@
  void Fields::resetDuplicatePoints() {
    oops::Log::trace() << classname() << "::resetDuplicatePoints starting" << std::endl;
  
-@@ -1153,5 +1492,75 @@
+@@ -1161,5 +1500,75 @@
  }
  
  // -----------------------------------------------------------------------------
