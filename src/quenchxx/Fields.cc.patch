@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.cc.tmp.bak	2025-04-08 17:24:43.176105298 +0200
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.cc	2025-04-08 17:26:37.734767529 +0200
+--- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.cc.tmp.bak	2025-04-14 16:24:28.208406041 +0200
++++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Fields.cc	2025-04-10 15:57:30.969539518 +0200
 @@ -14,6 +14,7 @@
  #include <iterator>
  #include <limits>
@@ -8,7 +8,18 @@
  #include <vector>
  
  #include "atlas/field.h"
-@@ -53,7 +54,7 @@
+@@ -32,7 +33,10 @@
+ #include "oops/util/Logger.h"
+ #include "oops/util/Random.h"
+ 
++#include "quenchxx/FieldsIO/FieldsIOArome.h"
+ #include "quenchxx/FieldsIO/FieldsIODefault.h"
++#include "quenchxx/FieldsIO/FieldsIOGmsh.h"
++#include "quenchxx/FieldsIO/FieldsIOGrib.h"
+ #include "quenchxx/Geometry.h"
+ 
+ namespace quenchxx {
+@@ -50,7 +54,7 @@
  // -----------------------------------------------------------------------------
  
  Fields::Fields(const Geometry & geom,
@@ -17,7 +28,7 @@
                 const util::DateTime & time)
    : geom_(new Geometry(geom)), vars_(vars), time_(time) {
    oops::Log::trace() << classname() << "::Fields starting" << std::endl;
-@@ -831,6 +832,155 @@
+@@ -828,6 +832,155 @@
  
  // -----------------------------------------------------------------------------
  
@@ -173,7 +184,7 @@
  void Fields::toFieldSet(atlas::FieldSet & fset) const {
    oops::Log::trace() << classname() << "::toFieldSet starting" << std::endl;
  
-@@ -861,7 +1011,7 @@
+@@ -858,7 +1011,7 @@
    fset_ = util::shareFields(fset);
  
    // Reset variables
@@ -182,7 +193,7 @@
    for (const auto & field : fset_) {
      vars_[field.name()].setLevels(field.shape(1));
    }
-@@ -874,11 +1024,22 @@
+@@ -871,11 +1024,22 @@
  
  // -----------------------------------------------------------------------------
  
@@ -206,7 +217,33 @@
    for (const auto & var : vars_) {
      std::string newVar = var.name();
      for (const auto & item : geom_->alias()) {
-@@ -1066,6 +1227,40 @@
+@@ -893,6 +1057,12 @@
+   if (ioFormat == "default") {
+     // Default OOPS IO
+     readDefault(*geom_, vars_in_file, config, fset_);
++  } else if (ioFormat == "grib") {
++    // GRIB format
++    readGrib(*geom_, vars_in_file, config, fset_);
++  } else if (ioFormat == "arome") {
++    // AROME data with NetCDF format (converted from epygram)
++    readArome(*geom_, vars_in_file, config, fset_);
+   } else {
+     throw eckit::UserError("Unknown I/O format", Here());
+   }
+@@ -938,6 +1108,12 @@
+   if (ioFormat == "default") {
+     // Default OOPS IO
+     writeDefault(*geom_, config, fset);
++  } else if (ioFormat == "arome") {
++    // Default OOPS IO (should be AROME-specific one day)
++    writeDefault(*geom_, config, fset);
++  } else if (ioFormat == "gmsh") {
++    // GMSH format
++    writeGmsh(*geom_, config, fset);
+   } else {
+     throw eckit::UserError("Unknown I/O format", Here());
+   }
+@@ -1051,6 +1227,40 @@
  
  // -----------------------------------------------------------------------------
  
@@ -247,7 +284,7 @@
  std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geometry & srcGeom)
    const {
    oops::Log::trace() << classname() << "::setupGridInterpolation starting" << std::endl;
-@@ -1098,6 +1293,150 @@
+@@ -1083,6 +1293,150 @@
  
  // -----------------------------------------------------------------------------
  
@@ -398,7 +435,7 @@
  void Fields::resetDuplicatePoints() {
    oops::Log::trace() << classname() << "::resetDuplicatePoints starting" << std::endl;
  
-@@ -1161,5 +1500,75 @@
+@@ -1146,5 +1500,75 @@
  }
  
  // -----------------------------------------------------------------------------

@@ -43,23 +43,35 @@ void readArome(const Geometry & geom,
   // Variables to copy / to read
   varns::Variables varsToRead;
   for (const auto & var : vars) {
-    if (var.name() == "air_pressure" || var.name() == "air_pressure_half") {
-      // Get surface pressure and retrieve air_pressure or air_pressure_half from ak/bk
+    if (var.name() == "log_of_air_pressure_at_surface" || var.name() == "air_pressure_at_surface"
+      || var.name() == "air_pressure" || var.name() == "air_pressure_half") {
+      // Get surface pressure
       varsToRead.push_back("SURFPRESSION");
       varsToRead["SURFPRESSION"].setLevels(1);
     } else if (var.name() == "height_above_mean_sea_level_at_surface") {
       // Get surface geopotential and retrieve surface height
       varsToRead.push_back("SPECSURFGEOPOTEN");
       varsToRead["SPECSURFGEOPOTEN"].setLevels(1);
+    } else if (var.name() == "geographical_x_wind" || var.name() == "eastward_wind") {
+      // Get u wind
+      varsToRead.push_back("WIND.U.PHYS");
+      varsToRead["WIND.U.PHYS"].setLevels(var.getLevels());
+    } else if (var.name() == "geographical_y_wind" || var.name() == "northward_wind") {
+      // Get v wind
+      varsToRead.push_back("WIND.V.PHYS");
+      varsToRead["WIND.V.PHYS"].setLevels(var.getLevels());
+    } else if (var.name() == "air_temperature") {
+      // Get temperature
+      varsToRead.push_back("TEMPERATURE");
+      varsToRead["TEMPERATURE"].setLevels(var.getLevels());
+    } else if (var.name() == "water_vapor_mixing_ratio_wrt_moist_air") {
+      // Get specific humidity
+      varsToRead.push_back("HUMI.SPECIFI");
+      varsToRead["HUMI.SPECIFI"].setLevels(var.getLevels());
     } else {
-      // Variable to read
-      varsToRead.push_back(var);
+      // Unknown variable
+      throw eckit::Exception("unknown variable", Here());
     }
-  }
-
-  // Check that both wind components are required or none
-  if (varsToRead.has("WIND.U.PHYS") || varsToRead.has("WIND.V.PHYS")) {
-    ASSERT(varsToRead.has("WIND.U.PHYS") && varsToRead.has("WIND.V.PHYS"));
   }
 
   // Create local fieldset
@@ -152,133 +164,93 @@ void readArome(const Geometry & geom,
   // Scatter data from main processor
   fs.scatter(globalData, fsetToRead);
 
-  // Get pressure from its logarithm
-  if (fsetToRead.has("SURFPRESSION")) {
-    // Get field
-    auto psField = fsetToRead["SURFPRESSION"];
-
-    // Get view
-    auto psView = atlas::array::make_view<double, 2>(psField);
-
-    // Apply exponential
-    for (int jnode = 0; jnode < psField.shape(0); ++jnode) {
-      psView(jnode, 0) = std::exp(psView(jnode, 0));
-    }
-  }
-
-  // Get eastward and northward winds from local grid winds
-  if (fsetToRead.has("WIND.U.PHYS") || fsetToRead.has("WIND.V.PHYS")) {
-    // Get fields
-    auto uField = fsetToRead["WIND.U.PHYS"];
-    auto vField = fsetToRead["WIND.V.PHYS"];
-
-    // Get views
-    auto uView = atlas::array::make_view<double, 2>(uField);
-    auto vView = atlas::array::make_view<double, 2>(vField);
-
-    // Get lon/lat view
-    const auto lonlatView = atlas::array::make_view<double, 2>(geom.functionSpace().lonlat());
-
-    for (int jnode = 0; jnode < uField.shape(0); ++jnode) {
-      // Get local point
-      atlas::PointLonLat p({lonlatView(jnode, 0), lonlatView(jnode, 1)});
-
-      // Get local Jacobian
-      double dx_dlon = geom.grid().projection().jacobian(p).dx_dlon();
-      double dx_dlat = geom.grid().projection().jacobian(p).dx_dlat();
-      double dy_dlon = geom.grid().projection().jacobian(p).dy_dlon();
-      double dy_dlat = geom.grid().projection().jacobian(p).dy_dlat();
-
-      // Normalize Jacobian
-      const double dlonNorm = 1.0/std::sqrt(dx_dlon*dx_dlon+dy_dlon*dy_dlon);
-      const double dlatNorm = 1.0/std::sqrt(dx_dlat*dx_dlat+dy_dlat*dy_dlat);
-      dx_dlon *= dlonNorm;
-      dy_dlon *= dlonNorm;
-      dx_dlat *= dlatNorm;
-      dy_dlat *= dlatNorm;
-
-      // Apply transform
-      for (int jlevel = 0; jlevel < uField.shape(1); ++jlevel) {
-        const double uPhys = uView(jnode, jlevel);
-        const double vPhys = vView(jnode, jlevel);
-        uView(jnode, jlevel) = uPhys*dx_dlon + vPhys*dy_dlon;
-        vView(jnode, jlevel) = uPhys*dx_dlat + vPhys*dy_dlat;
-      }
-    }
-  }
-
   // Processing
   for (const auto & var : vars) {
-    if (var.name() == "air_pressure" || var.name() == "air_pressure_half") {
-      // Retrieve air_pressure or air_pressure_half from ak/bk
+    if (var.name() == "log_of_air_pressure_at_surface") {
+      // Share field
+      fset.add(fsetToRead["SURFPRESSION"]);
+    }
 
-      // Hybrid coordinates
-      std::vector<double> ak(var.getLevels());
-      std::vector<double> bk(var.getLevels());
-
-      if (geom.getComm().rank() == 0) {
-        // NetCDF IDs
-        int ak_id, bk_id, dim_id;
-        size_t nab;
-
-        // Get hybrid coordinates IDs
-        const std::string akName = config.getString("ak", "hybrid_coef_A");
-        const std::string bkName = config.getString("bk", "hybrid_coef_B");
-        if ((retval = nc_inq_varid(ncid, akName.c_str(), &ak_id))) ERR(retval, akName);
-        if ((retval = nc_inq_varid(ncid, bkName.c_str(), &bk_id))) ERR(retval, bkName);
-
-        // Get hybrid coordinates dimension
-        if ((retval = nc_inq_vardimid(ncid, ak_id, &dim_id))) ERR(retval, akName);
-        if ((retval = nc_inq_dimlen(ncid, dim_id, &nab))) ERR(retval, "nab");
-
-        // Read data
-        std::vector<double> akFromFile(nab);
-        std::vector<double> bkFromFile(nab);
-        if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data()))) ERR(retval, akName);
-        if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data()))) ERR(retval, bkName);
-
-        if (var.name() == "air_pressure") {
-          // Pressure at full levels
-          ASSERT(static_cast<int>(nab) == var.getLevels()+1);
-          for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
-            ak[jlevel] = 0.5*(akFromFile[jlevel]+akFromFile[jlevel+1]);
-            bk[jlevel] = 0.5*(bkFromFile[jlevel]+bkFromFile[jlevel+1]);
-          }
-        } else if (var.name() == "air_pressure_half") {
-          // Pressure at half levels
-          ASSERT(static_cast<int>(nab) == var.getLevels());
-          for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
-            ak[jlevel] = akFromFile[jlevel];
-            bk[jlevel] = bkFromFile[jlevel];
-          }
-        }
-      }
-
-      // Broadcast hybrid coordinates
-      geom.getComm().broadcast(ak.begin(), ak.end(), 0);
-      geom.getComm().broadcast(bk.begin(), bk.end(), 0);
-
+    if (var.name() == "air_pressure_at_surface"
+      || var.name() == "air_pressure" || var.name() == "air_pressure_half") {
       // Create field
       atlas::Field varField = geom.functionSpace().createField<double>(
         atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
       fset.add(varField);
 
-      // Get views
-      const auto psView = atlas::array::make_view<double, 2>(fsetToRead["SURFPRESSION"]);
+      // Get view
       auto varView = atlas::array::make_view<double, 2>(varField);
 
-      // Compute pressure
-      for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
-        for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
-          varView(jnode, jlevel) = ak[jlevel] + bk[jlevel]*psView(jnode, 0);
+      // Get read view
+      const auto logOfPsView = atlas::array::make_view<double, 2>(fsetToRead["SURFPRESSION"]);
+
+      if (var.name() == "air_pressure_at_surface") {
+        // Apply exp
+        for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
+          varView(jnode, 0) = std::exp(logOfPsView(jnode, 0));
+        }
+      } else if (var.name() == "air_pressure" || var.name() == "air_pressure_half") {
+        // Retrieve air_pressure or air_pressure_half from ak/bk
+
+        // Hybrid coordinates
+        std::vector<double> ak(var.getLevels());
+        std::vector<double> bk(var.getLevels());
+
+        if (geom.getComm().rank() == 0) {
+          // NetCDF IDs
+          int ak_id, bk_id, dim_id;
+          size_t nab;
+
+          // Get hybrid coordinates IDs
+          const std::string akName = config.getString("ak", "hybrid_coef_A");
+          const std::string bkName = config.getString("bk", "hybrid_coef_B");
+          if ((retval = nc_inq_varid(ncid, akName.c_str(), &ak_id))) ERR(retval, akName);
+          if ((retval = nc_inq_varid(ncid, bkName.c_str(), &bk_id))) ERR(retval, bkName);
+
+          // Get hybrid coordinates dimension
+          if ((retval = nc_inq_vardimid(ncid, ak_id, &dim_id))) ERR(retval, akName);
+          if ((retval = nc_inq_dimlen(ncid, dim_id, &nab))) ERR(retval, "nab");
+
+          // Read data
+          std::vector<double> akFromFile(nab);
+          std::vector<double> bkFromFile(nab);
+          if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data()))) ERR(retval, akName);
+          if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data()))) ERR(retval, bkName);
+
+          if (var.name() == "air_pressure") {
+            // Pressure at full levels
+            ASSERT(static_cast<int>(nab) == var.getLevels()+1);
+            for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+              ak[jlevel] = 0.5*(akFromFile[jlevel]+akFromFile[jlevel+1]);
+              bk[jlevel] = 0.5*(bkFromFile[jlevel]+bkFromFile[jlevel+1]);
+            }
+          } else if (var.name() == "air_pressure_half") {
+            // Pressure at half levels
+            ASSERT(static_cast<int>(nab) == var.getLevels());
+            for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+              ak[jlevel] = akFromFile[jlevel];
+              bk[jlevel] = bkFromFile[jlevel];
+            }
+          }
+        }
+
+        // Broadcast hybrid coordinates
+        geom.getComm().broadcast(ak.begin(), ak.end(), 0);
+        geom.getComm().broadcast(bk.begin(), bk.end(), 0);
+
+        // Compute pressure
+        for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
+          for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+            varView(jnode, jlevel) = ak[jlevel] + bk[jlevel]*std::exp(logOfPsView(jnode, 0));
+          }
         }
       }
-    } else if (var.name() == "height_above_mean_sea_level_at_surface") {
-      // Retrieve surface height
+    } 
 
+    if (var.name() == "height_above_mean_sea_level_at_surface") {
       // Create field
       atlas::Field varField = geom.functionSpace().createField<double>(
-        atlas::option::name(var.name()) | atlas::option::levels(1));
+        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
       fset.add(varField);
 
       // Get views
@@ -290,9 +262,78 @@ void readArome(const Geometry & geom,
       for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
         varView(jnode, 0) = zsView(jnode, 0)*gInv;
       }
-    } else {
-      // Add fields
-      fset.add(fsetToRead[var.name()]);
+    } 
+
+    if (var.name() == "geographical_x_wind") {
+      // Share field
+      fset.add(fsetToRead["WIND.U.PHYS"]);
+    }
+
+    if (var.name() == "geographical_y_wind") {
+      // Share field
+      fset.add(fsetToRead["WIND.V.PHYS"]);
+    }
+
+    if (var.name() == "eastward_wind" || var.name() == "northward_wind") {
+      // Compute spherical winds
+
+      // Create field
+      atlas::Field varField = geom.functionSpace().createField<double>(
+        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
+      fset.add(varField);
+
+      // Get views
+      const auto uView = atlas::array::make_view<double, 2>(fsetToRead["WIND.U.PHYS"]);
+      const auto vView = atlas::array::make_view<double, 2>(fsetToRead["WIND.V.PHYS"]);
+      auto varView = atlas::array::make_view<double, 2>(varField);
+
+      // Get lon/lat view
+      const auto lonlatView = atlas::array::make_view<double, 2>(geom.functionSpace().lonlat());
+
+      for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
+        // Get local point
+        atlas::PointLonLat p({lonlatView(jnode, 0), lonlatView(jnode, 1)});
+
+        if (var.name() == "eastward_wind") {
+          // Get local Jacobian
+          double dx_dlon = geom.grid().projection().jacobian(p).dx_dlon();
+          double dy_dlon = geom.grid().projection().jacobian(p).dy_dlon();
+
+          // Normalize Jacobian
+          const double dlonNorm = 1.0/std::sqrt(dx_dlon*dx_dlon+dy_dlon*dy_dlon);
+          dx_dlon *= dlonNorm;
+          dy_dlon *= dlonNorm;
+
+          // Apply transform
+          for (int jlevel = 0; jlevel < varField.shape(1); ++jlevel) {
+            varView(jnode, jlevel) = uView(jnode, jlevel)*dx_dlon + vView(jnode, jlevel)*dy_dlon;
+          }
+        } else if (var.name() == "northward_wind") {
+          // Get local Jacobian
+          double dx_dlat = geom.grid().projection().jacobian(p).dx_dlat();
+          double dy_dlat = geom.grid().projection().jacobian(p).dy_dlat();
+
+          // Normalize Jacobian
+          const double dlatNorm = 1.0/std::sqrt(dx_dlat*dx_dlat+dy_dlat*dy_dlat);
+          dx_dlat *= dlatNorm;
+          dy_dlat *= dlatNorm;
+
+          // Apply transform
+          for (int jlevel = 0; jlevel < varField.shape(1); ++jlevel) {
+            varView(jnode, jlevel) = uView(jnode, jlevel)*dx_dlat + vView(jnode, jlevel)*dy_dlat;
+          }
+        }
+      }
+    } 
+
+    if (var.name() == "air_temperature") {
+      // Share field
+      fset.add(fsetToRead["TEMPERATURE"]);
+    }
+
+    if (var.name() == "water_vapor_mixing_ratio_wrt_moist_air") {
+      // Share field
+      fset.add(fsetToRead["HUMI.SPECIFI"]);
     }
   }
 
