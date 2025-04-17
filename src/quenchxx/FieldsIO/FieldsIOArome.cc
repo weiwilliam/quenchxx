@@ -44,7 +44,7 @@ void readArome(const Geometry & geom,
   varns::Variables varsToRead;
   for (const auto & var : vars) {
     if (var.name() == "log_of_air_pressure_at_surface" || var.name() == "air_pressure_at_surface"
-      || var.name() == "air_pressure" || var.name() == "air_pressure_half") {
+      || var.name() == "air_pressure" || var.name() == "air_pressure_at_half_levels") {
       // Get surface pressure
       varsToRead.push_back("SURFPRESSION");
       varsToRead["SURFPRESSION"].setLevels(1);
@@ -169,10 +169,11 @@ void readArome(const Geometry & geom,
     if (var.name() == "log_of_air_pressure_at_surface") {
       // Share field
       fset.add(fsetToRead["SURFPRESSION"]);
+      fset["SURFPRESSION"].rename("log_of_air_pressure_at_surface");
     }
 
     if (var.name() == "air_pressure_at_surface"
-      || var.name() == "air_pressure" || var.name() == "air_pressure_half") {
+      || var.name() == "air_pressure" || var.name() == "air_pressure_at_half_levels") {
       // Create field
       atlas::Field varField = geom.functionSpace().createField<double>(
         atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
@@ -189,8 +190,8 @@ void readArome(const Geometry & geom,
         for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
           varView(jnode, 0) = std::exp(logOfPsView(jnode, 0));
         }
-      } else if (var.name() == "air_pressure" || var.name() == "air_pressure_half") {
-        // Retrieve air_pressure or air_pressure_half from ak/bk
+      } else if (var.name() == "air_pressure" || var.name() == "air_pressure_at_half_levels") {
+        // Retrieve air_pressure or air_pressure_at_half_levels from ak/bk
 
         // Hybrid coordinates
         std::vector<double> ak(var.getLevels());
@@ -224,7 +225,7 @@ void readArome(const Geometry & geom,
               ak[jlevel] = 0.5*(akFromFile[jlevel]+akFromFile[jlevel+1]);
               bk[jlevel] = 0.5*(bkFromFile[jlevel]+bkFromFile[jlevel+1]);
             }
-          } else if (var.name() == "air_pressure_half") {
+          } else if (var.name() == "air_pressure_at_half_levels") {
             // Pressure at half levels
             ASSERT(static_cast<int>(nab) == var.getLevels());
             for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
@@ -267,11 +268,13 @@ void readArome(const Geometry & geom,
     if (var.name() == "geographical_x_wind") {
       // Share field
       fset.add(fsetToRead["WIND.U.PHYS"]);
+      fset["WIND.U.PHYS"].rename("geographical_x_wind");
     }
 
     if (var.name() == "geographical_y_wind") {
       // Share field
       fset.add(fsetToRead["WIND.V.PHYS"]);
+      fset["WIND.V.PHYS"].rename("geographical_y_wind");
     }
 
     if (var.name() == "eastward_wind" || var.name() == "northward_wind") {
@@ -329,11 +332,13 @@ void readArome(const Geometry & geom,
     if (var.name() == "air_temperature") {
       // Share field
       fset.add(fsetToRead["TEMPERATURE"]);
+      fset["TEMPERATURE"].rename("air_temperature");
     }
 
     if (var.name() == "water_vapor_mixing_ratio_wrt_moist_air") {
       // Share field
       fset.add(fsetToRead["HUMI.SPECIFI"]);
+      fset["HUMI.SPECIFI"].rename("water_vapor_mixing_ratio_wrt_moist_air");
     }
   }
 
