@@ -246,7 +246,7 @@ void readArome(const Geometry & geom,
           }
         }
       }
-    } 
+    }
 
     if (var.name() == "height_above_mean_sea_level_at_surface") {
       // Create field
@@ -263,7 +263,7 @@ void readArome(const Geometry & geom,
       for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
         varView(jnode, 0) = zsView(jnode, 0)*gInv;
       }
-    } 
+    }
 
     if (var.name() == "geographical_x_wind") {
       // Share field
@@ -327,7 +327,7 @@ void readArome(const Geometry & geom,
           }
         }
       }
-    } 
+    }
 
     if (var.name() == "air_temperature") {
       // Share field

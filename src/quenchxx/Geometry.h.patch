@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.h.tmp.bak	2025-04-08 17:24:42.796103098 +0200
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.h	2025-04-02 12:46:27.445639191 +0200
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h.tmp.bak	2025-05-20 11:20:16.952440076 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.h	2025-05-20 11:20:44.100610767 +0200
 @@ -21,7 +21,6 @@
  #include "eckit/mpi/Comm.h"
  
@@ -23,7 +23,7 @@
  
  // -----------------------------------------------------------------------------
  /// Orography parameters
-@@ -179,7 +181,8 @@
+@@ -173,7 +175,8 @@
    Geometry(const Geometry &);
  
    // Variables sizes
@@ -33,7 +33,7 @@
  
    // Levels direction
    bool levelsAreTopDown() const
-@@ -219,9 +222,26 @@
+@@ -213,9 +216,26 @@
      {return interpolation_;}
    bool duplicatePoints() const
      {return duplicatePoints_;}
@@ -60,7 +60,7 @@
   private:
    // Communicator
    const eckit::mpi::Comm & comm_;
-@@ -282,6 +302,12 @@
+@@ -276,6 +296,12 @@
    // Duplicate points
    bool duplicatePoints_;
  
@@ -73,7 +73,7 @@
    // Geometry data structure
    std::unique_ptr<oops::GeometryData> geomData_;
  
-@@ -301,6 +327,9 @@
+@@ -295,6 +321,9 @@
  
    // Check longitudes/latitudes from file
    void checkLonLat(const eckit::Configuration &);

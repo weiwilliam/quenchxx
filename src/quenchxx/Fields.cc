@@ -33,10 +33,7 @@
 #include "oops/util/Logger.h"
 #include "oops/util/Random.h"
 
-#include "quenchxx/FieldsIO/FieldsIOArome.h"
-#include "quenchxx/FieldsIO/FieldsIODefault.h"
-#include "quenchxx/FieldsIO/FieldsIOGmsh.h"
-#include "quenchxx/FieldsIO/FieldsIOGrib.h"
+#include "quenchxx/FieldsIO/FieldsIOBase.h"
 #include "quenchxx/Geometry.h"
 
 namespace quenchxx {
@@ -319,9 +316,9 @@ void Fields::constantValue(const eckit::Configuration & config) {
 Fields & Fields::operator=(const Fields & rhs) {
   oops::Log::trace() << classname() << "::operator= starting" << std::endl;
 
-  for (const auto & var : vars_) {
-    atlas::Field field = fset_[var.name()];
-    const atlas::Field fieldRhs = rhs.fset_[var.name()];
+  for (const auto & var : vars_.variables()) {
+    atlas::Field field = fset_[var];
+    const atlas::Field fieldRhs = rhs.fset_[var];
     if (field.rank() == 2) {
       auto view = atlas::array::make_view<double, 2>(field);
       const auto viewRhs = atlas::array::make_view<double, 2>(fieldRhs);
@@ -1050,22 +1047,14 @@ void Fields::read(const eckit::Configuration & config) {
     vars_in_file.push_back({newVar, var.metaData(), var.getLevels()});
   }
 
-  // Get IO format
+  // Get input format
   const std::string ioFormat = config.getString("format", "default");
 
-  // Read with specified IO format
-  if (ioFormat == "default") {
-    // Default OOPS IO
-    readDefault(*geom_, vars_in_file, config, fset_);
-  } else if (ioFormat == "grib") {
-    // GRIB format
-    readGrib(*geom_, vars_in_file, config, fset_);
-  } else if (ioFormat == "arome") {
-    // AROME data with NetCDF format (converted from epygram)
-    readArome(*geom_, vars_in_file, config, fset_);
-  } else {
-    throw eckit::UserError("Unknown I/O format", Here());
-  }
+  // Set FieldsIO
+  std::unique_ptr<FieldsIOBase> fieldsIO(FieldsIOFactory::create(ioFormat));
+
+  // Read fieldset
+  fieldsIO->read(*geom_, vars_in_file, config, fset_);
 
   // Rename fields
   for (auto & field : fset_) {
@@ -1101,21 +1090,16 @@ void Fields::write(const eckit::Configuration & config) const {
     }
   }
 
-  // Get IO format
-  const std::string ioFormat = config.getString("format", "default");
+  // Get output formats
+  const std::vector<std::string> ioFormats =
+    config.getStringVector("formats", std::vector<std::string>({"default"}));
 
-  // Write with specified IO format
-  if (ioFormat == "default") {
-    // Default OOPS IO
-    writeDefault(*geom_, config, fset);
-  } else if (ioFormat == "arome") {
-    // Default OOPS IO (should be AROME-specific one day)
-    writeDefault(*geom_, config, fset);
-  } else if (ioFormat == "gmsh") {
-    // GMSH format
-    writeGmsh(*geom_, config, fset);
-  } else {
-    throw eckit::UserError("Unknown I/O format", Here());
+  for (const auto & ioFormat : ioFormats) {
+    // Set FieldsIO list
+    std::unique_ptr<FieldsIOBase> fieldsIO(FieldsIOFactory::create(ioFormat));
+
+    // Write fields
+    fieldsIO->write(*geom_, config, fset);
   }
 
   oops::Log::trace() << classname() << "::write done" << std::endl;

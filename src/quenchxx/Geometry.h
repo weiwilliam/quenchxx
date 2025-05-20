@@ -150,9 +150,6 @@ class GeometryParameters : public oops::Parameters {
   // Variables name alias for model files
   oops::Parameter<std::vector<AliasParameters>> alias{"alias", {}, this};
 
-  // Check alias consistency
-  oops::Parameter<bool> checkAliasConsistency{"check alias consistency", true, this};
-
   // Latitudes from south to north in files
   oops::Parameter<bool> latSouthToNorth{"latitude south to north", true, this};
 
@@ -161,9 +158,6 @@ class GeometryParameters : public oops::Parameters {
 
   // Interpolation parameters
   oops::OptionalParameter<InterpolationParameters> interpolation{"interpolation", this};
-
-  // Print summary
-  oops::Parameter<bool> printSummary{"print summary", true, this};
 };
 
 // -----------------------------------------------------------------------------

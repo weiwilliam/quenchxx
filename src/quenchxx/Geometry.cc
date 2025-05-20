@@ -153,9 +153,7 @@ Geometry::Geometry(const eckit::Configuration & config,
   setupIterator(config);
 
   // Print summary
-  if (params.printSummary.value()) {
-    this->print(oops::Log::info());
-  }
+  this->print(oops::Log::info());
 
   oops::Log::trace() << classname() << "::Geometry done" << std::endl;
 }
@@ -317,32 +315,30 @@ void Geometry::setupAlias(const GeometryParameters & params) {
     alias_.push_back(confItem);
   }
 
-  if (params.checkAliasConsistency.value()) {
-    // Check alias consistency
-    std::vector<std::string> vars;
-    for (const auto & groupParams : params.groups.value()) {
-      const std::vector<std::string> grpVars = groupParams.variables.value();
-      vars.insert(vars.end(), grpVars.begin(), grpVars.end());
+  // Check alias consistency
+  std::vector<std::string> vars;
+  for (const auto & groupParams : params.groups.value()) {
+    const std::vector<std::string> grpVars = groupParams.variables.value();
+    vars.insert(vars.end(), grpVars.begin(), grpVars.end());
+  }
+  for (const auto & item : alias_) {
+    const std::string codeVar = item.getString("in code");
+    if (std::find(vars.begin(), vars.end(), codeVar) == vars.end()) {
+      // Code variable not available in the list of variables anymore
+      throw eckit::UserError("Alias error: code variable not available anymore", Here());
+    } else {
+      // Remove code variable from the list of available variables
+      vars.erase(std::remove(vars.begin(), vars.end(), codeVar), vars.end());
     }
-    for (const auto & item : alias_) {
-      const std::string codeVar = item.getString("in code");
-      if (std::find(vars.begin(), vars.end(), codeVar) == vars.end()) {
-        // Code variable not available in the list of variables anymore
-        throw eckit::UserError("Alias error: code variable not available anymore", Here());
-     } else {
-        // Remove code variable from the list of available variables
-        vars.erase(std::remove(vars.begin(), vars.end(), codeVar), vars.end());
-      }
-    }
-    for (const auto & item : alias_) {
-      const std::string fileVar = item.getString("in file");
-      if (std::find(vars.begin(), vars.end(), fileVar) == vars.end()) {
-        // Add file variable to the list of variables
-        vars.push_back(fileVar);
-      } else {
-        // File variable is already present in the list of variables
-        throw eckit::UserError("Alias error: duplicated file variable", Here());
-      }
+  }
+  for (const auto & item : alias_) {
+    const std::string fileVar = item.getString("in file");
+    if (std::find(vars.begin(), vars.end(), fileVar) == vars.end()) {
+      // Add file variable to the list of variables
+      vars.push_back(fileVar);
+    } else {
+      // File variable is already present in the list of variables
+      throw eckit::UserError("Alias error: duplicated file variable", Here());
     }
   }
 
@@ -699,15 +695,16 @@ void Geometry::checkLonLat(const eckit::Configuration & checkLonLatConf) {
   // Get ghost view
   const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
 
+  // Get lon/lat check tolerance
+  const double lonLatTol = checkLonLatConf.getDouble("tolerance", 1.0e-12);
+
   // Check lon/lat
   for (atlas::idx_t jnode = 0; jnode < functionSpace_.lonlat().shape(0); ++jnode) {
     if (ghostView(jnode) == 0) {
-      if (std::abs(lonView(jnode, 0)-lonlatView(jnode, 0)) > 1.0e-6) {
-        std::cout << lonView(jnode, 0) << " = " << lonlatView(jnode, 0) << std::endl;
+      if (std::abs(lonView(jnode, 0)-lonlatView(jnode, 0)) > lonLatTol) {
         throw eckit::Exception("inaccurate longitude", Here());
       }
-      if (std::abs(latView(jnode, 0)-lonlatView(jnode, 1)) > 1.0e-6) {
-        std::cout << latView(jnode, 0) << " = " << lonlatView(jnode, 1) << std::endl;
+      if (std::abs(latView(jnode, 0)-lonlatView(jnode, 1)) > lonLatTol) {
         throw eckit::Exception("inaccurate latitude", Here());
       }
     }

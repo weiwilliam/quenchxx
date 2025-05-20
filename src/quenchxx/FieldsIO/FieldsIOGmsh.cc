@@ -1,48 +1,70 @@
 /*
  * (C) Copyright 2025 Meteorologisk Institutt
  *
+ * This software is licensed under the terms of the Apache Licence Version 2.0
+ * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
 #include "quenchxx/FieldsIO/FieldsIOGmsh.h"
 
-#include <string>
+#include <vector>
 
-#include "atlas/output/Gmsh.h"
-#include "atlas/util/Config.h"
+#include "atlas/meshgenerator/MeshGenerator.h"
 
 #include "eckit/exception/Exceptions.h"
 
+#include "oops/util/FieldSetHelpers.h"
 #include "oops/util/Logger.h"
+
+#include "quenchxx/Geometry.h"
 
 namespace quenchxx {
 
 // -----------------------------------------------------------------------------
 
-void writeGmsh(const Geometry & geom,
-               const eckit::Configuration & config,
-               const atlas::FieldSet & fset) {
-  oops::Log::trace() << "quenchxx::writeGmsh starting" << std::endl;
+static FieldsIOMaker<FieldsIOGmsh> makerGmsh_("gmsh");
 
-  if (geom.mesh().generated()) {
-    // GMSH file path
-    std::string gmshFilePath = config.getString("filepath");;
-    gmshFilePath.append(".msh");
-    oops::Log::info() << "Info     : Writing file: " << gmshFilePath << std::endl;
+// -----------------------------------------------------------------------------
 
-    // GMSH configuration
-    const auto gmshConfig =
-    atlas::util::Config("coordinates", "xyz") | atlas::util::Config("ghost", true) |
-    atlas::util::Config("info", true);
-    atlas::output::Gmsh gmsh(gmshFilePath, gmshConfig);
+void FieldsIOGmsh::read(const Geometry & geom,
+                        const varns::Variables & vars,
+                        const eckit::Configuration & conf,
+                        atlas::FieldSet & fset) const {
+  oops::Log::trace() << classname() << "::read starting" << std::endl;
 
-     // Write GMSH
-    gmsh.write(geom.mesh());
-    gmsh.write(fset, fset[0].functionspace());
-  } else {
-    throw eckit::Exception("mesh should be generated for GMSH output", Here());
+  throw eckit::NotImplemented("GMSH input not implemented yet", Here());
+
+  oops::Log::trace() << classname() << "::read done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void FieldsIOGmsh::write(const Geometry & geom,
+                         const eckit::Configuration & conf,
+                         const atlas::FieldSet & fset) const {
+  oops::Log::trace() << classname() << "::write starting" << std::endl;
+
+  if (!geom.mesh().generated()) {
+    const atlas::MeshGenerator gen("delaunay");
+    geom.mesh() = gen(geom.grid(), geom.partitioner());
   }
 
-  oops::Log::trace() << "quenchxx::writeGmsh done" << std::endl;
+  // GMSH file path
+  std::string gmshfilepath = conf.getString("filepath");;
+  gmshfilepath.append(".msh");
+  oops::Log::info() << "Info     : Writing file: " << gmshfilepath << std::endl;
+
+  // GMSH configuration
+  const auto gmshConfig =
+  atlas::util::Config("coordinates", "xyz") | atlas::util::Config("ghost", true) |
+  atlas::util::Config("info", true);
+  atlas::output::Gmsh gmsh(gmshfilepath, gmshConfig);
+
+  // Write GMSH
+  gmsh.write(geom.mesh());
+  gmsh.write(fset, geom.functionSpace());
+
+  oops::Log::trace() << classname() << "::write done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

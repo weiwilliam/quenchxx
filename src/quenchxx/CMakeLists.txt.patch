@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/CMakeLists.txt.tmp.bak	2025-04-14 16:23:43.650170715 +0200
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/CMakeLists.txt	2025-04-10 15:57:30.968539512 +0200
-@@ -4,47 +4,125 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/CMakeLists.txt.tmp.bak	2025-05-20 11:20:17.154441348 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/CMakeLists.txt	2025-05-20 11:26:15.889667920 +0200
+@@ -4,25 +4,43 @@
  # This software is licensed under the terms of the Apache Licence Version 2.0
  # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  
@@ -12,14 +12,6 @@
  Covariance.h
  Fields.cc
  Fields.h
-+FieldsIO/FieldsIOArome.cc
-+FieldsIO/FieldsIOArome.h
- FieldsIO/FieldsIODefault.cc
- FieldsIO/FieldsIODefault.h
-+FieldsIO/FieldsIOGmsh.cc
-+FieldsIO/FieldsIOGmsh.h
-+FieldsIO/FieldsIOGrib.cc
-+FieldsIO/FieldsIOGrib.h
  Geometry.cc
  Geometry.h
 +GeometryIterator.cc
@@ -52,6 +44,10 @@
 +VariableChange.h
 +VariableChangeParameters.h
 +VariablesSwitch.h
+ 
+ FieldsIO/FieldsIOBase.cc
+ FieldsIO/FieldsIOBase.h
+@@ -33,23 +51,77 @@
  
  )
  
