@@ -7,10 +7,20 @@
 
 #include <netcdf.h>
 
+#include <iomanip>
 #include <string>
 #include <vector>
 
+#include "eckit/exception/Exceptions.h"
+
+#include "atlas/util/Earth.h"
+
 #include "oops/util/Logger.h"
+
+//#ifdef READFA
+#include "quenchxx/FieldsIO/fieldsio_arome_fa.h"
+//#endif
+#include "quenchxx/Geometry.h"
 
 #define ERR(e, msg) {std::string s(nc_strerror(e)); \
   throw eckit::Exception(s + " : " + msg, Here());}
@@ -19,23 +29,33 @@ namespace quenchxx {
 
 // -----------------------------------------------------------------------------
 
-void readArome(const Geometry & geom,
-               const varns::Variables & vars,
-               const eckit::Configuration & config,
-               atlas::FieldSet & fset) {
-  oops::Log::trace() << "quenchxx::readArome starting" << std::endl;
+static FieldsIOMaker<FieldsIOArome> makerAromeNetCDF_("arome netcdf");
+static FieldsIOMaker<FieldsIOArome> makerAromeFA_("arome fa");
 
-  // Build filepath
-  std::string filepath = config.getString("filepath");
-  if (config.has("member")) {
-    std::ostringstream out;
-    out << std::setfill('0') << std::setw(6) << config.getInt("member");
-    filepath.append("_");
-    filepath.append(out.str());
-  }
+// -----------------------------------------------------------------------------
+
+void FieldsIOArome::read(const Geometry & geom,
+                         const varns::Variables & vars,
+                         const eckit::Configuration & config,
+                         atlas::FieldSet & fset) const {
+  oops::Log::trace() << classname() << "::read starting" << std::endl;
+
+  // Get AROME format
+  const std::string ioFormat = config.getString("format");
+
+  // Get file path
+  std::string filePath = config.getString("filepath");
 
   // NetCDF file path
-  std::string ncFilePath = filepath + ".nc";
+  if (ioFormat == "arome netcdf") {
+    if (config.has("member")) {
+      std::ostringstream out;
+      out << std::setfill('0') << std::setw(6) << config.getInt("member");
+      filePath.append("_");
+      filePath.append(out.str());
+    }
+    filePath = filePath + ".nc";
+  }
 
   // Clear local fieldset
   fset.clear();
@@ -70,7 +90,7 @@ void readArome(const Geometry & geom,
       varsToRead["HUMI.SPECIFI"].setLevels(var.getLevels());
     } else {
       // Unknown variable
-      throw eckit::Exception("unknown variable", Here());
+      throw eckit::Exception("unknown variable: " + var.name(), Here());
     }
   }
 
@@ -88,23 +108,46 @@ void readArome(const Geometry & geom,
     view.assign(0.0);
   }
 
-  // File variables names
-  size_t nVarLev = 0;
-  std::vector<std::string> varLevName;
+  // File variables names  
+  size_t nVar2D = 0;
+  std::vector<std::string> preVec;
+  std::vector<int> levVec;
+  std::vector<std::string> varVec;
   for (const auto & var : varsToRead) {
     for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
-      if (var.name() == "SURFPRESSION" || var.name() == "SPECSURFGEOPOTEN") {
-        varLevName.push_back(var.name());
+      if (var.name() == "SURFPRESSION") {
+        preVec.push_back("SURF");
+        levVec.push_back(0);
+        varVec.push_back("PRESSION");
+      } else if (var.name() == "SPECSURFGEOPOTEN") {
+        preVec.push_back("SPECSURF");
+        levVec.push_back(0);
+        varVec.push_back("GEOPOTENTIEL");
       } else {
-        const std::string level = std::to_string(jlevel+1);
-        varLevName.push_back("S" + std::string(3-level.length(), '0') + level + var.name());
+        preVec.push_back("S");
+        levVec.push_back(jlevel+1);
+        varVec.push_back(var.name());
       }
-      ++nVarLev;
+      ++nVar2D;
     }
   }
 
-  // NetCDF IDs
-  int ncid, retval, var_id[nVarLev];
+  // StructuredColumns
+  atlas::functionspace::StructuredColumns fs(geom.functionSpace());
+
+  // Get grid
+  atlas::StructuredGrid grid = fs.grid();
+
+  // Get sizes
+  int nx = grid.nxmax();
+  int ny = grid.ny();
+
+  // Hybrid coordinates dimension
+  size_t nab;
+
+  // Define hybrid coordinates
+  std::vector<double> akFromFile;
+  std::vector<double> bkFromFile;
 
   // Global data
   atlas::FieldSet globalData;
@@ -115,63 +158,139 @@ void readArome(const Geometry & geom,
     globalData.add(varField);
   }
 
-  // StructuredColumns
-  atlas::functionspace::StructuredColumns fs(geom.functionSpace());
+  oops::Log::info() << "Info     : Reading file: " << filePath << std::endl;
 
-  if (geom.getComm().rank() == 0) {
-    // Get grid
-    atlas::StructuredGrid grid = fs.grid();
+  if (ioFormat == "arome netcdf") {
+    // NetCDF IDs
+    int ncid, retval, ak_id, bk_id, dim_id, var_id[nVar2D];
 
-    // Get sizes
-    int nx = grid.nxmax();
-    int ny = grid.ny();
-
-    oops::Log::info() << "Info     : Reading file: " << ncFilePath << std::endl;
-
-    // Open NetCDF file
-    if ((retval = nc_open(ncFilePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncFilePath);
-
-    // Get variables
-    for (size_t jVarLev = 0; jVarLev < nVarLev; ++jVarLev) {
-      if ((retval = nc_inq_varid(ncid, varLevName[jVarLev].c_str(), &var_id[jVarLev]))) {
-        ERR(retval, varLevName[jVarLev]);
+    // Variable/level name
+    std::vector<std::string> var2DName;
+    for (size_t jVar2D = 0; jVar2D < nVar2D; ++jVar2D) {
+      if (levVec[jVar2D] == 0) {
+        var2DName.push_back(preVec[jVar2D] + varVec[jVar2D]);
+      } else {
+        const std::string level = std::to_string(levVec[jVar2D]);
+        var2DName.push_back(preVec[jVar2D] + std::string(3-level.length(), '0') + level + varVec[jVar2D]);
       }
     }
 
-    size_t iVarLev = 0;
-    for (const auto & var : varsToRead) {
-      auto varField = globalData[var.name()];
-      auto varView = atlas::array::make_view<double, 2>(varField);
-      for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
-        // Read data
-        std::vector<double> zvar(ny*nx);
-        if ((retval = nc_get_var_double(ncid, var_id[iVarLev], zvar.data()))) {
-          ERR(retval, varLevName[iVarLev]);
-        }
-        ++iVarLev;
+    if (geom.getComm().rank() == 0) {
+      // Open NetCDF file
+      if ((retval = nc_open(filePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, filePath);
 
-        // Copy data
-        for (int j = 0; j < ny; ++j) {
-          for (int i = 0; i < grid.nx(j); ++i) {
-            atlas::gidx_t gidx = grid.index(i, j);
-            varView(gidx, jlevel) = zvar[j*nx+i];
+      // Get hybrid coordinates IDs
+      if ((retval = nc_inq_varid(ncid, "hybrid_coef_A", &ak_id))) ERR(retval, "hybrid_coef_A");
+      if ((retval = nc_inq_varid(ncid, "hybrid_coef_B", &bk_id))) ERR(retval, "hybrid_coef_B");
+
+      // Get hybrid coordinates dimension
+      if ((retval = nc_inq_vardimid(ncid, ak_id, &dim_id))) ERR(retval, "hybrid_coef_A");
+      if ((retval = nc_inq_dimlen(ncid, dim_id, &nab))) ERR(retval, "nab");
+
+      // Get variables IDs
+      for (size_t jVar2D = 0; jVar2D < nVar2D; ++jVar2D) {
+        if ((retval = nc_inq_varid(ncid, var2DName[jVar2D].c_str(), &var_id[jVar2D]))) {
+          ERR(retval, var2DName[jVar2D]);
+        }
+      }
+    }
+
+    // Broadcast hybrid coordinates dimension
+    geom.getComm().broadcast(nab, 0);
+
+    // Allocate hybrid coordinates
+    akFromFile.resize(nab);
+    bkFromFile.resize(nab);
+
+    if (geom.getComm().rank() == 0) {  
+      size_t iVar2D = 0;
+      for (const auto & var : varsToRead) {
+        auto varField = globalData[var.name()];
+        auto varView = atlas::array::make_view<double, 2>(varField);
+        for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+          // Read data
+          std::vector<double> zvar(ny*nx);
+          if ((retval = nc_get_var_double(ncid, var_id[iVar2D], zvar.data()))) {
+            ERR(retval, var2DName[iVar2D]);
+          }
+          ++iVar2D;
+  
+          // Copy data
+          for (int j = 0; j < ny; ++j) {
+            for (int i = 0; i < grid.nx(j); ++i) {
+              atlas::gidx_t gidx = grid.index(i, j);
+              varView(gidx, jlevel) = zvar[j*nx+i];
+            }
           }
         }
       }
+
+      // Read data
+      if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data()))) ERR(retval, "hybrid_coef_A");
+      if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data()))) ERR(retval, "hybrid_coef_B");
+
+      // Close file
+      if ((retval = nc_close(ncid))) ERR(retval, filePath);
     }
+
+    // Broadcast hybrid coordinates
+    geom.getComm().broadcast(akFromFile.begin(), akFromFile.end(), 0);
+    geom.getComm().broadcast(bkFromFile.begin(), bkFromFile.end(), 0);
+  } else if (ioFormat == "arome fa") {
+//#ifdef READFA
+    // Update configuration
+    eckit::LocalConfiguration updatedConfig(config);
+    updatedConfig.set("earth radius", atlas::util::DatumIFS::radius());
+    updatedConfig.set("nvar2d", nVar2D);
+    updatedConfig.set("prefix vector", preVec);
+    updatedConfig.set("level vector", levVec);
+    updatedConfig.set("variable vector", varVec);
+
+    // Create hybrid coordinates fieldset
+    atlas::FieldSet akbkData;
+
+    // Read FA file
+    fieldsio_arome_fa_f90(updatedConfig, &geom.getComm(), fs.get(), akbkData.get(), globalData.get());
+
+    // Get hybrid coordinates dimension
+    if (geom.getComm().rank() == 0) {
+      nab = akbkData["ak"].shape(0);
+    }
+
+    // Broadcast hybrid coordinates dimension
+    geom.getComm().broadcast(nab, 0);
+
+    // Allocate hybrid coordinates
+    akFromFile.resize(nab);
+    bkFromFile.resize(nab);
+
+    // Get hybrid coordinates
+    if (geom.getComm().rank() == 0) {
+      // Get ak/bk views
+      const auto akView = atlas::array::make_view<double, 1>(akbkData["ak"]);
+      const auto bkView = atlas::array::make_view<double, 1>(akbkData["bk"]);
+
+      // Copy ak/bk
+      for (size_t jab = 0; jab < nab; ++jab) {
+        akFromFile[jab] = akView(jab);
+        bkFromFile[jab] = bkView(jab);
+      }
+    }
+
+    // Broadcast hybrid coordinates
+    geom.getComm().broadcast(akFromFile.begin(), akFromFile.end(), 0);
+    geom.getComm().broadcast(bkFromFile.begin(), bkFromFile.end(), 0);
+//#else
+//    // Format not available
+//    throw eckit::Exception("arome fa format not available", Here());
+//#endif
   }
 
   // Scatter data from main processor
   fs.scatter(globalData, fsetToRead);
 
-  // Processing
+  // Processing of derived variables
   for (const auto & var : vars) {
-    if (var.name() == "log_of_air_pressure_at_surface") {
-      // Share field
-      fset.add(fsetToRead["SURFPRESSION"]);
-      fset["SURFPRESSION"].rename("log_of_air_pressure_at_surface");
-    }
-
     if (var.name() == "air_pressure_at_surface"
       || var.name() == "air_pressure" || var.name() == "air_pressure_at_half_levels") {
       // Create field
@@ -197,47 +316,21 @@ void readArome(const Geometry & geom,
         std::vector<double> ak(var.getLevels());
         std::vector<double> bk(var.getLevels());
 
-        if (geom.getComm().rank() == 0) {
-          // NetCDF IDs
-          int ak_id, bk_id, dim_id;
-          size_t nab;
-
-          // Get hybrid coordinates IDs
-          const std::string akName = config.getString("ak", "hybrid_coef_A");
-          const std::string bkName = config.getString("bk", "hybrid_coef_B");
-          if ((retval = nc_inq_varid(ncid, akName.c_str(), &ak_id))) ERR(retval, akName);
-          if ((retval = nc_inq_varid(ncid, bkName.c_str(), &bk_id))) ERR(retval, bkName);
-
-          // Get hybrid coordinates dimension
-          if ((retval = nc_inq_vardimid(ncid, ak_id, &dim_id))) ERR(retval, akName);
-          if ((retval = nc_inq_dimlen(ncid, dim_id, &nab))) ERR(retval, "nab");
-
-          // Read data
-          std::vector<double> akFromFile(nab);
-          std::vector<double> bkFromFile(nab);
-          if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data()))) ERR(retval, akName);
-          if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data()))) ERR(retval, bkName);
-
-          if (var.name() == "air_pressure") {
-            // Pressure at full levels
-            ASSERT(static_cast<int>(nab) == var.getLevels()+1);
-            for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
-              ak[jlevel] = 0.5*(akFromFile[jlevel]+akFromFile[jlevel+1]);
-              bk[jlevel] = 0.5*(bkFromFile[jlevel]+bkFromFile[jlevel+1]);
-            }
-          } else if (var.name() == "air_pressure_at_half_levels") {
-            // Pressure at half levels
-            ASSERT(static_cast<int>(nab) == var.getLevels());
-            for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
-              ak[jlevel] = akFromFile[jlevel];
-              bk[jlevel] = bkFromFile[jlevel];
-            }
+        if (var.name() == "air_pressure") {
+          // Pressure at full levels
+          ASSERT(static_cast<int>(nab) == var.getLevels()+1);
+          for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+            ak[jlevel] = 0.5*(akFromFile[jlevel]+akFromFile[jlevel+1]);
+            bk[jlevel] = 0.5*(bkFromFile[jlevel]+bkFromFile[jlevel+1]);
+          }
+        } else if (var.name() == "air_pressure_at_half_levels") {
+          // Pressure at half levels
+          ASSERT(static_cast<int>(nab) == var.getLevels());
+          for (int jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+            ak[jlevel] = akFromFile[jlevel];
+            bk[jlevel] = bkFromFile[jlevel];
           }
         }
-
-        // Broadcast hybrid coordinates
-        geom.getComm().broadcast(ak.begin(), ak.end(), 0);
-        geom.getComm().broadcast(bk.begin(), bk.end(), 0);
 
         // Compute pressure
         for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
@@ -263,18 +356,6 @@ void readArome(const Geometry & geom,
       for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
         varView(jnode, 0) = zsView(jnode, 0)*gInv;
       }
-    }
-
-    if (var.name() == "geographical_x_wind") {
-      // Share field
-      fset.add(fsetToRead["WIND.U.PHYS"]);
-      fset["WIND.U.PHYS"].rename("geographical_x_wind");
-    }
-
-    if (var.name() == "geographical_y_wind") {
-      // Share field
-      fset.add(fsetToRead["WIND.V.PHYS"]);
-      fset["WIND.V.PHYS"].rename("geographical_y_wind");
     }
 
     if (var.name() == "eastward_wind" || var.name() == "northward_wind") {
@@ -328,29 +409,40 @@ void readArome(const Geometry & geom,
         }
       }
     }
+  }
+
+  // Processing of direct variables (share variables)
+  for (const auto & var : vars) {
+    if (var.name() == "geographical_x_wind") {
+      fset.add(fsetToRead["WIND.U.PHYS"]);
+      fset["WIND.U.PHYS"].rename("geographical_x_wind");
+    }
+
+    if (var.name() == "geographical_y_wind") {
+      fset.add(fsetToRead["WIND.V.PHYS"]);
+      fset["WIND.V.PHYS"].rename("geographical_y_wind");
+    }
 
     if (var.name() == "air_temperature") {
-      // Share field
       fset.add(fsetToRead["TEMPERATURE"]);
       fset["TEMPERATURE"].rename("air_temperature");
     }
 
+    if (var.name() == "log_of_air_pressure_at_surface") {
+      fset.add(fsetToRead["SURFPRESSION"]);
+      fset["SURFPRESSION"].rename("log_of_air_pressure_at_surface");
+    }
+
     if (var.name() == "water_vapor_mixing_ratio_wrt_moist_air") {
-      // Share field
       fset.add(fsetToRead["HUMI.SPECIFI"]);
       fset["HUMI.SPECIFI"].rename("water_vapor_mixing_ratio_wrt_moist_air");
     }
   }
 
-  if (geom.getComm().rank() == 0) {
-    // Close file
-    if ((retval = nc_close(ncid))) ERR(retval, ncFilePath);
-  }
-
   // Code is too complicated, mark dirty to be safe
   fset.set_dirty();
 
-  oops::Log::trace() << "quenchxx::readArome done" << std::endl;
+  oops::Log::trace() << classname() << "::read done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

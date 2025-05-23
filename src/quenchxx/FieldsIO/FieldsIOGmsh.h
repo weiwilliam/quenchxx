@@ -8,10 +8,10 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include "atlas/field.h"
-#include "atlas/output/Gmsh.h"
+
+#include "eckit/config/Configuration.h"
 
 #include "quenchxx/FieldsIO/FieldsIOBase.h"
 #include "quenchxx/VariablesSwitch.h"
@@ -30,12 +30,6 @@ class FieldsIOGmsh : public FieldsIOBase {
   explicit FieldsIOGmsh(const std::string & ioFormat)
     : FieldsIOBase(ioFormat) {}
   ~FieldsIOGmsh() = default;
-
-  // Read
-  void read(const Geometry &,
-            const varns::Variables &,
-            const eckit::Configuration &,
-            atlas::FieldSet &) const override;
 
   // Write
   void write(const Geometry &,

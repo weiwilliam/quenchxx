@@ -8,9 +8,10 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include "atlas/field.h"
+
+#include "eckit/config/Configuration.h"
 
 #include "quenchxx/FieldsIO/FieldsIOBase.h"
 #include "quenchxx/VariablesSwitch.h"

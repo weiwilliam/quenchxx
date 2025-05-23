@@ -86,20 +86,6 @@ ecbuild_enable_fortran( REQUIRED )
 set( QUENCHXX_LINKER_LANGUAGE CXX )
 
 ################################################################################
-# Compiler flags
-################################################################################
-
-set( CMAKE_CXX_STANDARD 17 )
-set( CMAKE_CXX_STANDARD_REQUIRED ON )
-set( CMAKE_CXX_EXTENSIONS OFF )
-set( CMAKE_C_STANDARD 11 )
-set( CMAKE_C_STANDARD_REQUIRED ON )
-set( CMAKE_C_EXTENSIONS OFF )
-set( CMAKE_FORTRAN_STANDARD 08 )
-set( CMAKE_FORTRAN_STANDARD_REQUIRED ON )
-set( CMAKE_FORTRAN_EXTENSIONS OFF )
-
-################################################################################
 # Dependencies
 ################################################################################
 
@@ -111,6 +97,16 @@ find_package( NetCDF REQUIRED COMPONENTS C Fortran )
 
 # atlas
 find_package( atlas 0.35.0 REQUIRED )
+
+# eccodes
+find_package( eccodes QUIET )
+
+# ectrans and falfilfa
+find_package( ECTRANS 1.6.0 COMPONENTS etrans double QUIET )
+find_package( falfilfa QUIET )
+if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
+    add_definitions( -DREADFA )
+endif()
 
 # oops
 if( ECSABER )

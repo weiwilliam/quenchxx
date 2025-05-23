@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "atlas/meshgenerator/MeshGenerator.h"
+#include "atlas/output/Gmsh.h"
 
 #include "eckit/exception/Exceptions.h"
 
@@ -26,19 +27,6 @@ static FieldsIOMaker<FieldsIOGmsh> makerGmsh_("gmsh");
 
 // -----------------------------------------------------------------------------
 
-void FieldsIOGmsh::read(const Geometry & geom,
-                        const varns::Variables & vars,
-                        const eckit::Configuration & conf,
-                        atlas::FieldSet & fset) const {
-  oops::Log::trace() << classname() << "::read starting" << std::endl;
-
-  throw eckit::NotImplemented("GMSH input not implemented yet", Here());
-
-  oops::Log::trace() << classname() << "::read done" << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-
 void FieldsIOGmsh::write(const Geometry & geom,
                          const eckit::Configuration & conf,
                          const atlas::FieldSet & fset) const {
@@ -50,15 +38,15 @@ void FieldsIOGmsh::write(const Geometry & geom,
   }
 
   // GMSH file path
-  std::string gmshfilepath = conf.getString("filepath");;
-  gmshfilepath.append(".msh");
-  oops::Log::info() << "Info     : Writing file: " << gmshfilepath << std::endl;
+  std::string filePath = conf.getString("filepath");;
+  filePath.append(".msh");
+  oops::Log::info() << "Info     : Writing file: " << filePath << std::endl;
 
   // GMSH configuration
   const auto gmshConfig =
   atlas::util::Config("coordinates", "xyz") | atlas::util::Config("ghost", true) |
   atlas::util::Config("info", true);
-  atlas::output::Gmsh gmsh(gmshfilepath, gmshConfig);
+  atlas::output::Gmsh gmsh(filePath, gmshConfig);
 
   // Write GMSH
   gmsh.write(geom.mesh());

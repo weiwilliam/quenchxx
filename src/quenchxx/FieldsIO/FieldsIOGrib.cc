@@ -5,11 +5,9 @@
 
 #include "quenchxx/FieldsIO/FieldsIOGrib.h"
 
-#ifdef ECCODES_FOUND
 #include <eccodes.h>
 #include <stdio.h>
 #include <stdlib.h>
-#endif
 
 #include <algorithm>
 #include <string>
@@ -21,30 +19,34 @@
 
 #include "oops/util/Logger.h"
 
+#include "quenchxx/Geometry.h"
+
 namespace quenchxx {
 
 // -----------------------------------------------------------------------------
 
-void readGrib(const Geometry & geom,
-              const varns::Variables & vars,
-              const eckit::Configuration & config,
-              atlas::FieldSet & fset) {
-  oops::Log::trace() << "quenchxx::readGrib starting" << std::endl;
+static FieldsIOMaker<FieldsIOGrib> makerGrib_("grib");
 
-#ifdef ECCODES_FOUND
-  // Build filepath
-  std::string filepath = config.getString("filepath");
+// -----------------------------------------------------------------------------
+
+void FieldsIOGrib::read(const Geometry & geom,
+                        const varns::Variables & vars,
+                        const eckit::Configuration & config,
+                        atlas::FieldSet & fset) const {
+  oops::Log::trace() << classname() << "::read starting" << std::endl;
+
+  // Build file path
+  std::string filePath = config.getString("filepath");
   if (config.has("member")) {
     std::ostringstream out;
     out << std::setfill('0') << std::setw(6) << config.getInt("member");
-    filepath.append("_");
-    filepath.append(out.str());
+    filePath.append("_");
+    filePath.append(out.str());
   }
 
   // Grib file path
-  std::string gribfilepath = filepath;
-  gribfilepath.append(".");
-  gribfilepath.append(config.getString("grib extension", "grib2"));
+  filePath.append(".");
+  filePath.append(config.getString("grib extension", "grib2"));
 
   // Get levels
   std::vector<int> levels;
@@ -85,7 +87,7 @@ void readGrib(const Geometry & geom,
 
   // Grib input
   if (geom.getComm().rank() == 0) {
-    oops::Log::info() << "Info     : Reading file: " << gribfilepath << std::endl;
+    oops::Log::info() << "Info     : Reading file: " << filePath << std::endl;
 
     // Initialization
     int ret;
@@ -93,7 +95,7 @@ void readGrib(const Geometry & geom,
     codes_handle* h;
 
     // Create index of file contents for cfVarName, typeOfLevel and level
-    index = codes_index_new_from_file(0, gribfilepath.c_str(), "cfVarName,typeOfLevel,level",
+    index = codes_index_new_from_file(0, filePath.c_str(), "cfVarName,typeOfLevel,level",
       &ret);
     CODES_CHECK(ret, 0);
 
@@ -161,12 +163,10 @@ void readGrib(const Geometry & geom,
     fs.scatter(globalData, fset);
   }
 
-  fset.set_dirty();  // code is too complicated, mark dirty to be safe
-#else
-    throw eckit::UserError("ECCODES not available", Here());
-#endif
+  // Code is too complicated, mark dirty to be safe
+  fset.set_dirty();
 
-  oops::Log::trace() << "quenchxx::readGrib done" << std::endl;
+  oops::Log::trace() << classname() << "::read done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------

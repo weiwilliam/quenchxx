@@ -42,6 +42,8 @@ VariableChange.h
 VariableChangeParameters.h
 VariablesSwitch.h
 
+FieldsIO/FieldsIOArome.cc
+FieldsIO/FieldsIOArome.h
 FieldsIO/FieldsIOBase.cc
 FieldsIO/FieldsIOBase.h
 FieldsIO/FieldsIODefault.cc
@@ -103,6 +105,26 @@ else()
     )
 endif()
 
+
+if( eccodes_FOUND )
+    list( APPEND quenchxx_src_files
+
+    FieldsIO/FieldsIOGrib.cc
+    FieldsIO/FieldsIOGrib.h
+
+    )
+endif()
+
+if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
+    list( APPEND quenchxx_src_files
+
+    FieldsIO/fieldsio_arome_fa.h
+    FieldsIO/fieldsio_arome_fa_interface.F90
+    FieldsIO/fieldsio_arome_fa_mod.F90
+
+    )
+endif()
+
 ecbuild_add_library( TARGET   quenchxx
                      SOURCES  ${quenchxx_src_files}
                      PUBLIC_LIBS  ${QUENCHXX_PUBLIC_LIBS}
@@ -115,6 +137,11 @@ target_include_directories( quenchxx PUBLIC "$<BUILD_INTERFACE:${QUENCHXX_INCLUD
 target_link_libraries( quenchxx PUBLIC NetCDF::NetCDF_Fortran NetCDF::NetCDF_C )
 if( eccodes_FOUND )
     target_link_libraries( quenchxx PUBLIC eccodes )
+endif()
+if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
+    target_link_libraries( quenchxx PUBLIC trans_dp )
+    target_link_libraries( quenchxx PUBLIC fa_dp )
+#    target_link_libraries( quenchxx PUBLIC ${falfilfa_DIR}/lib/libfa_dp.so )
 endif()
 
 #Configure include directory layout for build-tree to match install-tree

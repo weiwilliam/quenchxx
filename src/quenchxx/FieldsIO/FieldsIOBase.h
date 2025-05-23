@@ -15,6 +15,7 @@
 #include "atlas/field.h"
 
 #include "eckit/config/Configuration.h"
+#include "eckit/exception/Exceptions.h"
 #include "eckit/memory/NonCopyable.h"
 
 #include "oops/base/Variables.h"
@@ -37,12 +38,14 @@ class FieldsIOBase : private eckit::NonCopyable {
   virtual void read(const Geometry &,
                     const oops::Variables &,
                     const eckit::Configuration &,
-                    atlas::FieldSet &) const = 0;
+                    atlas::FieldSet &) const
+    {throw eckit::Exception("read not implemented for this format", Here());}
 
   // Write
   virtual void write(const Geometry &,
                      const eckit::Configuration &,
-                     const atlas::FieldSet &) const = 0;
+                     const atlas::FieldSet &) const
+    {throw eckit::Exception("read not implemented for this format", Here());}
 };
 
 // -----------------------------------------------------------------------------
