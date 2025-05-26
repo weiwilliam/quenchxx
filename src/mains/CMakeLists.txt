@@ -5,12 +5,14 @@
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
 # Select version
+list( APPEND libs "quenchxx" "saber" )
 if( ECSABER )
     set( version "ec" )
-    list( APPEND libs "quenchxx" "saber" )
 else()
     set( version "jedi" )
-    list( APPEND libs "quenchxx" "saber" "ufo")
+    if( ENABLE_OBS )
+        list( APPEND libs "ufo")
+    endif()
 endif()
 
 # Executables
@@ -32,47 +34,48 @@ ecbuild_add_executable( TARGET  quenchxx_convertstate.x
                         SOURCES ${version}/quenchxxConvertState.cc
                         LIBS    ${libs} )
 
-if( ECSABER )
-    ecbuild_add_executable( TARGET  quenchxx_hofx.x
-                            SOURCES ${version}/quenchxxHofX.cc
-                            LIBS    ${libs} )
-else()
-    ecbuild_add_executable( TARGET  quenchxx_hofx3d.x
-                            SOURCES ${version}/quenchxxHofX3D.cc
-                            LIBS    ${libs} )
-endif()
+if( ENABLE_OBS )
+    if( ECSABER )
+        ecbuild_add_executable( TARGET  quenchxx_hofx.x
+                                SOURCES ${version}/quenchxxHofX.cc
+                                LIBS    ${libs} )
+    else()
+        ecbuild_add_executable( TARGET  quenchxx_hofx3d.x
+                                SOURCES ${version}/quenchxxHofX3D.cc
+                                LIBS    ${libs} )
+    endif()
 
-ecbuild_add_executable( TARGET  quenchxx_variational.x
-                        SOURCES ${version}/quenchxxVariational.cc
-                        LIBS    ${libs} )
-
-ecbuild_add_executable( TARGET  quenchxx_letkf.x
-                        SOURCES ${version}/quenchxxLETKF.cc
-                        LIBS    ${libs} )
-
-if( ECSABER )
-    ecbuild_add_executable( TARGET  quenchxx_makeobs_patched.x
-                            SOURCES ${version}/quenchxxMakeObsPatched.cc
+    ecbuild_add_executable( TARGET  quenchxx_variational.x
+                            SOURCES ${version}/quenchxxVariational.cc
                             LIBS    ${libs} )
 
-    ecbuild_add_executable( TARGET  quenchxx_evil_update.x
-                            SOURCES ${version}/quenchxxEvilUpdate.cc
+    ecbuild_add_executable( TARGET  quenchxx_letkf.x
+                            SOURCES ${version}/quenchxxLETKF.cc
                             LIBS    ${libs} )
 
-    ecbuild_add_executable( TARGET  quenchxx_assim_ensemble_patched.x
-                            SOURCES ${version}/quenchxxAssimEnsemblePatched.cc
-                            LIBS    ${libs} )
+    if( ECSABER )
+        ecbuild_add_executable( TARGET  quenchxx_makeobs_patched.x
+                                SOURCES ${version}/quenchxxMakeObsPatched.cc
+                                LIBS    ${libs} )
 
+        ecbuild_add_executable( TARGET  quenchxx_evil_update.x
+                                SOURCES ${version}/quenchxxEvilUpdate.cc
+                                LIBS    ${libs} )
 
-    ecbuild_add_executable( TARGET  quenchxx_ensemble_variance.x
-                            SOURCES ${version}/quenchxxEnsembleVariance.cc
-                            LIBS    ${libs} )
+        ecbuild_add_executable( TARGET  quenchxx_assim_ensemble_patched.x
+                                SOURCES ${version}/quenchxxAssimEnsemblePatched.cc
+                                LIBS    ${libs} )
 
-    ecbuild_add_executable( TARGET  quenchxx_bgos.x
-                            SOURCES ${version}/quenchxxBGOS.cc
-                            LIBS    ${libs} )
+        ecbuild_add_executable( TARGET  quenchxx_ensemble_variance.x
+                                SOURCES ${version}/quenchxxEnsembleVariance.cc
+                                LIBS    ${libs} )
 
-    ecbuild_add_executable( TARGET  quenchxx_synthetic_data.x
-                            SOURCES ${version}/quenchxxSyntheticData.cc
-                            LIBS    ${libs} )
+        ecbuild_add_executable( TARGET  quenchxx_bgos.x
+                                SOURCES ${version}/quenchxxBGOS.cc
+                                LIBS    ${libs} )
+
+        ecbuild_add_executable( TARGET  quenchxx_synthetic_data.x
+                                SOURCES ${version}/quenchxxSyntheticData.cc
+                                LIBS    ${libs} )
+    endif()
 endif()

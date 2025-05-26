@@ -70,6 +70,7 @@ set( ECBUILD_DEFAULT_BUILD_TYPE Release )
 set( ENABLE_OS_TESTS           OFF CACHE BOOL "Disable OS tests" FORCE )
 set( ENABLE_LARGE_FILE_SUPPORT OFF CACHE BOOL "Disable testing of large file support" FORCE )
 set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
+set( ENABLE_OBS ON CACHE BOOL "Enable observations" )
 
 include( ecbuild_system NO_POLICY_SCOPE )
 
@@ -119,9 +120,9 @@ endif()
 # saber
 find_package( saber 1.10.0 REQUIRED )
 
-if( NOT ECSABER )
+if( ( NOT ECSABER ) AND ENABLE_OBS )
     # crtm
-    find_package( crtm 2.2.3 QUIET )
+    find_package( crtm 2.2.3 REQUIRED )
 
     # ufo
     find_package( ufo 1.10.0 REQUIRED )
@@ -142,7 +143,10 @@ ecbuild_find_mpi( COMPONENTS CXX Fortran REQUIRED )
 if( ECSABER )
     list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "oops_patch" "saber" "vader" )
 else()
-    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "saber" "ufo" "vader" )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "saber" "vader" )
+    if( ENABLE_OBS )
+        list( APPEND QUENCHXX_PUBLIC_LIBS "ufo" )
+    endif()
 endif()
 
 ################################################################################

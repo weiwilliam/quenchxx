@@ -4,6 +4,7 @@
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
+# Common sources, not obs-related
 list( APPEND quenchxx_src_files
 
 Constants.cc
@@ -15,8 +16,6 @@ Geometry.cc
 Geometry.h
 GeometryIterator.cc
 GeometryIterator.h
-GeoVaLs.cc
-GeoVaLs.h
 Increment.cc
 Increment.h
 Interpolation.cc
@@ -26,10 +25,6 @@ LinearVariableChange.cc
 LinearVariableChange.h
 LinearVariableChangeParameters.h
 ModelData.h
-ObsSpace.cc
-ObsSpace.h
-ObsVector.cc
-ObsVector.h
 State.cc
 State.h
 Traits.h
@@ -54,6 +49,7 @@ FieldsIO/FieldsIOGmsh.h
 )
 
 if( ECSABER )
+    # ECSABER-specific sources, not obs-related
     list( APPEND quenchxx_src_files
 
     HorizScaleDecomposition.h
@@ -62,11 +58,7 @@ if( ECSABER )
     IncrEnsCtlVec.h
     instantiateQuenchMatrices.h
     Interpolator.h
-    LinearObsOperator.cc
-    LinearObsOperator.h
     LocalizationMatrix.h
-    Locations.cc
-    Locations.h
     Logbook.cc
     Logbook.h
     LinearModel.cc
@@ -78,35 +70,62 @@ if( ECSABER )
     ModelAuxCtlVec.h
     ModelAuxControlEstimator.h
     ModelAuxIncrement.h
-    ObsAuxControl.cc
-    ObsAuxControl.h
-    ObsAuxCovariance.cc
-    ObsAuxCovariance.h
-    ObsAuxCtlVec.cc
-    ObsAuxCtlVec.h
-    ObsAuxIncrement.cc
-    ObsAuxIncrement.h
-    ObsError.cc
-    ObsError.h
-    ObsLocalizationEC.cc
-    ObsLocalizationEC.h
-    ObsOperator.cc
-    ObsOperator.h
     Variables.h
     Variables.cc
 
     )
-else()
-    list( APPEND quenchxx_src_files
-
-    ObsLocalizationJEDI.cc
-    ObsLocalizationJEDI.h
-
-    )
 endif()
 
+if( ENABLE_OBS )
+    # Common sources, obs-related
+    list( APPEND quenchxx_src_files
+
+    GeoVaLs.cc
+    GeoVaLs.h
+    ObsSpace.cc
+    ObsSpace.h
+    ObsVector.cc
+    ObsVector.h
+
+    )
+
+    if( ECSABER )
+        # ECSABER-specific sources, obs-related
+        list( APPEND quenchxx_src_files  
+
+        LinearObsOperator.cc
+        LinearObsOperator.h
+        Locations.cc
+        Locations.h
+        ObsAuxControl.cc
+        ObsAuxControl.h
+        ObsAuxCovariance.cc
+        ObsAuxCovariance.h
+        ObsAuxCtlVec.cc
+        ObsAuxCtlVec.h
+        ObsAuxIncrement.cc
+        ObsAuxIncrement.h
+        ObsError.cc
+        ObsError.h
+        ObsLocalizationEC.cc
+        ObsLocalizationEC.h
+        ObsOperator.cc
+        ObsOperator.h
+
+        )
+    else()
+        # JEDI-specific sources, obs-related
+        list( APPEND quenchxx_src_files
+
+        ObsLocalizationJEDI.cc
+        ObsLocalizationJEDI.h
+
+        )
+    endif()
+endif()
 
 if( eccodes_FOUND )
+    # GRIB IO-specific sources
     list( APPEND quenchxx_src_files
 
     FieldsIO/FieldsIOGrib.cc
@@ -116,6 +135,7 @@ if( eccodes_FOUND )
 endif()
 
 if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
+    # AROME FA IO-specific sources
     list( APPEND quenchxx_src_files
 
     FieldsIO/fieldsio_arome_fa.h
@@ -141,7 +161,6 @@ endif()
 if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
     target_link_libraries( quenchxx PUBLIC trans_dp )
     target_link_libraries( quenchxx PUBLIC fa_dp )
-#    target_link_libraries( quenchxx PUBLIC ${falfilfa_DIR}/lib/libfa_dp.so )
 endif()
 
 #Configure include directory layout for build-tree to match install-tree

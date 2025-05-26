@@ -17,9 +17,9 @@
 
 #include "oops/util/Logger.h"
 
-//#ifdef READFA
+#ifdef READFA
 #include "quenchxx/FieldsIO/fieldsio_arome_fa.h"
-//#endif
+#endif
 #include "quenchxx/Geometry.h"
 
 #define ERR(e, msg) {std::string s(nc_strerror(e)); \
@@ -108,7 +108,7 @@ void FieldsIOArome::read(const Geometry & geom,
     view.assign(0.0);
   }
 
-  // File variables names  
+  // File variables names
   size_t nVar2D = 0;
   std::vector<std::string> preVec;
   std::vector<int> levVec;
@@ -171,7 +171,8 @@ void FieldsIOArome::read(const Geometry & geom,
         var2DName.push_back(preVec[jVar2D] + varVec[jVar2D]);
       } else {
         const std::string level = std::to_string(levVec[jVar2D]);
-        var2DName.push_back(preVec[jVar2D] + std::string(3-level.length(), '0') + level + varVec[jVar2D]);
+        var2DName.push_back(preVec[jVar2D] + std::string(3-level.length(), '0')
+          + level + varVec[jVar2D]);
       }
     }
 
@@ -202,7 +203,7 @@ void FieldsIOArome::read(const Geometry & geom,
     akFromFile.resize(nab);
     bkFromFile.resize(nab);
 
-    if (geom.getComm().rank() == 0) {  
+    if (geom.getComm().rank() == 0) {
       size_t iVar2D = 0;
       for (const auto & var : varsToRead) {
         auto varField = globalData[var.name()];
@@ -214,7 +215,7 @@ void FieldsIOArome::read(const Geometry & geom,
             ERR(retval, var2DName[iVar2D]);
           }
           ++iVar2D;
-  
+
           // Copy data
           for (int j = 0; j < ny; ++j) {
             for (int i = 0; i < grid.nx(j); ++i) {
@@ -226,8 +227,10 @@ void FieldsIOArome::read(const Geometry & geom,
       }
 
       // Read data
-      if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data()))) ERR(retval, "hybrid_coef_A");
-      if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data()))) ERR(retval, "hybrid_coef_B");
+      if ((retval = nc_get_var_double(ncid, ak_id, akFromFile.data())))
+        ERR(retval, "hybrid_coef_A");
+      if ((retval = nc_get_var_double(ncid, bk_id, bkFromFile.data())))
+        ERR(retval, "hybrid_coef_B");
 
       // Close file
       if ((retval = nc_close(ncid))) ERR(retval, filePath);
@@ -237,7 +240,7 @@ void FieldsIOArome::read(const Geometry & geom,
     geom.getComm().broadcast(akFromFile.begin(), akFromFile.end(), 0);
     geom.getComm().broadcast(bkFromFile.begin(), bkFromFile.end(), 0);
   } else if (ioFormat == "arome fa") {
-//#ifdef READFA
+#ifdef READFA
     // Update configuration
     eckit::LocalConfiguration updatedConfig(config);
     updatedConfig.set("earth radius", atlas::util::DatumIFS::radius());
@@ -250,7 +253,8 @@ void FieldsIOArome::read(const Geometry & geom,
     atlas::FieldSet akbkData;
 
     // Read FA file
-    fieldsio_arome_fa_f90(updatedConfig, &geom.getComm(), fs.get(), akbkData.get(), globalData.get());
+    fieldsio_arome_fa_f90(updatedConfig, &geom.getComm(), fs.get(), akbkData.get(),
+      globalData.get());
 
     // Get hybrid coordinates dimension
     if (geom.getComm().rank() == 0) {
@@ -280,10 +284,10 @@ void FieldsIOArome::read(const Geometry & geom,
     // Broadcast hybrid coordinates
     geom.getComm().broadcast(akFromFile.begin(), akFromFile.end(), 0);
     geom.getComm().broadcast(bkFromFile.begin(), bkFromFile.end(), 0);
-//#else
-//    // Format not available
-//    throw eckit::Exception("arome fa format not available", Here());
-//#endif
+#else
+    // Format not available
+    throw eckit::Exception("arome fa format not available", Here());
+#endif
   }
 
   // Scatter data from main processor
