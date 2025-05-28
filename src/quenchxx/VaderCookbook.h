@@ -25,11 +25,9 @@ static std::map<std::string, std::vector<std::string>> vaderQuenchxxCustomCookbo
     // t: from p-pt and pt-base, from pt
     {"air_temperature",              {"AirTemperature_C", "AirTemperature_A"}},
     // p: from pe, from p-p and p-base
-    {"air_pressure",                 {"AirPressure_A", "AirPressure_B"}},
+    {"air_pressure",                 {"AirPressure_A"}},
     // rh:
     {"relative_humidity",            {"RelativeHumidity_A"}},
-    // mr: from spfh
-    {"humidity_mixing_ratio",        {"HumidityMixingRatio_A", "HumidityMixingRatio_B"}},
     // sulfmf:
     {"mass_fraction_of_sulfate_in_air",  {"SulfateMassFraction_A"}},
     // spfh: from mr
