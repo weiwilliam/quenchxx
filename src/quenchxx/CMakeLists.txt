@@ -41,6 +41,8 @@ FieldsIO/FieldsIOArome.cc
 FieldsIO/FieldsIOArome.h
 FieldsIO/FieldsIOBase.cc
 FieldsIO/FieldsIOBase.h
+FieldsIO/FieldsIOBSC.cc
+FieldsIO/FieldsIOBSC.h
 FieldsIO/FieldsIODefault.cc
 FieldsIO/FieldsIODefault.h
 FieldsIO/FieldsIOGmsh.cc
