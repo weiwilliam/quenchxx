@@ -137,9 +137,8 @@ void FieldsIOBSC::read(const Geometry & geom,
         std::vector<double> zvar(nx*ny);
         const std::vector<size_t> startp({time, levels[k]-1, 0, 0});
         const std::vector<size_t> countp({1, 1, ny, nx});
-        if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(), NULL, zvar.data()))) {
-          ERR(retval, vars[jvar].name());
-        }
+        if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
+          zvar.data()))) ERR(retval, vars[jvar].name());
 
         // Deserialize data to view
         for (atlas::idx_t j = 0; j < ny; ++j) {
@@ -373,13 +372,13 @@ void FieldsIOBSC::write(const Geometry & geom,
         zRlat[jLat] = rlatStart + static_cast<float>(jLat)*(rlatEnd-rlatStart)
           /static_cast<float>(ny-1);
       }
-  
+
       // Create lm
       std::vector<int> zLm(lmMax);
       for (size_t jLm = 0; jLm < lmMax; ++jLm) {
         zLm[jLm] = jLm;
       }
-  
+
       // Create time
       std::vector<int> zTime(timeMax);
       for (size_t jTime = 0; jTime < timeMax; ++jTime) {
