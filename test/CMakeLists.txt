@@ -108,11 +108,6 @@ testinput/ec/glb_ensemble_18.json
 testinput/ec/glb_getkf_nonlinear.json
 testinput/ec/glb_hofx.json
 testinput/ec/glb_interfaces.json
-testinput/ec/glb_letkf_linear.json
-testinput/ec/glb_letkf_linear_4d.json
-testinput/ec/glb_letkf_nonlinear.json
-testinput/ec/glb_letkf_nonlinear_4d.json
-testinput/ec/glb_letkf_read_members.json
 testinput/ec/glb_makeobs_06.json
 testinput/ec/glb_makeobs_12.json
 testinput/ec/glb_makeobs_18.json
@@ -135,11 +130,6 @@ testinput/ec/reg_ensemble_18.json
 testinput/ec/reg_getkf_nonlinear.json
 testinput/ec/reg_hofx.json
 testinput/ec/reg_interfaces.json
-testinput/ec/reg_letkf_linear.json
-testinput/ec/reg_letkf_linear_4d.json
-testinput/ec/reg_letkf_nonlinear.json
-testinput/ec/reg_letkf_nonlinear_4d.json
-testinput/ec/reg_letkf_read_members.json
 testinput/ec/reg_makeobs_06.json
 testinput/ec/reg_makeobs_12.json
 testinput/ec/reg_makeobs_18.json
@@ -294,11 +284,6 @@ testref/ec/glb_4densvar.ref
 testref/ec/glb_4denvar.ref
 testref/ec/glb_getkf_nonlinear.ref
 testref/ec/glb_hofx.ref
-testref/ec/glb_letkf_linear.ref
-testref/ec/glb_letkf_linear_4d.ref
-testref/ec/glb_letkf_nonlinear.ref
-testref/ec/glb_letkf_nonlinear_4d.ref
-testref/ec/glb_letkf_read_members.ref
 
 # REGIONAL
 testref/ec/reg_3dvar.ref
@@ -307,11 +292,6 @@ testref/ec/reg_4densvar.ref
 testref/ec/reg_4denvar.ref
 testref/ec/reg_getkf_nonlinear.ref
 testref/ec/reg_hofx.ref
-testref/ec/reg_letkf_linear.ref
-testref/ec/reg_letkf_linear_4d.ref
-testref/ec/reg_letkf_nonlinear.ref
-testref/ec/reg_letkf_nonlinear_4d.ref
-testref/ec/reg_letkf_read_members.ref
 
 # SYNTHETIC DATA
 testref/ec/synthetic_data_generate.ref
@@ -407,12 +387,14 @@ foreach( mpi "1" "4" )
             if( ECSABER )
                 create_test( ${domain}_4denvar ${mpi} variational )
             endif()
-            create_test( ${domain}_getkf_nonlinear ${mpi} letkf )
-            create_test( ${domain}_letkf_linear ${mpi} letkf )
-            create_test( ${domain}_letkf_linear_4d ${mpi} letkf )
-            create_test( ${domain}_letkf_nonlinear ${mpi} letkf )
-            create_test( ${domain}_letkf_nonlinear_4d ${mpi} letkf )
-            create_test( ${domain}_letkf_read_members ${mpi} letkf )
+            if( NOT ECSABER)
+                create_test( ${domain}_getkf_nonlinear ${mpi} letkf )
+                create_test( ${domain}_letkf_linear ${mpi} letkf )
+                create_test( ${domain}_letkf_linear_4d ${mpi} letkf )
+                create_test( ${domain}_letkf_nonlinear ${mpi} letkf )
+                create_test( ${domain}_letkf_nonlinear_4d ${mpi} letkf )
+                create_test( ${domain}_letkf_read_members ${mpi} letkf )
+            endif()
         endif()
     endforeach()
 

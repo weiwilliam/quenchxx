@@ -18,7 +18,7 @@
 #include "eckit/exception/Exceptions.h"
 #include "eckit/memory/NonCopyable.h"
 
-#include "oops/base/Variables.h"
+#include "quenchxx/VariablesSwitch.h"
 
 namespace quenchxx {
   class Geometry;
@@ -36,7 +36,7 @@ class FieldsIOBase : private eckit::NonCopyable {
 
   // Read
   virtual void read(const Geometry &,
-                    const oops::Variables &,
+                    const varns::Variables &,
                     const eckit::Configuration &,
                     atlas::FieldSet &) const
     {throw eckit::Exception("read not implemented for this format", Here());}

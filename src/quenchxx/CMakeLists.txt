@@ -109,8 +109,6 @@ if( ENABLE_OBS )
         ObsAuxIncrement.h
         ObsError.cc
         ObsError.h
-        ObsLocalizationEC.cc
-        ObsLocalizationEC.h
         ObsOperator.cc
         ObsOperator.h
 

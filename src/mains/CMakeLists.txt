@@ -49,10 +49,6 @@ if( ENABLE_OBS )
                             SOURCES ${version}/quenchxxVariational.cc
                             LIBS    ${libs} )
 
-    ecbuild_add_executable( TARGET  quenchxx_letkf.x
-                            SOURCES ${version}/quenchxxLETKF.cc
-                            LIBS    ${libs} )
-
     if( ECSABER )
         ecbuild_add_executable( TARGET  quenchxx_makeobs_patched.x
                                 SOURCES ${version}/quenchxxMakeObsPatched.cc
@@ -76,6 +72,10 @@ if( ENABLE_OBS )
 
         ecbuild_add_executable( TARGET  quenchxx_synthetic_data.x
                                 SOURCES ${version}/quenchxxSyntheticData.cc
+                                LIBS    ${libs} )
+    else()
+        ecbuild_add_executable( TARGET  quenchxx_letkf.x
+                                SOURCES ${version}/quenchxxLETKF.cc
                                 LIBS    ${libs} )
     endif()
 endif()

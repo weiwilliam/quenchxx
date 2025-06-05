@@ -9,6 +9,7 @@
 
 #include <netcdf.h>
 
+#include <unordered_map>
 #include <vector>
 
 #include "oops/util/Logger.h"
@@ -213,7 +214,7 @@ void FieldsIOBSC::write(const Geometry & geom,
   // NetCDF IDs
   int retval, ncid, rlon_id, rlat_id, lm_id, time_id,
     dRlon_id[1], dRlat_id[1], dLm_id[1], dTime_id[1], d2D_id[2], d4D_id[4],
-    vRlon_id, vRlat_id, vLm_id, vTime_id,
+    vRlon_id, vRlat_id, vLm_id, vrp_id, vTime_id,
     lon_id, lat_id, var_id[vars.size()];
 
   // Prepare local coordinates and data
@@ -309,30 +310,174 @@ void FieldsIOBSC::write(const Geometry & geom,
     d4D_id[2] = rlat_id;
     d4D_id[3] = rlon_id;
 
+    // Attributes storage
+    float float_att;
+    char str_att[128];
+
     if (!existingFile) {
       // Define coordinates
+      // Rotated lon
       if ((retval = nc_def_var(ncid, "rlon", NC_FLOAT, 1, dRlon_id, &vRlon_id)))
         ERR(retval, "rlon");
-      // TODO(Andrea): add metadata
+      strcpy(str_att, "longitude in rotated_pole grid");
+      if ((retval = nc_put_att_text(ncid, vRlon_id, "long_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: rlon long_name");
+      strcpy(str_att, "degrees");
+      if ((retval = nc_put_att_text(ncid, vRlon_id, "units", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: rlon units");
+      strcpy(str_att, "grid_longitude");
+      if ((retval = nc_put_att_text(ncid, vRlon_id, "standard_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: rlon standard_name");
+      // Rotated lat
       if ((retval = nc_def_var(ncid, "rlat", NC_FLOAT, 1, dRlat_id, &vRlat_id)))
         ERR(retval, "rlat");
-      // TODO(Andrea): add metadata
+      strcpy(str_att, "latitude in rotated_pole grid");
+      if ((retval = nc_put_att_text(ncid, vRlat_id, "long_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: rlat long_name");
+      strcpy(str_att, "degrees");
+      if ((retval = nc_put_att_text(ncid, vRlat_id, "units", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: rlat units");
+      strcpy(str_att, "grid_latitude");
+      if ((retval = nc_put_att_text(ncid, vRlat_id, "standard_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: rlat standard_name");
+      // Levels
       if ((retval = nc_def_var(ncid, "lm", NC_INT, 1, dLm_id, &vLm_id))) ERR(retval, "lm");
-      // TODO(Andrea): add metadata
+      strcpy(str_att, "unitless");
+      if ((retval = nc_put_att_text(ncid, vLm_id, "units", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lm units");
+      strcpy(str_att, "layer id");
+      if ((retval = nc_put_att_text(ncid, vLm_id, "long_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lm long_name");
+      // Rotated pole
+      if ((retval = nc_def_var(ncid, "rotated_pole", NC_CHAR, 0, dLm_id, &vrp_id))) ERR(retval,
+       "rotated_pole");
+      strcpy(str_att, "rotated_latitude_longitude");
+      if ((retval = nc_put_att_text(ncid, vrp_id, "grid_mapping_name", strlen(str_att),
+        &str_att[0]))) ERR(retval, "Attr: rotated_pole grid_mapping_name");
+      double pole[2];
+      pole[0] = 0.;
+      pole[1] = 90.;
+      geom.grid().projection().xy2lonlat(pole);
+      float_att = pole[1];
+      if ((retval = nc_put_att_float(ncid, vrp_id, "grid_north_pole_latitude", NC_FLOAT, 1,
+        &float_att))) ERR(retval, "Attr: rotated_pole grid_north_pole_latitude");
+      float_att = pole[0];
+      if (float_att > 180.) {
+            float_att -= 360.;
+        }
+      if ((retval = nc_put_att_float(ncid, vrp_id, "grid_north_pole_longitude", NC_FLOAT, 1,
+        &float_att))) ERR(retval, "Attr: rotated_pole grid_north_pole_longitude");
+      // Time steps
       if ((retval = nc_def_var(ncid, "time", NC_INT, 1, dTime_id, &vTime_id))) ERR(retval, "time");
-      // TODO(Andrea): add metadata
+      strcpy(str_att, ("hours since "+geom.io().getString("initial date").substr(0, 10)+
+                       " "+geom.io().getString("initial date").substr(11, 5)+" UTC").c_str());
+      if ((retval = nc_put_att_text(ncid, vTime_id, "units", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: time units");
+      strcpy(str_att, "time");
+      if ((retval = nc_put_att_text(ncid, vTime_id, "long_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: time long_name");
+      strcpy(str_att, "standard");
+      if ((retval = nc_put_att_text(ncid, vTime_id, "calendar", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: time calendar");
+      strcpy(str_att, "time");
+      if ((retval = nc_put_att_text(ncid, vTime_id, "standard_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: time standard_name");
+      // Geographic lon
       if ((retval = nc_def_var(ncid, "lon", NC_FLOAT, 2, d2D_id, &lon_id))) ERR(retval, "lon");
-      // TODO(Andrea): add metadata
+      strcpy(str_att, "longitude");
+      if ((retval = nc_put_att_text(ncid, lon_id, "long_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lon long_name");
+      strcpy(str_att, "degrees_north");
+      if ((retval = nc_put_att_text(ncid, lon_id, "units", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lon units");
+      strcpy(str_att, "longitude");
+      if ((retval = nc_put_att_text(ncid, lon_id, "standard_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lon standard_name");
+      float_att = -999999.0;
+      if ((retval = nc_put_att_float(ncid, lon_id, "missing_value", NC_FLOAT, 1, &float_att)))
+        ERR(retval, "Attr: lon missing_value");
+      float_att = -32767.0;
+      if ((retval = nc_put_att_float(ncid, lon_id, "_FillValue", NC_FLOAT, 1, &float_att)))
+        ERR(retval, "Attr: lon _FillValue");
+      strcpy(str_att, "lon lat");
+      if ((retval = nc_put_att_text(ncid, lon_id, "coordinates", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lon coordinates");
+      // Geographic lat
       if ((retval = nc_def_var(ncid, "lat", NC_FLOAT, 2, d2D_id, &lat_id))) ERR(retval, "lat");
-      // TODO(Andrea): add metadata
+      strcpy(str_att, "latitude");
+      if ((retval = nc_put_att_text(ncid, lat_id, "long_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lat long_name");
+      strcpy(str_att, "degrees_east");
+      if ((retval = nc_put_att_text(ncid, lat_id, "units", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lat units");
+      strcpy(str_att, "latitude");
+      if ((retval = nc_put_att_text(ncid, lat_id, "standard_name", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lat standard_name");
+      float_att = -999999.0;
+      if ((retval = nc_put_att_float(ncid, lat_id, "missing_value", NC_FLOAT, 1, &float_att)))
+        ERR(retval, "Attr: lat missing_value");
+      float_att = -32767.0;
+      if ((retval = nc_put_att_float(ncid, lat_id, "_FillValue", NC_FLOAT, 1, &float_att)))
+        ERR(retval, "Attr: lat _FillValue");
+      strcpy(str_att, "lon lat");
+      if ((retval = nc_put_att_text(ncid, lat_id, "coordinates", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lat coordinates");
     }
+    static const std::unordered_map<std::string, std::string> varLongNames_ = {
+      {"mid_layer_height_agl", "Mid-layer height above ground level"},
+      {"dry_pm10_mass", "PM10 dry mass conc."},
+      {"dry_pm2p5_mass", "PM2.5 dry mass conc."},
+      {"O3", "TRACERS_044"},
+      {"NO2", "TRACERS_043"},
+      {"CO", "TRACERS_057"},
+      {"SO2", "TRACERS_076"}
+    };
+    static const std::unordered_map<std::string, std::string> varStdNames_ = {
+      {"mid_layer_height_agl", "height_agl"},
+      {"dry_pm10_mass", "dry_PM10_mass"},
+      {"dry_pm2p5_mass", "dry_PM2p5_mass"},
+      {"O3", "TRACERS_044"},
+      {"NO2", "TRACERS_043"},
+      {"CO", "TRACERS_057"},
+      {"SO2", "TRACERS_076"}
+    };
+    static const std::unordered_map<std::string, std::string> varUnits_ = {
+      {"mid_layer_height_agl", "m"},
+      {"dry_pm10_mass", "kg m-3"},
+      {"dry_pm2p5_mass", "kg m-3"},
+      {"O3", "unknown"},
+      {"NO2", "unknown"},
+      {"CO", "unknown"},
+      {"SO2", "unknown"}
+    };
     for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
       // Check whether this variable exists
       if (nc_inq_varid(ncid, vars[jvar].c_str(), &var_id[jvar]) != NC_NOERR) {
         // Define variable
         if ((retval = nc_def_var(ncid, vars[jvar].c_str(), NC_FLOAT, 4, d4D_id, &var_id[jvar])))
           ERR(retval, vars[jvar]);
-        // TODO(Andrea): add metadata
+        // Define attributes
+        strcpy(str_att, (varLongNames_.find(vars[jvar])->second).c_str());
+        if ((retval = nc_put_att_text(ncid, var_id[jvar], "long_name", strlen(str_att),
+          &str_att[0]))) ERR(retval, "Attr: long_name");
+        strcpy(str_att, (varUnits_.find(vars[jvar])->second).c_str());
+        if ((retval = nc_put_att_text(ncid, var_id[jvar], "units", strlen(str_att),
+          &str_att[0]))) ERR(retval, "Attr: units");
+        strcpy(str_att, (varStdNames_.find(vars[jvar])->second).c_str());
+        if ((retval = nc_put_att_text(ncid, var_id[jvar], "standard_name", strlen(str_att),
+          &str_att[0]))) ERR(retval, "Attr: standard_name");
+        float_att = -999999.0;
+        if ((retval = nc_put_att_float(ncid, var_id[jvar], "missing_value", NC_FLOAT, 1,
+          &float_att))) ERR(retval, "Attr: missing_value");
+        float_att = -32767.0;
+        if ((retval = nc_put_att_float(ncid, var_id[jvar], "_FillValue", NC_FLOAT, 1,
+          &float_att))) ERR(retval, "Attr: _FillValue");
+        strcpy(str_att, "lon lat");
+        if ((retval = nc_put_att_text(ncid, var_id[jvar], "coordinates", strlen(str_att),
+          &str_att[0]))) ERR(retval, "Attr: coordinates");
+        strcpy(str_att, "rotated_pole");
+        if ((retval = nc_put_att_text(ncid, var_id[jvar], "grid_mapping", strlen(str_att),
+          &str_att[0]))) ERR(retval, "Attr: grid mapping");
       }
     }
 
