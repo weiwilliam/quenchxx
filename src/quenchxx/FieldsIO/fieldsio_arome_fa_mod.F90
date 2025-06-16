@@ -12,6 +12,7 @@ use fckit_mpi_module, only: fckit_mpi_comm
 use fckit_log_module, only: fckit_log
 use kinds, only: kind_int, kind_real
 use mpl_module, only: mpl_init
+use tpm_gen, only: msetup0
 
 implicit none
 
@@ -46,7 +47,7 @@ end type type_trans
 ! Handles counter
 integer(kind_int),save :: trans_count_handles = 0
 
-! Hangles
+! Handles
 type(type_trans),dimension(trans_max_handles) :: trans
 
 private
@@ -89,7 +90,7 @@ logical :: lgard,found,lexist,lcosp,lundf
 !type(atlas_structuredgrid) :: grid
 type(atlas_field) :: ak,bk,field
 
-if (trans_count_handles == 0) then
+if (msetup0 == 0) then
   ! Setup parallelization
   nprgpew = max(1,int(sqrt(real(comm%size(),kind_real)),kind_int))
   call mpl_init(koutput=0,kunit=6,ldinfo=.false.)
