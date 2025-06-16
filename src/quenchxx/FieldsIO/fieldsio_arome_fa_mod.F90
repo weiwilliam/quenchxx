@@ -44,7 +44,7 @@ type type_trans
 end type type_trans
 
 ! Handles counter
-integer(kind_int) :: trans_count_handles = 0
+integer(kind_int),save :: trans_count_handles = 0
 
 ! Hangles
 type(type_trans),dimension(trans_max_handles) :: trans
