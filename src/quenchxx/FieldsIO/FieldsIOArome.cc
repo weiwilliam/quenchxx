@@ -257,7 +257,7 @@ void FieldsIOArome::read(const Geometry & geom,
     // Setup transform structure
     trans_new(&trans_);
     trans_set_resol_lam(&trans_, nx, ny, dx, dy);
-    trans_set_trunc_lam(&trans_, nx/2-1, ny/2-1);
+    trans_set_trunc_lam(&trans_, (nx-1)/2, (ny-1)/2);
     trans_setup(&trans_);
 
     // Update configuration
