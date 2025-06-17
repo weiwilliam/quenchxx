@@ -11,6 +11,10 @@
 
 #include "eckit/config/Configuration.h"
 
+#ifdef READFA
+#include "ectrans/transi.h"
+#endif
+
 #include "quenchxx/FieldsIO/FieldsIOBase.h"
 #include "quenchxx/VariablesSwitch.h"
 
@@ -34,6 +38,11 @@ class FieldsIOArome : public FieldsIOBase {
             const varns::Variables &,
             const eckit::Configuration &,
             atlas::FieldSet &) const override;
+
+ private:
+#ifdef READFA
+  mutable struct Trans_t trans_;
+#endif
 };
 
 // -----------------------------------------------------------------------------

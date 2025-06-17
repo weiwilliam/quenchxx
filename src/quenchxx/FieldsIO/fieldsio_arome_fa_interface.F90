@@ -9,8 +9,9 @@ module fieldsio_arome_fa_interface
 use atlas_module, only: atlas_functionspace_structuredcolumns,atlas_fieldset
 use fckit_configuration_module, only: fckit_configuration
 use fckit_mpi_module, only: fckit_mpi_comm
-use iso_c_binding, only: c_ptr
 use fieldsio_arome_fa_mod, only: fieldsio_arome_fa
+use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer
+use trans_module, only: trans_t
 
 implicit none
 
@@ -20,7 +21,7 @@ contains
 
 !----------------------------------------------------------------------
 
-subroutine fieldsio_arome_fa_c(c_conf,c_comm,c_functionspace,c_akbk,c_fieldset) bind(c,name='fieldsio_arome_fa_f90')
+subroutine fieldsio_arome_fa_c(c_conf,c_comm,c_functionspace,c_trans,c_akbk,c_fieldset) bind(c,name='fieldsio_arome_fa_f90')
 
 implicit none
 
@@ -28,6 +29,7 @@ implicit none
 type(c_ptr),intent(in),value :: c_conf
 type(c_ptr),intent(in),value :: c_comm
 type(c_ptr),intent(in),value :: c_functionspace
+type(c_ptr),intent(in),value :: c_trans
 type(c_ptr),intent(in),value :: c_akbk
 type(c_ptr),intent(in),value :: c_fieldset
 
@@ -35,6 +37,7 @@ type(c_ptr),intent(in),value :: c_fieldset
 type(fckit_configuration) :: f_conf
 type(fckit_mpi_comm) :: f_comm
 type(atlas_functionspace_structuredcolumns) :: f_functionspace
+type(trans_t), pointer :: f_trans
 type(atlas_fieldset) :: f_akbk
 type(atlas_fieldset) :: f_fieldset
 
@@ -42,11 +45,12 @@ type(atlas_fieldset) :: f_fieldset
 f_conf = fckit_configuration(c_conf)
 f_comm = fckit_mpi_comm(c_comm)
 f_functionspace = atlas_functionspace_structuredcolumns(c_functionspace)
+call c_f_pointer(c_trans,f_trans)
 f_akbk = atlas_fieldset(c_akbk)
 f_fieldset = atlas_fieldset(c_fieldset)
 
 ! Call Fortran
-call fieldsio_arome_fa(f_conf,f_comm,f_functionspace,f_akbk,f_fieldset)
+call fieldsio_arome_fa(f_conf,f_comm,f_functionspace,f_trans,f_akbk,f_fieldset)
 
 end subroutine fieldsio_arome_fa_c
 

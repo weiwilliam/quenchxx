@@ -12,7 +12,7 @@ use fckit_mpi_module, only: fckit_mpi_comm
 use fckit_log_module, only: fckit_log
 use kinds, only: kind_int, kind_real
 use mpl_module, only: mpl_init
-use tpm_gen, only: msetup0
+use trans_module, only: trans_t
 
 implicit none
 
@@ -24,32 +24,6 @@ implicit none
 #include "einv_trans.h"
 #include "egath_grid.h"
 
-! Constants
-integer(kind_int),parameter :: trans_max_handles = 100
-
-! Trans object
-type type_trans
-  integer(kind_int) :: handle
-  integer(kind_int) :: ndgl
-  integer(kind_int) :: nlon
-  integer(kind_int) :: nmsmax
-  integer(kind_int) :: nsmax
-  integer(kind_int) :: nspec2
-  integer(kind_int) :: nspec2g
-  integer(kind_int) :: ngptot
-  integer(kind_int) :: ngptotg
-  integer(kind_int) :: nproma
-  integer(kind_int) :: ngpblks
-  real(kind_real) :: dx
-  real(kind_real) :: dy
-end type type_trans
-
-! Handles counter
-integer(kind_int),save :: trans_count_handles = 0
-
-! Handles
-type(type_trans),dimension(trans_max_handles) :: trans
-
 private
 public :: fieldsio_arome_fa
 
@@ -57,7 +31,7 @@ contains
 
 !----------------------------------------------------------------------
 
-subroutine fieldsio_arome_fa(conf,comm,fspace,akbk,fset)
+subroutine fieldsio_arome_fa(conf,comm,fspace,trans,akbk,fset)
 
 implicit none
 
@@ -65,6 +39,7 @@ implicit none
 type(fckit_configuration),intent(in) :: conf
 type(fckit_mpi_comm),intent(in) :: comm
 type(atlas_functionspace_structuredcolumns),intent(in) :: fspace
+type(trans_t),intent(in) :: trans
 type(atlas_fieldset),intent(inout) :: akbk
 type(atlas_fieldset),intent(inout) :: fset
 
@@ -72,7 +47,7 @@ type(atlas_fieldset),intent(inout) :: fset
 integer(kind_int),parameter :: ifile = 11
 integer(kind_int) :: irep,imaxlev,imaxtrunc,imaxgl,imaxlon,inbari,ityptr,itronc,kflev
 integer(kind_int) :: nvar2d,ivar2d,nfield,ifield,nlev,ilev,ingrib,inbits,istron,ipuila
-integer(kind_int) :: nlon,ndgl,nmsmax,nsmax,itrans,from(1)
+integer(kind_int) :: nlon,ndgl,nmsmax,nsmax,from(1),nproma,ngpblks
 integer(kind_int) :: nprgpew,nprtrv,nprtrw,nprgpns,n_regions_ns,n_regions_ew
 integer(kind_int) :: igpg,ix,iy,inode
 integer(kind_int),allocatable :: inlopa(:),inozpa(:),nloen(:),levvec(:)
@@ -89,35 +64,6 @@ character(len=:),allocatable :: str,str_array(:)
 logical :: lgard,found,lexist,lcosp,lundf
 !type(atlas_structuredgrid) :: grid
 type(atlas_field) :: ak,bk,field
-
-if (msetup0 == 0) then
-  ! Setup parallelization
-  nprgpew = max(1,int(sqrt(real(comm%size(),kind_real)),kind_int))
-  call mpl_init(koutput=0,kunit=6,ldinfo=.false.)
-  allocate(i_regions(comm%size()))
-  nprtrv = 1
-  nprgpns = comm%size()/nprgpew
-  nprtrw = comm%size()/nprtrv;
-  call conf%get_or_die("earth radius",req)
-  call setup_trans0(kout = 99, &
-                  & kerr = 99, &
-                  & kprintlev = 0, &
-                  & kmax_resol = trans_max_handles, &
-                  & kprtrw = nprtrw, &
-                  & ldeq_regions = .false., &
-                  & kprgpns = nprgpns, &
-                  & kprgpew = nprgpew, &
-                  & prad = req, &
-                  & k_regions_ns = n_regions_ns, &
-                  & k_regions_ew = n_regions_ew, &
-                  & k_regions = i_regions, &
-                  & ldmpoff = .false. )
-  deallocate(i_regions)
-  if (comm%rank() == 0) then
-    write(message,'(a)') "Info     : AROME FA reader: parallelization setup done (only once per execution)"
-    call fckit_log%info(message)
-  end if
-end if
 
 if (comm%rank() == 0) then
   ! Open file
@@ -154,11 +100,17 @@ if (comm%rank() == 0) then
     call abor1_ftn("old eggx frame format")
   end if
 
-  ! Copy into trans object
+  ! Get sizes
   nmsmax = inozpa(1)
   nsmax = inozpa(2)
   dx = zsinla(7)
   dy = zsinla(8)
+
+  ! Compare file and transform sizes
+  if (nlon /= trans%nlon) call abor1_ftn("inconsistent nlon")
+  if (ndgl /= trans%ndgl) call abor1_ftn("inconsistent ndgl")
+  if (nmsmax /= trans%nmsmax) call abor1_ftn("inconsistent nmsmax")
+  if (nsmax /= trans%nsmax) call abor1_ftn("inconsistent nsmax")
 
   ! Copy ak/bk
   ak = atlas_field("ak",atlas_real(kind_real),(/kflev+1/))
@@ -173,72 +125,9 @@ if (comm%rank() == 0) then
   end do
 end if
 
-! Broadcast sizes
-call comm%broadcast(nlon,0)
-call comm%broadcast(ndgl,0)
-call comm%broadcast(nmsmax,0)
-call comm%broadcast(nsmax,0)
-call comm%broadcast(dx,0)
-call comm%broadcast(dy,0)
-
-! Find if the transform already exists
-found = .false.
-itrans = 0
-do while (.not.found)
-  ! Update index
-  itrans = itrans + 1
-
-  ! Check index
-  if (itrans > trans_max_handles) call abor1_ftn("too many trans handles")
-  if (itrans > trans_count_handles) then
-    ! Copy sizes in handle
-    trans(itrans)%nlon = nlon
-    trans(itrans)%ndgl = ndgl
-    trans(itrans)%nmsmax = nmsmax
-    trans(itrans)%nsmax = nsmax
-    trans(itrans)%dx = dx
-    trans(itrans)%dy = dy
-
-    ! Setup new transform
-    trans(itrans)%handle = itrans
-    allocate(nloen(trans(itrans)%ndgl))
-    nloen = trans(itrans)%nlon
-    call esetup_trans(kmsmax = trans(itrans)%nmsmax, &
-                    & ksmax = trans(itrans)%nsmax, &
-                    & kdgl = trans(itrans)%ndgl, &
-                    & kdgux = trans(itrans)%ndgl, &
-                    & kloen = nloen, &
-                    & ldsplit = .true., &
-                    & kresol = trans(itrans)%handle, &
-                    & pexwn = trans(itrans)%dx, &
-                    & peywn = trans(itrans)%dy, &
-                    & ldgridonly = .false.) ! could be true if dist_grid only, no transform
-    deallocate(nloen)
-
-    ! Get new transform info
-    call etrans_inq(kresol = trans(itrans)%handle, &
-                  & kspec2 = trans(itrans)%nspec2, &
-                  & kspec2g = trans(itrans)%nspec2g, &
-                  & kgptot = trans(itrans)%ngptot, &
-                  & kgptotg = trans(itrans)%ngptotg)
-
-    ! Set nproma/ngpblks
-    trans(itrans)%nproma = trans(itrans)%ngptot
-    trans(itrans)%ngpblks = 1
-
-    ! New handle done
-    trans_count_handles = trans_count_handles + 1
-    found = .true.
-  else
-    ! Check nlon/nlat/nmsmax/nsmax/dx/dy
-    if ((nlon == trans(itrans)%nlon).and.(ndgl == trans(itrans)%ndgl) &
-   .and.(nmsmax == trans(itrans)%nmsmax).and.(nsmax == trans(itrans)%nsmax) &
- & .and.(.not.(abs(dx - trans(itrans)%dx) > 0.0)).and.(.not.(abs(dy - trans(itrans)%dy) > 0.0))) then
-      ! Found a valid handle
-      found = .true.
-    end if
-  end if
-end do
+! Set nproma/ngpblks
+nproma = trans%ngptot
+ngpblks = 1
 
 if (comm%rank() == 0) then
   ! Get variables to read
@@ -253,11 +142,11 @@ if (comm%rank() == 0) then
   varvec = str_array
 
   ! Allocation
-  allocate(zgpg(trans(itrans)%ngptotg,1))
-  allocate(zspg(1,trans(itrans)%nspec2g))
+  allocate(zgpg(trans%ngptotg,1))
+  allocate(zspg(1,trans%nspec2g))
 end if
-allocate(zgp(trans(itrans)%ngptot,1,1))
-allocate(zsp(1,trans(itrans)%nspec2))
+allocate(zgp(trans%ngptot,1,1))
+allocate(zsp(1,trans%nspec2))
 from = 1
 
 ! Get ATLAS grid
@@ -275,7 +164,7 @@ do ifield=1,nfield
     field = fset%field(ifield)
 
     ! Check horizontal dimension
-    if (field%shape(2) /= trans(itrans)%ngptotg) call abor1_ftn("wrong horizontal dimension")
+    if (field%shape(2) /= trans%ngptotg) call abor1_ftn("wrong horizontal dimension")
 
     ! Get number of levels
     nlev = field%levels()
@@ -311,37 +200,37 @@ do ifield=1,nfield
         call edist_spec(pspecg = zspg, &
                       & kfdistg = 1, &
                       & kfrom = from, &
-                      & kresol = trans(itrans)%handle, &
+                      & kresol = trans%handle, &
                       & pspec = zsp)
       else
         ! Scatter spectral field (receive)
         call edist_spec(kfdistg = 1, &
                       & kfrom = from, &
-                      & kresol = trans(itrans)%handle, &
+                      & kresol = trans%handle, &
                       & pspec = zsp)
       end if
 
       ! Inverse spectral transform
-      call einv_trans(kresol = trans(itrans)%handle, &
-                    & kproma = trans(itrans)%nproma, &
+      call einv_trans(kresol = trans%handle, &
+                    & kproma = nproma, &
                     & ldscders = .false., &
                     & pspscalar = zsp, &
                     & pgp = zgp)
 
       if (comm%rank() == 0) then
         ! Gather grid-point field (receive)
-        call egath_grid(kresol = trans(itrans)%handle, &
+        call egath_grid(kresol = trans%handle, &
                       & kfgathg = 1, &
                       & kto = from, &
-                      & kproma = trans(itrans)%nproma, &
+                      & kproma = nproma, &
                       & pgp = zgp, &
                       & pgpg = zgpg)
       else
         ! Gather grid-point field (send)
-        call egath_grid(kresol = trans(itrans)%handle, &
+        call egath_grid(kresol = trans%handle, &
                       & kfgathg = 1, &
                       & kto = from, &
-                      & kproma = trans(itrans)%nproma, &
+                      & kproma = nproma, &
                       & pgp = zgp)
       end if
     else
@@ -353,9 +242,9 @@ do ifield=1,nfield
     ! Copy data
     if (comm%rank() == 0) then
       call field%data(ptr)
-      do igpg=1,trans(itrans)%ngptotg
-!        iy = (igpg-1)/trans(itrans)%nlon+1
-!        ix = igpg-(iy-1)*trans(itrans)%nlon
+      do igpg=1,trans%ngptotg
+!        iy = (igpg-1)/trans%nlon+1
+!        ix = igpg-(iy-1)*trans%nlon
 !        inode = grid%index(ix,iy)
 !        ptr(ilev,inode) = zgpg(igpg,1)
         ptr(ilev,igpg) = zgpg(igpg,1)

@@ -4,6 +4,12 @@
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
+message( STATUS "Found quenchxx I/O formats:" )
+message( STATUS "- AROME-NetCDF" )
+message( STATUS "- BSC" )
+message( STATUS "- Default (NetCDF)" )
+message( STATUS "- GMSH" )
+
 # Common sources, not obs-related
 list( APPEND quenchxx_src_files
 
@@ -126,6 +132,7 @@ endif()
 
 if( eccodes_FOUND )
     # GRIB IO-specific sources
+    message( STATUS "- GRIB" )
     list( APPEND quenchxx_src_files
 
     FieldsIO/FieldsIOGrib.cc
@@ -136,6 +143,7 @@ endif()
 
 if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
     # AROME FA IO-specific sources
+    message( STATUS "- AROME-FA" )
     list( APPEND quenchxx_src_files
 
     FieldsIO/fieldsio_arome_fa.h

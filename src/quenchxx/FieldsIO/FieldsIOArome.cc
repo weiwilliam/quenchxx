@@ -13,8 +13,6 @@
 
 #include "eckit/exception/Exceptions.h"
 
-#include "atlas/util/Earth.h"
-
 #include "oops/util/Logger.h"
 
 #ifdef READFA
@@ -241,9 +239,21 @@ void FieldsIOArome::read(const Geometry & geom,
     geom.getComm().broadcast(bkFromFile.begin(), bkFromFile.end(), 0);
   } else if (ioFormat == "arome fa") {
 #ifdef READFA
+    // Configure transforms
+    trans_use_mpi(true);
+    trans_set_leq_regions(false);
+    const int nprgpew = std::min(1,
+      static_cast<int>(std::sqrt(static_cast<double>(geom.getComm().size()))));
+    trans_set_nprgpew(nprgpew);
+
+    // Setup transform structure
+    trans_new(&trans_);
+    trans_set_resol_lam(&trans_, nx, ny);
+    trans_set_trunc_lam(&trans_, nx/2-1, ny/2-1);
+    trans_setup(&trans_);
+
     // Update configuration
     eckit::LocalConfiguration updatedConfig(config);
-    updatedConfig.set("earth radius", atlas::util::DatumIFS::radius());
     updatedConfig.set("nvar2d", nVar2D);
     updatedConfig.set("prefix vector", preVec);
     updatedConfig.set("level vector", levVec);
@@ -253,7 +263,7 @@ void FieldsIOArome::read(const Geometry & geom,
     atlas::FieldSet akbkData;
 
     // Read FA file
-    fieldsio_arome_fa_f90(updatedConfig, &geom.getComm(), fs.get(), akbkData.get(),
+    fieldsio_arome_fa_f90(updatedConfig, &geom.getComm(), fs.get(), &trans_, akbkData.get(),
       globalData.get());
 
     // Get hybrid coordinates dimension
