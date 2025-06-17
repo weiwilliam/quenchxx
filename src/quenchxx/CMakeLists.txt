@@ -141,7 +141,7 @@ if( eccodes_FOUND )
     )
 endif()
 
-if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
+if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS AND ectrans_HAVE_TRANSI ) AND falfilfa_FOUND )
     # AROME FA IO-specific sources
     message( STATUS "- AROME-FA" )
     list( APPEND quenchxx_src_files

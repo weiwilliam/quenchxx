@@ -119,7 +119,7 @@ find_package( eccodes QUIET )
 # ectrans and falfilfa
 find_package( ECTRANS 1.6.0 COMPONENTS etrans double QUIET )
 find_package( falfilfa QUIET )
-if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
+if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS AND ectrans_HAVE_TRANSI ) AND falfilfa_FOUND )
     add_definitions( -DREADFA )
 endif()
 

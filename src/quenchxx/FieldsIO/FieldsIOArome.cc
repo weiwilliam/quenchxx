@@ -137,8 +137,16 @@ void FieldsIOArome::read(const Geometry & geom,
   atlas::StructuredGrid grid = fs.grid();
 
   // Get sizes
-  int nx = grid.nxmax();
-  int ny = grid.ny();
+  const atlas::util::Config xspec = grid.xspace().spec();
+  const atlas::util::Config yspec = grid.yspace().spec();
+  const size_t nx = xspec.getInt("N");
+  const double startx = xspec.getDouble("start");
+  const double endx = xspec.getDouble("end");
+  const double dx = (endx-startx)/static_cast<double>(nx-1);
+  const size_t ny = yspec.getInt("N");
+  const double starty = yspec.getDouble("start");
+  const double endy = yspec.getDouble("end");
+  const double dy = (endy-starty)/static_cast<double>(ny-1);
 
   // Hybrid coordinates dimension
   size_t nab;
@@ -248,7 +256,7 @@ void FieldsIOArome::read(const Geometry & geom,
 
     // Setup transform structure
     trans_new(&trans_);
-    trans_set_resol_lam(&trans_, nx, ny);
+    trans_set_resol_lam(&trans_, nx, ny, dx, dy);
     trans_set_trunc_lam(&trans_, nx/2-1, ny/2-1);
     trans_setup(&trans_);
 
