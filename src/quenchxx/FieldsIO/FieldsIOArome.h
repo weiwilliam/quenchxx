@@ -41,7 +41,7 @@ class FieldsIOArome : public FieldsIOBase {
 
  private:
 #ifdef READFA
-  mutable struct Trans_t trans_;
+  std::unique_ptr<struct Trans_t> trans_;
 #endif
 };
 
