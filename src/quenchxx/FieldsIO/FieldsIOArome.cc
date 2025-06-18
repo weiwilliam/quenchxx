@@ -32,6 +32,11 @@ static FieldsIOMaker<FieldsIOArome> makerAromeFA_("arome fa");
 
 // -----------------------------------------------------------------------------
 
+static struct Trans_t trans;
+static inline bool transSetup = false;
+
+// -----------------------------------------------------------------------------
+
 void FieldsIOArome::read(const Geometry & geom,
                          const varns::Variables & vars,
                          const eckit::Configuration & config,
@@ -247,19 +252,21 @@ void FieldsIOArome::read(const Geometry & geom,
     geom.getComm().broadcast(bkFromFile.begin(), bkFromFile.end(), 0);
   } else if (ioFormat == "arome fa") {
 #ifdef READFA
-    // Configure transforms
-    trans_use_mpi(true);
-    trans_set_leq_regions(false);
-    const int nprgpew = std::min(1,
-      static_cast<int>(std::sqrt(static_cast<double>(geom.getComm().size()))));
-    trans_set_nprgpew(nprgpew);
+    if (!transSetup) {
+      // Configure transform
+      trans_use_mpi(true);
+      trans_set_leq_regions(false);
+      const int nprgpew = std::min(1,
+        static_cast<int>(std::sqrt(static_cast<double>(geom.getComm().size()))));
+      trans_set_nprgpew(nprgpew);
 
-    // Setup transform structure
-    trans_new(&trans_);
-    trans_set_resol_lam(&trans_, nx, ny, dx, dy);
-    trans_set_trunc_lam(&trans_, (nx-1)/2, (ny-1)/2);
-    trans_setup(&trans_);
-
+      // Setup transform structure
+      trans_new(&trans);
+      trans_set_resol_lam(&trans, nx, ny, dx, dy);
+      trans_set_trunc_lam(&trans, (nx-1)/2, (ny-1)/2);
+      trans_setup(&trans);
+      transSetup = true;
+    }
     // Update configuration
     eckit::LocalConfiguration updatedConfig(config);
     updatedConfig.set("nvar2d", nVar2D);
@@ -271,7 +278,7 @@ void FieldsIOArome::read(const Geometry & geom,
     atlas::FieldSet akbkData;
 
     // Read FA file
-    fieldsio_arome_fa_f90(updatedConfig, &geom.getComm(), fs.get(), &trans_, akbkData.get(),
+    fieldsio_arome_fa_f90(updatedConfig, &geom.getComm(), fs.get(), &trans, akbkData.get(),
       globalData.get());
 
     // Get hybrid coordinates dimension
