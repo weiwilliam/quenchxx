@@ -32,8 +32,10 @@ static FieldsIOMaker<FieldsIOArome> makerAromeFA_("arome fa");
 
 // -----------------------------------------------------------------------------
 
+#ifdef READFA
 static struct Trans_t trans;
 static inline bool transSetup = false;
+#endif
 
 // -----------------------------------------------------------------------------
 
