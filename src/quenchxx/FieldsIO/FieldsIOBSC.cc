@@ -69,7 +69,16 @@ void FieldsIOBSC::read(const Geometry & geom,
   const std::string ncFilePath = conf.getString("filepath");
 
   // Get levels selection (from geometry section)
-  const std::vector<size_t> levels = geom.io().getUnsignedVector("levels selection");
+  const bool hasLevelsSelection = geom.io().has("levels selection");
+  size_t levMax, pLevMax;
+  if (hasLevelsSelection) {
+    const std::vector<size_t> levels = geom.io().getUnsignedVector("levels selection");
+    levMax = levels.size();
+    if (geom.io().has("pressure levels selection")) {
+      const std::vector<size_t> plevels = geom.io().getUnsignedVector("pressure levels selection");
+      pLevMax = plevels.size();
+    }
+  }
 
   // Get file initial time
   const util::DateTime initialTime(geom.io().getString("initial date"));
@@ -109,10 +118,10 @@ void FieldsIOBSC::read(const Geometry & geom,
     if ((retval = nc_inq_varid(ncid, "time", &time_id))) ERR(retval, "time");
     const std::string time_units_key = "units";
     size_t attlen;
-    if (retval = nc_inq_attlen(ncid, time_id, time_units_key.c_str(), &attlen))
+    if ((retval = nc_inq_attlen(ncid, time_id, time_units_key.c_str(), &attlen)))
       ERR(retval, "time");
     char *time_units_char = reinterpret_cast<char*>(malloc(attlen+1));
-    if (retval = nc_get_att_text(ncid, time_id, time_units_key.c_str(), time_units_char))
+    if ((retval = nc_get_att_text(ncid, time_id, time_units_key.c_str(), time_units_char)))
       ERR(retval, "time");
     const std::string time_units_value(time_units_char);
     const std::string initialTimeFromFileStr = time_units_value.substr(12, 10) + "T"
@@ -133,11 +142,11 @@ void FieldsIOBSC::read(const Geometry & geom,
       // Get variable view
       auto varView = atlas::array::make_view<double, 2>(globalData[vars[jvar].name()]);
 
-      for (size_t k = 0; k < levels.size(); ++k) {
-        // Read level
+      if (vars[jvar].getLevels() == 1) {
+        // Read single level
         std::vector<double> zvar(nx*ny);
-        const std::vector<size_t> startp({time, levels[k]-1, 0, 0});
-        const std::vector<size_t> countp({1, 1, ny, nx});
+        const std::vector<size_t> startp({time, 0, 0});
+        const std::vector<size_t> countp({1, ny, nx});
         if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
           zvar.data()))) ERR(retval, vars[jvar].name());
 
@@ -145,7 +154,58 @@ void FieldsIOBSC::read(const Geometry & geom,
         for (atlas::idx_t j = 0; j < ny; ++j) {
           for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
             atlas::gidx_t gidx = grid.index(i, ny-1-j);
-            varView(gidx, k) = zvar[j*nx+i];
+            varView(gidx, 0) = zvar[j*nx+i];
+          }
+        }
+      } else {
+        if (hasLevelsSelection) {
+          size_t loopMax;
+          if (vars[jvar].name() == "interface_pressure") {
+            loopMax = pLevMax;
+          } else {
+            loopMax = levMax;
+          }
+          for (size_t k = 0; k < loopMax; ++k) {
+            // Read level
+            std::vector<double> zvar(nx*ny);
+            const std::vector<size_t> countp({1, 1, ny, nx});
+            if (vars[jvar].name() == "interface_pressure") {
+              const std::vector<size_t> plevels = geom.io().getUnsignedVector("pressure levels selection");
+              const std::vector<size_t>startp({time, plevels[k]-1, 0, 0});
+              if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
+                                             zvar.data()))) ERR(retval, vars[jvar].name());
+            } else {
+              const std::vector<size_t> levels = geom.io().getUnsignedVector("levels selection");
+              const std::vector<size_t>startp({time, levels[k]-1, 0, 0});
+              if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
+                                             zvar.data()))) ERR(retval, vars[jvar].name());
+            }
+
+
+            // Deserialize data to view
+            for (atlas::idx_t j = 0; j < ny; ++j) {
+              for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
+                atlas::gidx_t gidx = grid.index(i, ny-1-j);
+                varView(gidx, k) = zvar[j*nx+i];
+              }
+            }
+          }
+        } else {
+          for (size_t k = 0; k < fset[vars[jvar].name()].shape(1); ++k) {
+            // Read level
+            std::vector<double> zvar(nx*ny);
+            const std::vector<size_t> startp({time, k, 0, 0});
+            const std::vector<size_t> countp({1, 1, ny, nx});
+            if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
+                                             zvar.data()))) ERR(retval, vars[jvar].name());
+
+            // Deserialize data to view
+            for (atlas::idx_t j = 0; j < ny; ++j) {
+              for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
+                atlas::gidx_t gidx = grid.index(i, ny-1-j);
+                varView(gidx, k) = zvar[j*nx+i];
+              }
+            }
           }
         }
       }
@@ -191,7 +251,7 @@ void FieldsIOBSC::write(const Geometry & geom,
   const size_t lmMax = geom.io().getUnsigned("total number of levels");
 
   // Get levels selection (from geometry section)
-  const std::vector<size_t> levels = geom.io().getUnsignedVector("levels selection");
+  const bool hasLevelsSelection = geom.io().has("levels selection");
 
   // Get file initial time
   const util::DateTime initialTime(geom.io().getString("initial date"));
@@ -212,8 +272,9 @@ void FieldsIOBSC::write(const Geometry & geom,
   const size_t time = (validTime-initialTime).toSeconds()/3600;
 
   // NetCDF IDs
-  int retval, ncid, rlon_id, rlat_id, lm_id, time_id,
-    dRlon_id[1], dRlat_id[1], dLm_id[1], dTime_id[1], d2D_id[2], d4D_id[4],
+  int retval, ncid, rlon_id, rlat_id, lm_id, lmp_id, time_id,
+    dRlon_id[1], dRlat_id[1], dLm_id[1], dTime_id[1],
+    d2D_id[2], d3D_id[3], d4D_id[4], d4Dp_id[4],
     vRlon_id, vRlat_id, vLm_id, vrp_id, vTime_id,
     lon_id, lat_id, var_id[vars.size()];
 
@@ -289,12 +350,14 @@ void FieldsIOBSC::write(const Geometry & geom,
       if ((retval = nc_inq_dimid(ncid, "rlon", &rlon_id))) ERR(retval, "rlon");
       if ((retval = nc_inq_dimid(ncid, "rlat", &rlat_id))) ERR(retval, "rlat");
       if ((retval = nc_inq_dimid(ncid, "lm", &lm_id))) ERR(retval, "lm");
+      if ((retval = nc_inq_dimid(ncid, "lmp", &lmp_id))) ERR(retval, "lmp");
       if ((retval = nc_inq_dimid(ncid, "time", &time_id))) ERR(retval, "time");
     } else {
       // Create dimensions
       if ((retval = nc_def_dim(ncid, "rlon", nx, &rlon_id))) ERR(retval, "rlon");
       if ((retval = nc_def_dim(ncid, "rlat", ny, &rlat_id))) ERR(retval, "rlat");
       if ((retval = nc_def_dim(ncid, "lm", lmMax, &lm_id))) ERR(retval, "lm");
+      if ((retval = nc_def_dim(ncid, "lmp", lmMax+1, &lmp_id))) ERR(retval, "lmp");
       if ((retval = nc_def_dim(ncid, "time", NC_UNLIMITED, &time_id))) ERR(retval, "time");
     }
 
@@ -305,10 +368,17 @@ void FieldsIOBSC::write(const Geometry & geom,
     dTime_id[0] = time_id;
     d2D_id[0] = rlat_id;
     d2D_id[1] = rlon_id;
+    d3D_id[0] = time_id;
+    d3D_id[1] = rlat_id;
+    d3D_id[2] = rlon_id;
     d4D_id[0] = time_id;
     d4D_id[1] = lm_id;
     d4D_id[2] = rlat_id;
     d4D_id[3] = rlon_id;
+    d4Dp_id[0] = time_id;
+    d4Dp_id[1] = lmp_id;
+    d4Dp_id[2] = rlat_id;
+    d4Dp_id[3] = rlon_id;
 
     // Attributes storage
     float float_att;
@@ -423,47 +493,67 @@ void FieldsIOBSC::write(const Geometry & geom,
       if ((retval = nc_put_att_text(ncid, lat_id, "coordinates", strlen(str_att), &str_att[0])))
         ERR(retval, "Attr: lat coordinates");
     }
-    static const std::unordered_map<std::string, std::string> varLongNames_ = {
-      {"mid_layer_height_agl", "Mid-layer height above ground level"},
-      {"dry_pm10_mass", "PM10 dry mass conc."},
-      {"dry_pm2p5_mass", "PM2.5 dry mass conc."},
-      {"O3", "TRACERS_044"},
-      {"NO2", "TRACERS_043"},
-      {"CO", "TRACERS_057"},
-      {"SO2", "TRACERS_076"}
+    struct sVarAttr {
+      std::string longName;
+      std::string stdName;
+      std::string units;
+      sVarAttr(std::string _longName, std::string _stdName, std::string _units) {
+        longName = _longName;
+        stdName = _stdName;
+        units = _units;
+      }
     };
-    static const std::unordered_map<std::string, std::string> varStdNames_ = {
-      {"mid_layer_height_agl", "height_agl"},
-      {"dry_pm10_mass", "dry_PM10_mass"},
-      {"dry_pm2p5_mass", "dry_PM2p5_mass"},
-      {"O3", "TRACERS_044"},
-      {"NO2", "TRACERS_043"},
-      {"CO", "TRACERS_057"},
-      {"SO2", "TRACERS_076"}
+    static const std::unordered_map<std::string, sVarAttr> varAttr_ = {
+      {"mid_layer_height_agl",
+       sVarAttr("Mid-layer height above ground level", "height_agl", "m")},
+      {"mid_layer_pressure",
+       sVarAttr("Mid-layer hydrostatic pressure", "air_pressure", "Pa")},
+      {"interface_pressure",
+       sVarAttr("Interfacial hydrostatic pressure", "interface_pressure", "Pa")},
+      {"PSFC",
+       sVarAttr("PSFC", "PSFC", "unknown")},
+      {"FIS",
+       sVarAttr("FIS", "FIS", "unknown")},
+      {"air_density",
+       sVarAttr("Air density", "air_density", "kg/m3")},
+      {"dry_pm10_mass",
+       sVarAttr("PM10 dry mass conc.", "dry_PM10_mass", "kg m-3")},
+      {"dry_pm2p5_mass",
+       sVarAttr("PM2.5 dry mass conc.", "dry_PM2p5_mass", "kg m-3")},
+      {"O3",
+       sVarAttr("TRACERS_044", "TRACERS_044", "unknown")},
+      {"NO2",
+       sVarAttr("TRACERS_043", "TRACERS_043", "unknown")},
+      {"CO",
+       sVarAttr("TRACERS_057", "TRACERS_057", "unknown")},
+      {"SO2",
+       sVarAttr("TRACERS_076", "TRACERS_076", "unknown")}
     };
-    static const std::unordered_map<std::string, std::string> varUnits_ = {
-      {"mid_layer_height_agl", "m"},
-      {"dry_pm10_mass", "kg m-3"},
-      {"dry_pm2p5_mass", "kg m-3"},
-      {"O3", "unknown"},
-      {"NO2", "unknown"},
-      {"CO", "unknown"},
-      {"SO2", "unknown"}
-    };
+
     for (size_t jvar = 0; jvar < vars.size(); ++jvar) {
       // Check whether this variable exists
       if (nc_inq_varid(ncid, vars[jvar].c_str(), &var_id[jvar]) != NC_NOERR) {
         // Define variable
-        if ((retval = nc_def_var(ncid, vars[jvar].c_str(), NC_FLOAT, 4, d4D_id, &var_id[jvar])))
-          ERR(retval, vars[jvar]);
+        if (fset[vars[jvar]].shape(1)>1) {
+          if (vars[jvar] == "interface_pressure") {
+            if ((retval = nc_def_var(ncid, vars[jvar].c_str(), NC_FLOAT, 4, d4Dp_id, &var_id[jvar])))
+              ERR(retval, vars[jvar]);
+          } else {
+            if ((retval = nc_def_var(ncid, vars[jvar].c_str(), NC_FLOAT, 4, d4D_id, &var_id[jvar])))
+              ERR(retval, vars[jvar]);
+          }
+        } else {
+          if ((retval = nc_def_var(ncid, vars[jvar].c_str(), NC_FLOAT, 3, d3D_id, &var_id[jvar])))
+            ERR(retval, vars[jvar]);
+        }
         // Define attributes
-        strcpy(str_att, (varLongNames_.find(vars[jvar])->second).c_str());
+        strcpy(str_att, (varAttr_.find(vars[jvar])->second.longName).c_str());
         if ((retval = nc_put_att_text(ncid, var_id[jvar], "long_name", strlen(str_att),
           &str_att[0]))) ERR(retval, "Attr: long_name");
-        strcpy(str_att, (varUnits_.find(vars[jvar])->second).c_str());
+        strcpy(str_att, (varAttr_.find(vars[jvar])->second.units).c_str());
         if ((retval = nc_put_att_text(ncid, var_id[jvar], "units", strlen(str_att),
           &str_att[0]))) ERR(retval, "Attr: units");
-        strcpy(str_att, (varStdNames_.find(vars[jvar])->second).c_str());
+        strcpy(str_att, (varAttr_.find(vars[jvar])->second.stdName).c_str());
         if ((retval = nc_put_att_text(ncid, var_id[jvar], "standard_name", strlen(str_att),
           &str_att[0]))) ERR(retval, "Attr: standard_name");
         float_att = -999999.0;
@@ -546,21 +636,52 @@ void FieldsIOBSC::write(const Geometry & geom,
       // Get variable view
       const auto varView = atlas::array::make_view<double, 2>(globalData[vars[jvar]]);
 
-      for (atlas::idx_t k = 0; k < fset[vars[jvar]].shape(1); ++k) {
+      if (fset[vars[jvar]].shape(1) == 1) {
         // Copy data
         std::vector<float> zvar(ny*nx);
         for (atlas::idx_t j = 0; j < ny; ++j) {
           for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
             atlas::gidx_t gidx = grid.index(i, ny-1-j);
-            zvar[j*nx + i] = varView(gidx, k);
+            zvar[j*nx + i] = varView(gidx, 0);
           }
         }
 
         // Write data
-        const std::vector<size_t> startp({time, levels[k]-1, 0, 0});
-        const std::vector<size_t> countp({1, 1, ny, nx});
+        const std::vector<size_t> startp({time, 0, 0});
+        const std::vector<size_t> countp({1, ny, nx});
         if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
-          zvar.data()))) ERR(retval, vars[jvar]);
+                                        zvar.data()))) ERR(retval, vars[jvar]);
+      } else {
+        for (atlas::idx_t k = 0; k < fset[vars[jvar]].shape(1); ++k) {
+          // Copy data
+          std::vector<float> zvar(ny*nx);
+          for (atlas::idx_t j = 0; j < ny; ++j) {
+            for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
+              atlas::gidx_t gidx = grid.index(i, ny-1-j);
+              zvar[j*nx + i] = varView(gidx, k);
+            }
+          }
+
+          // Write data
+          const std::vector<size_t> countp({1, 1, ny, nx});
+          if (hasLevelsSelection) {
+            if (vars[jvar] == "interface_pressure") {
+              const std::vector<size_t> plevels = geom.io().getUnsignedVector("pressure levels selection");
+              const std::vector<size_t> startp({time, plevels[k]-1, 0, 0});
+              if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
+                                              zvar.data()))) ERR(retval, vars[jvar]);
+            } else {
+              const std::vector<size_t> levels = geom.io().getUnsignedVector("levels selection");
+              const std::vector<size_t> startp({time, levels[k]-1, 0, 0});
+              if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
+                                              zvar.data()))) ERR(retval, vars[jvar]);
+            }
+          } else {
+            const std::vector<size_t> startp({time, size_t(k), 0, 0});
+            if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
+                                            zvar.data()))) ERR(retval, vars[jvar]);
+          }
+        }
       }
     }
 

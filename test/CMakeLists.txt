@@ -39,6 +39,10 @@ testdata/tropomi_no2_tropo_2020090318_m.nc4
 testdata/tropomi_no2_tropo_2020090318_m_singleobs.nc4
 )
 
+list( APPEND monarch_data
+testdata/SAMPLE_MONARCH_d01_2022063012.nc
+)
+
 # Create the testdata directory
 # -----------------------------
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata )
@@ -46,6 +50,7 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata )
 # Link test data
 # --------------
 link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${quenchxx_data} )
+link_files( $ENV{MONARCH_DATA_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${monarch_data} )
 
 # Create the input/output directories
 # -----------------------------------
@@ -181,7 +186,6 @@ testinput/jedi/glb_truth_06.yaml
 testinput/jedi/glb_truth_12.yaml
 testinput/jedi/glb_truth_18.yaml
 
-
 # REGIONAL
 testinput/jedi/reg_3dvar.yaml
 testinput/jedi/reg_3densvar.yaml
@@ -205,6 +209,13 @@ testinput/jedi/reg_stddev.yaml
 testinput/jedi/reg_truth_06.yaml
 testinput/jedi/reg_truth_12.yaml
 testinput/jedi/reg_truth_18.yaml
+)
+
+list( APPEND monarch_testinput
+# MONARCH REGIONAL
+testinput/jedi/monarch_geometry_rotated.yaml
+testinput/jedi/monarch_convertstate.yaml
+testinput/jedi/monarch_convertstate_levsel.yaml
 )
 
 # Test output references
@@ -335,10 +346,19 @@ testref/jedi/reg_letkf_nonlinear_4d.ref
 testref/jedi/reg_letkf_read_members.ref
 )
 
+list( APPEND monarch_testref
+# MONARCH REGIONAL
+testref/jedi/monarch_geometry_rotated.ref
+testref/jedi/monarch_convertstate.ref
+testref/jedi/monarch_convertstate_levsel.ref
+)
+
 # Link input configurations and output references
 # -----------------------------------------------
 link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${quenchxx_testinput} )
 link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${quenchxx_testref} )
+link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${monarch_testinput} )
+link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${monarch_testref} )
 
 # Interface tests
 # ---------------
@@ -347,6 +367,7 @@ if( ( NOT ECSABER ) AND ENABLE_OBS )
     # GENINT
     create_test( genint_geometry_regular_lonlat 6 geometry )
     create_test( genint_geometry_lambertCC 6 geometry )
+    create_test( monarch_geometry_rotated 8 geometry )
 endif()
 
 # Integration tests
@@ -361,6 +382,8 @@ if( ( NOT ECSABER ) AND ENABLE_OBS )
     create_test( genint_hofx3d_regular_lonlat 6 hofx3d )
     create_test( genint_hofx3d_nonuni_lonlat 6 hofx3d )
     create_test( genint_hofx3d_lambertCC 6 hofx3d )
+    create_test( monarch_convertstate 8 convertstate )
+    create_test( monarch_convertstate_levsel 8 convertstate )
 endif()
 
 foreach( mpi "1" "4" )
