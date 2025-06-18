@@ -101,16 +101,16 @@ if (comm%rank() == 0) then
   end if
 
   ! Get sizes
-  nmsmax = inozpa(1)
-  nsmax = inozpa(2)
+  nsmax = inozpa(1)
+  nmsmax = inozpa(2)
   dx = zsinla(7)
   dy = zsinla(8)
 
   ! Compare file and transform sizes
   if (nlon /= trans%nlon) call abor1_ftn("inconsistent nlon")
   if (ndgl /= trans%ndgl) call abor1_ftn("inconsistent ndgl")
-  if (nmsmax /= trans%nmsmax) call abor1_ftn("inconsistent nmsmax")
   if (nsmax /= trans%nsmax) call abor1_ftn("inconsistent nsmax")
+  if (nmsmax /= trans%nmsmax) call abor1_ftn("inconsistent nmsmax")
 
   ! Copy ak/bk
   ak = atlas_field("ak",atlas_real(kind_real),(/kflev+1/))
