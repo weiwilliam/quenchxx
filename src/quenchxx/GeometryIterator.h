@@ -49,9 +49,9 @@ class GeometryIterator: public util::Printable,
 
   const size_t & iteratorDimension() const
     {return iteratorDimension_;}
-  const size_t jnode() const
+  const size_t & jnode() const
     {return jnode_;}
-  const size_t jlevel() const
+  const size_t & jlevel() const
     {return jlevel_;}
 
  private:

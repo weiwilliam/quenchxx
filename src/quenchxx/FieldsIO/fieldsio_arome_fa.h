@@ -18,12 +18,18 @@ namespace quenchxx {
 // -----------------------------------------------------------------------------
 
 extern "C" {
-  void fieldsio_arome_fa_f90(const eckit::Configuration &,
-                             const eckit::mpi::Comm *,
-                             const atlas::functionspace::FunctionSpaceImpl *,
-                             const Trans_t *,
-                             const atlas::field::FieldSetImpl *,
-                             const atlas::field::FieldSetImpl *);
+  void fieldsio_arome_fa_read_f90(const eckit::Configuration &,
+                                  const eckit::mpi::Comm *,
+                                  const atlas::functionspace::FunctionSpaceImpl *,
+                                  const Trans_t *,
+                                  const atlas::field::FieldSetImpl *,
+                                  const atlas::field::FieldSetImpl *);
+
+  void fieldsio_arome_fa_write_f90(const eckit::Configuration &,
+                                   const eckit::mpi::Comm *,
+                                   const atlas::functionspace::FunctionSpaceImpl *,
+                                   const Trans_t *,
+                                   const atlas::field::FieldSetImpl *);
 }
 
 // -----------------------------------------------------------------------------

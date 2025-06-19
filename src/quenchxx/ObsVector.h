@@ -67,8 +67,8 @@ class ObsVector : public util::Printable,
   void set(const size_t &,
            const size_t &,
            const double &);
-  const double operator() (const size_t & jvar,
-                           const size_t & jo) const
+  double operator() (const size_t & jvar,
+                     const size_t & jo) const
     {double value; this->get(jvar, jo, value); return value;}
 
   void read(const std::string & name)
