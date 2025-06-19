@@ -39,6 +39,11 @@ class FieldsIOArome : public FieldsIOBase {
             const eckit::Configuration &,
             atlas::FieldSet &) const override;
 
+  // Write
+  void write(const Geometry &,
+             const eckit::Configuration &,
+             const atlas::FieldSet &) const override;
+
  private:
 #ifdef READFA
   std::unique_ptr<struct Trans_t> trans_;

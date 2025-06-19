@@ -7,6 +7,7 @@
 
 #include <netcdf.h>
 
+#include <filesystem>
 #include <iomanip>
 #include <string>
 #include <vector>
@@ -45,14 +46,17 @@ void FieldsIOArome::read(const Geometry & geom,
                          atlas::FieldSet & fset) const {
   oops::Log::trace() << classname() << "::read starting" << std::endl;
 
-  // Get AROME format
-  const std::string ioFormat = config.getString("format");
+  // StructuredColumns
+  atlas::functionspace::StructuredColumns fs(geom.functionSpace());
+
+  // Get grid
+  atlas::StructuredGrid grid = fs.grid();
 
   // Get file path
   std::string filePath = config.getString("filepath");
 
   // NetCDF file path
-  if (ioFormat == "arome netcdf") {
+  if (ioFormat_ == "arome netcdf") {
     if (config.has("member")) {
       std::ostringstream out;
       out << std::setfill('0') << std::setw(6) << config.getInt("member");
@@ -102,16 +106,31 @@ void FieldsIOArome::read(const Geometry & geom,
   // Create local fieldset
   atlas::FieldSet fsetToRead;
   for (const auto & var : varsToRead) {
-    atlas::Field field = geom.functionSpace().createField<double>(
+    atlas::Field field = fs.createField<double>(
       atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
     fsetToRead.add(field);
   }
 
   // Initialize local fieldset
-  for (auto & varField : fsetToRead) {
-    auto view = atlas::array::make_view<double, 2>(varField);
+  for (auto & field : fsetToRead) {
+    auto view = atlas::array::make_view<double, 2>(field);
     view.assign(0.0);
   }
+
+  // Global data
+  atlas::FieldSet globalData;
+  for (const auto & var : varsToRead) {
+    atlas::Field field = fs.createField<double>(atlas::option::name(var.name())
+     | atlas::option::levels(var.getLevels()) | atlas::option::global());
+    globalData.add(field);
+  }
+
+  // Hybrid coordinates dimension
+  size_t nab;
+
+  // Define hybrid coordinates
+  std::vector<double> akFromFile;
+  std::vector<double> bkFromFile;
 
   // File variables names
   size_t nVar2D = 0;
@@ -137,43 +156,15 @@ void FieldsIOArome::read(const Geometry & geom,
     }
   }
 
-  // StructuredColumns
-  atlas::functionspace::StructuredColumns fs(geom.functionSpace());
-
-  // Get grid
-  atlas::StructuredGrid grid = fs.grid();
-
   // Get sizes
   const atlas::util::Config xspec = grid.xspace().spec();
   const atlas::util::Config yspec = grid.yspace().spec();
   const size_t nx = xspec.getInt("N");
-  const double startx = xspec.getDouble("start");
-  const double endx = xspec.getDouble("end");
-  const double dx = (endx-startx)/static_cast<double>(nx-1);
   const size_t ny = yspec.getInt("N");
-  const double starty = yspec.getDouble("start");
-  const double endy = yspec.getDouble("end");
-  const double dy = (endy-starty)/static_cast<double>(ny-1);
-
-  // Hybrid coordinates dimension
-  size_t nab;
-
-  // Define hybrid coordinates
-  std::vector<double> akFromFile;
-  std::vector<double> bkFromFile;
-
-  // Global data
-  atlas::FieldSet globalData;
-  for (const auto & var : varsToRead) {
-    atlas::Field varField = geom.functionSpace().createField<double>(
-      atlas::option::name(var.name())
-      | atlas::option::levels(var.getLevels()) | atlas::option::global());
-    globalData.add(varField);
-  }
 
   oops::Log::info() << "Info     : Reading file: " << filePath << std::endl;
 
-  if (ioFormat == "arome netcdf") {
+  if (ioFormat_ == "arome netcdf") {
     // NetCDF IDs
     int ncid, retval, ak_id, bk_id, dim_id, var_id[nVar2D];
 
@@ -252,9 +243,17 @@ void FieldsIOArome::read(const Geometry & geom,
     // Broadcast hybrid coordinates
     geom.getComm().broadcast(akFromFile.begin(), akFromFile.end(), 0);
     geom.getComm().broadcast(bkFromFile.begin(), bkFromFile.end(), 0);
-  } else if (ioFormat == "arome fa") {
+  } else if (ioFormat_ == "arome fa") {
 #ifdef READFA
     if (!transSetup) {
+      // Get cell sizes
+      const double startx = xspec.getDouble("start");
+      const double endx = xspec.getDouble("end");
+      const double dx = (endx-startx)/static_cast<double>(nx-1);
+      const double starty = yspec.getDouble("start");
+      const double endy = yspec.getDouble("end");
+      const double dy = (endy-starty)/static_cast<double>(ny-1);
+
       // Configure transform
       trans_use_mpi(true);
       trans_set_leq_regions(false);
@@ -269,6 +268,7 @@ void FieldsIOArome::read(const Geometry & geom,
       trans_setup(&trans);
       transSetup = true;
     }
+
     // Update configuration
     eckit::LocalConfiguration updatedConfig(config);
     updatedConfig.set("nvar2d", nVar2D);
@@ -280,7 +280,7 @@ void FieldsIOArome::read(const Geometry & geom,
     atlas::FieldSet akbkData;
 
     // Read FA file
-    fieldsio_arome_fa_f90(updatedConfig, &geom.getComm(), fs.get(), &trans, akbkData.get(),
+    fieldsio_arome_fa_read_f90(updatedConfig, &geom.getComm(), fs.get(), &trans, akbkData.get(),
       globalData.get());
 
     // Get hybrid coordinates dimension
@@ -325,8 +325,8 @@ void FieldsIOArome::read(const Geometry & geom,
     if (var.name() == "air_pressure_at_surface"
       || var.name() == "air_pressure" || var.name() == "air_pressure_at_half_levels") {
       // Create field
-      atlas::Field varField = geom.functionSpace().createField<double>(
-        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
+      atlas::Field varField = fs.createField<double>(atlas::option::name(var.name())
+        | atlas::option::levels(var.getLevels()));
       fset.add(varField);
 
       // Get view
@@ -374,8 +374,8 @@ void FieldsIOArome::read(const Geometry & geom,
 
     if (var.name() == "height_above_mean_sea_level_at_surface") {
       // Create field
-      atlas::Field varField = geom.functionSpace().createField<double>(
-        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
+      atlas::Field varField = fs.createField<double>(atlas::option::name(var.name())
+        | atlas::option::levels(var.getLevels()));
       fset.add(varField);
 
       // Get views
@@ -393,8 +393,8 @@ void FieldsIOArome::read(const Geometry & geom,
       // Compute spherical winds
 
       // Create field
-      atlas::Field varField = geom.functionSpace().createField<double>(
-        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
+      atlas::Field varField = fs.createField<double>(atlas::option::name(var.name())
+        | atlas::option::levels(var.getLevels()));
       fset.add(varField);
 
       // Get views
@@ -403,7 +403,7 @@ void FieldsIOArome::read(const Geometry & geom,
       auto varView = atlas::array::make_view<double, 2>(varField);
 
       // Get lon/lat view
-      const auto lonlatView = atlas::array::make_view<double, 2>(geom.functionSpace().lonlat());
+      const auto lonlatView = atlas::array::make_view<double, 2>(fs.lonlat());
 
       for (int jnode = 0; jnode < varField.shape(0); ++jnode) {
         // Get local point
@@ -474,6 +474,157 @@ void FieldsIOArome::read(const Geometry & geom,
   fset.set_dirty();
 
   oops::Log::trace() << classname() << "::read done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void FieldsIOArome::write(const Geometry & geom,
+                          const eckit::Configuration & config,
+                          const atlas::FieldSet & fset) const {
+  oops::Log::trace() << classname() << "::write starting" << std::endl;
+
+  // StructuredColumns
+  atlas::functionspace::StructuredColumns fs(geom.functionSpace());
+
+  // Get grid
+  atlas::StructuredGrid grid = fs.grid();
+
+  // Get file path
+  std::string filePath = config.getString("filepath");
+
+  // NetCDF file path
+  if (ioFormat_ == "arome netcdf") {
+    if (config.has("member")) {
+      std::ostringstream out;
+      out << std::setfill('0') << std::setw(6) << config.getInt("member");
+      filePath.append("_");
+      filePath.append(out.str());
+    }
+    filePath = filePath + ".nc";
+  }
+
+  // Define fset to write
+  atlas::FieldSet fsetToWrite;
+  for (const auto & varName : fset.field_names()) {
+    if (varName == "geographical_x_wind") {
+      atlas::Field field = fset[varName].clone();
+      field.rename("WIND.U.PHYS");
+      fsetToWrite.add(field);
+    }
+
+    if (varName == "geographical_y_wind") {
+      atlas::Field field = fset[varName].clone();
+      field.rename("WIND.V.PHYS");
+      fsetToWrite.add(field);
+    }
+
+    if (varName == "air_temperature") {
+      atlas::Field field = fset[varName].clone();
+      field.rename("TEMPERATURE");
+      fsetToWrite.add(field);
+    }
+
+    if (varName == "log_of_air_pressure_at_surface") {
+      atlas::Field field = fset[varName].clone();
+      field.rename("SURFPRESSION");
+      fsetToWrite.add(field);
+    }
+
+    if (varName == "water_vapor_mixing_ratio_wrt_moist_air") {
+      atlas::Field field = fset[varName].clone();
+      field.rename("HUMI.SPECIFI");
+      fsetToWrite.add(field);
+    }
+  }
+
+  // Global data
+  atlas::FieldSet globalData;
+  for (const auto & field : fsetToWrite) {
+    atlas::Field glbField = fs.createField<double>(atlas::option::name(field.name())
+     | atlas::option::levels(field.levels()) | atlas::option::global());
+    globalData.add(glbField);
+  }
+
+  // Gather data to main processor
+  fs.gather(fsetToWrite, globalData);
+
+  // File variables names
+  size_t nVar2D = 0;
+  std::vector<std::string> preVec;
+  std::vector<int> levVec;
+  std::vector<std::string> varVec;
+  for (const auto & field : fsetToWrite) {
+    for (int jlevel = 0; jlevel < field.levels(); ++jlevel) {
+      if (field.name() == "SURFPRESSION") {
+        preVec.push_back("SURF");
+        levVec.push_back(0);
+        varVec.push_back("PRESSION");
+      } else {
+        preVec.push_back("S");
+        levVec.push_back(jlevel+1);
+        varVec.push_back(field.name());
+      }
+      ++nVar2D;
+    }
+  }
+
+  // Get sizes
+  const atlas::util::Config xspec = grid.xspace().spec();
+  const atlas::util::Config yspec = grid.yspace().spec();
+  const size_t nx = xspec.getInt("N");
+  const size_t ny = yspec.getInt("N");
+
+  oops::Log::info() << "Info     : Writing file: " << filePath << std::endl;
+
+  if (ioFormat_ == "arome netcdf") {
+    throw eckit::Exception("arome netcdf writer not implemented yet", Here());
+  } else if (ioFormat_ == "arome fa") {
+#ifdef READFA
+    if (!transSetup) {
+      // Get cell sizes
+      const double startx = xspec.getDouble("start");
+      const double endx = xspec.getDouble("end");
+      const double dx = (endx-startx)/static_cast<double>(nx-1);
+      const double starty = yspec.getDouble("start");
+      const double endy = yspec.getDouble("end");
+      const double dy = (endy-starty)/static_cast<double>(ny-1);
+
+      // Configure transform
+      trans_use_mpi(true);
+      trans_set_leq_regions(false);
+      const int nprgpew = std::min(1,
+        static_cast<int>(std::sqrt(static_cast<double>(geom.getComm().size()))));
+      trans_set_nprgpew(nprgpew);
+
+      // Setup transform structure
+      trans_new(&trans);
+      trans_set_resol_lam(&trans, nx, ny, dx, dy);
+      trans_set_trunc_lam(&trans, (nx-1)/2, (ny-1)/2);
+      trans_setup(&trans);
+      transSetup = true;
+    }
+
+    // Update configuration
+    eckit::LocalConfiguration updatedConfig(config);
+    updatedConfig.set("nvar2d", nVar2D);
+    updatedConfig.set("prefix vector", preVec);
+    updatedConfig.set("level vector", levVec);
+    updatedConfig.set("variable vector", varVec);
+
+    // Copy existing FA file
+    const std::string originFilePath = config.getString("origin filepath");
+    std::filesystem::copy_file(originFilePath, filePath,
+        std::filesystem::copy_options::overwrite_existing);
+
+    // Write FA file
+    fieldsio_arome_fa_write_f90(updatedConfig, &geom.getComm(), fs.get(), &trans, globalData.get());
+#else
+    // Format not available
+    throw eckit::Exception("arome fa format not available", Here());
+#endif
+  }
+
+  oops::Log::trace() << classname() << "::write done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
