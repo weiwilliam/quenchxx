@@ -84,19 +84,18 @@ background error:
     zero padding: 3
     nmembers: 5
 
-NOdirac:
+# Identity block (for projection testing)    
+#background error:
+#  covariance model: SABER
+#  saber central block:
+#    saber block name: ID
+
+dirac:
   date: 2022-07-01T12:00:00Z
   lon:      [              7.9,   17.9]
   lat:      [             38.3,   60.3]
   level:    [                5,      5]
   variable: ['carbon_monoxyde', 'pm10']
-
-dirac:
-  date: 2022-07-01T12:00:00Z
-  lon:      [ 7.9]
-  lat:      [38.3]
-  level:    [   5]
-  variable: ['pm10']
 
 background:
   date: 2022-07-01T12:00:00Z
