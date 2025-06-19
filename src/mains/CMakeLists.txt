@@ -20,6 +20,15 @@ if( NOT ECSABER )
     ecbuild_add_executable( TARGET  quenchxx_geometry.x
                             SOURCES ${version}/quenchxxGeometry.cc
                             LIBS    ${libs} )
+    ecbuild_add_executable( TARGET  quenchxx_state.x
+                            SOURCES ${version}/quenchxxTestState.cc
+                            LIBS    ${libs} )
+    ecbuild_add_executable( TARGET  quenchxx_increment.x
+                            SOURCES ${version}/quenchxxTestIncrement.cc
+                            LIBS    ${libs} )
+    ecbuild_add_executable( TARGET  quenchxx_ens_mean_variance.x
+                            SOURCES ${version}/quenchxxEnsMeanVariance.cc
+                            LIBS    ${libs} )
 endif()
 
 ecbuild_add_executable( TARGET  quenchxx_error_covariance_toolbox.x

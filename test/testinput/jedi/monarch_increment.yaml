@@ -1,4 +1,16 @@
-input geometry: &geom
+_variables: &vars
+    - ozone
+    - carbon_monoxyde
+    - pm10
+    - air_pressure
+    - air_pressure_levels
+    - surface_geopotential
+_chemVariables: &chemvars
+    - ozone
+    - carbon_monoxyde
+    - pm10
+
+geometry:
   function space: StructuredColumns
   grid:
     type: structured
@@ -59,37 +71,7 @@ input geometry: &geom
     initial date: 2022-06-30T12:00:00Z
     final date: 2022-07-02T00:00:00Z
   levels are top down: true
-output geometry: *geom
-states:
-- input:
-    date: 2022-07-01T00:00:00Z
-    filepath: testdata/006/REDUCED_MONARCH_d01_2022063012.nc
-    format: bsc
-    state variables:
-    - ozone
-    - carbon_monoxyde
-    - pm10
-    - air_pressure
-    - air_pressure_levels
-    - surface_geopotential
-  output:
-    date: 2022-07-01T00:00:00Z
-    filepath: testdata/monarch_levsel_output.nc
-    formats: [bsc]
-- input:
-    date: 2022-07-01T12:00:00Z
-    filepath: testdata/006/REDUCED_MONARCH_d01_2022063012.nc
-    format: bsc
-    state variables:
-    - ozone
-    - carbon_monoxyde
-    - pm10
-    - air_pressure
-    - air_pressure_levels
-    - surface_geopotential
-  output:
-    date: 2022-07-01T12:00:00Z
-    filepath: testdata/monarch_levsel_output.nc
-    formats: [bsc]
-test:
-  reference filename: testref/jedi/monarch_convertstate_levsel.ref
+
+increment test:
+  date: 2022-07-01T00:00:00Z
+inc variables: *chemvars

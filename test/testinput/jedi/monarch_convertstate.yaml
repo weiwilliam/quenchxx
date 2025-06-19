@@ -61,7 +61,7 @@ output geometry: *geom
 states:
 - input:
     date: 2022-07-01T00:00:00Z
-    filepath: testdata/SAMPLE_MONARCH_d01_2022063012.nc
+    filepath: testdata/006/REDUCED_MONARCH_d01_2022063012.nc
     format: bsc
     state variables:
     - ozone
@@ -76,7 +76,7 @@ states:
     formats: [bsc]
 - input:
     date: 2022-07-01T12:00:00Z
-    filepath: testdata/SAMPLE_MONARCH_d01_2022063012.nc
+    filepath: testdata/006/REDUCED_MONARCH_d01_2022063012.nc
     format: bsc
     state variables:
     - ozone

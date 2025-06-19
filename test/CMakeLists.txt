@@ -40,7 +40,13 @@ testdata/tropomi_no2_tropo_2020090318_m_singleobs.nc4
 )
 
 list( APPEND monarch_data
-testdata/SAMPLE_MONARCH_d01_2022063012.nc
+testdata/000
+testdata/001
+testdata/002
+testdata/003
+testdata/004
+testdata/005
+testdata/006
 )
 
 # Create the testdata directory
@@ -214,8 +220,12 @@ testinput/jedi/reg_truth_18.yaml
 list( APPEND monarch_testinput
 # MONARCH REGIONAL
 testinput/jedi/monarch_geometry_rotated.yaml
+testinput/jedi/monarch_state.yaml
 testinput/jedi/monarch_convertstate.yaml
 testinput/jedi/monarch_convertstate_levsel.yaml
+testinput/jedi/monarch_increment.yaml
+testinput/jedi/monarch_ens_mean_variance.yaml
+testinput/jedi/monarch_dirac_no_loc_3d.yaml
 )
 
 # Test output references
@@ -349,8 +359,12 @@ testref/jedi/reg_letkf_read_members.ref
 list( APPEND monarch_testref
 # MONARCH REGIONAL
 testref/jedi/monarch_geometry_rotated.ref
+testref/jedi/monarch_state.ref
 testref/jedi/monarch_convertstate.ref
 testref/jedi/monarch_convertstate_levsel.ref
+testref/jedi/monarch_increment.ref
+testref/jedi/monarch_ens_mean_variance.ref
+testref/jedi/monarch_dirac_no_loc_3d.ref
 )
 
 # Link input configurations and output references
@@ -382,8 +396,16 @@ if( ( NOT ECSABER ) AND ENABLE_OBS )
     create_test( genint_hofx3d_regular_lonlat 6 hofx3d )
     create_test( genint_hofx3d_nonuni_lonlat 6 hofx3d )
     create_test( genint_hofx3d_lambertCC 6 hofx3d )
+endif()
+
+if( ( NOT ECSABER ) AND ENABLE_OBS )
+    # MONARCH BSC tests
+    #create_test( monarch_state 8 state )
     create_test( monarch_convertstate 8 convertstate )
     create_test( monarch_convertstate_levsel 8 convertstate )
+    #create_test( monarch_increment 8 increment )
+    create_test( monarch_ens_mean_variance 8 ens_mean_variance )
+    create_test( monarch_dirac_no_loc_3d 8 error_covariance_toolbox )
 endif()
 
 foreach( mpi "1" "4" )

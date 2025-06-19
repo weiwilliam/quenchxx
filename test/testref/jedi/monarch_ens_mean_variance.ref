@@ -1,0 +1,24 @@
+Mean: 
+
+- Valid time: 2022-07-01T12:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 2.7831063029666545e+01
+    carbon_monoxyde: 6.5982004924038520e+01
+    pm10: 6.7506540864500824e-05
+Variance: 
+
+- Valid time: 2022-07-01T12:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 1.2229260882952774e-02
+    carbon_monoxyde: 9.7139552760877865e-02
+    pm10: 1.2329529494446228e-11
+Standard Deviation: 
+
+- Valid time: 2022-07-01T12:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 1.5492568446799260e+00
+    carbon_monoxyde: 1.6986709266089111e+00
+    pm10: 4.2372239571196831e-05

@@ -1,4 +1,16 @@
-input geometry: &geom
+_variables: &vars
+    - ozone
+    - carbon_monoxyde
+    - pm10
+    - air_pressure
+    - air_pressure_levels
+    - surface_geopotential
+_chemVariables: &chemvars
+    - ozone
+    - carbon_monoxyde
+    - pm10
+
+geometry:
   function space: StructuredColumns
   grid:
     type: structured
@@ -59,37 +71,33 @@ input geometry: &geom
     initial date: 2022-06-30T12:00:00Z
     final date: 2022-07-02T00:00:00Z
   levels are top down: true
-output geometry: *geom
-states:
-- input:
-    date: 2022-07-01T00:00:00Z
-    filepath: testdata/006/REDUCED_MONARCH_d01_2022063012.nc
-    format: bsc
-    state variables:
-    - ozone
-    - carbon_monoxyde
-    - pm10
-    - air_pressure
-    - air_pressure_levels
-    - surface_geopotential
-  output:
-    date: 2022-07-01T00:00:00Z
-    filepath: testdata/monarch_levsel_output.nc
-    formats: [bsc]
-- input:
-    date: 2022-07-01T12:00:00Z
-    filepath: testdata/006/REDUCED_MONARCH_d01_2022063012.nc
-    format: bsc
-    state variables:
-    - ozone
-    - carbon_monoxyde
-    - pm10
-    - air_pressure
-    - air_pressure_levels
-    - surface_geopotential
-  output:
-    date: 2022-07-01T12:00:00Z
-    filepath: testdata/monarch_levsel_output.nc
-    formats: [bsc]
+
+ensemble:
+  members from template:
+    template:
+      date: 2022-07-01T12:00:00Z
+      filepath: testdata/%mem%/REDUCED_MONARCH_d01_2022063012.nc
+      format: bsc
+      state variables: *chemvars
+    pattern: %mem%
+    zero padding: 3
+    nmembers: 5
+
+variance output:
+  filepath: testdata/monarch_variance.nc
+  formats: [bsc]
+  date: 2022-07-01T12:00:00Z
+
+standard deviation output:
+  filepath: testdata/monarch_sttdev.nc
+  formats: [bsc]
+  date: 2022-07-01T12:00:00Z
+
+mean output:
+  filepath: testdata/monarch_mean.nc
+  formats: [bsc]
+  date: 2022-07-01T12:00:00Z
+
 test:
-  reference filename: testref/jedi/monarch_convertstate_levsel.ref
+  reference filename: testref/jedi/monarch_ens_mean_variance.ref
+  test output filename: testdata/monarch_ens_mean_variance.log
