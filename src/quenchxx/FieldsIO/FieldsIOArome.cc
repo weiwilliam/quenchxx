@@ -7,7 +7,7 @@
 
 #include <netcdf.h>
 
-#include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <string>
 #include <vector>
@@ -54,15 +54,15 @@ void FieldsIOArome::read(const Geometry & geom,
 
   // Get file path
   std::string filePath = config.getString("filepath");
+  if (config.has("member")) {
+    std::ostringstream out;
+    out << std::setfill('0') << std::setw(6) << config.getInt("member");
+    filePath.append("_");
+    filePath.append(out.str());
+  }
 
   // NetCDF file path
   if (ioFormat_ == "arome netcdf") {
-    if (config.has("member")) {
-      std::ostringstream out;
-      out << std::setfill('0') << std::setw(6) << config.getInt("member");
-      filePath.append("_");
-      filePath.append(out.str());
-    }
     filePath = filePath + ".nc";
   }
 
@@ -271,6 +271,7 @@ void FieldsIOArome::read(const Geometry & geom,
 
     // Update configuration
     eckit::LocalConfiguration updatedConfig(config);
+    updatedConfig.set("filepath", filePath);
     updatedConfig.set("nvar2d", nVar2D);
     updatedConfig.set("prefix vector", preVec);
     updatedConfig.set("level vector", levVec);
@@ -491,15 +492,15 @@ void FieldsIOArome::write(const Geometry & geom,
 
   // Get file path
   std::string filePath = config.getString("filepath");
+  if (config.has("member")) {
+    std::ostringstream out;
+    out << std::setfill('0') << std::setw(6) << config.getInt("member");
+    filePath.append("_");
+    filePath.append(out.str());
+  }
 
   // NetCDF file path
   if (ioFormat_ == "arome netcdf") {
-    if (config.has("member")) {
-      std::ostringstream out;
-      out << std::setfill('0') << std::setw(6) << config.getInt("member");
-      filePath.append("_");
-      filePath.append(out.str());
-    }
     filePath = filePath + ".nc";
   }
 
@@ -606,15 +607,20 @@ void FieldsIOArome::write(const Geometry & geom,
 
     // Update configuration
     eckit::LocalConfiguration updatedConfig(config);
+    updatedConfig.set("filepath", filePath);
     updatedConfig.set("nvar2d", nVar2D);
     updatedConfig.set("prefix vector", preVec);
     updatedConfig.set("level vector", levVec);
     updatedConfig.set("variable vector", varVec);
 
     // Copy existing FA file
-    const std::string originFilePath = config.getString("origin filepath");
-    std::filesystem::copy_file(originFilePath, filePath,
-        std::filesystem::copy_options::overwrite_existing);
+    if (geom.getComm().rank() == 0) {
+      const std::string originFilePath = config.getString("origin filepath");
+      std::ifstream src(originFilePath, std::ios::binary);
+      std::ofstream dst(filePath, std::ios::binary);
+      dst << src.rdbuf() << std::flush;
+    }
+    geom.getComm().barrier();
 
     // Write FA file
     fieldsio_arome_fa_write_f90(updatedConfig, &geom.getComm(), fs.get(), &trans, globalData.get());
