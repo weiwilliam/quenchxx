@@ -48,7 +48,7 @@ class FieldsIOBase : private eckit::NonCopyable {
     {throw eckit::Exception("read not implemented for this format", Here());}
 
  protected:
-   const std::string ioFormat_;
+  const std::string ioFormat_;
 };
 
 // -----------------------------------------------------------------------------

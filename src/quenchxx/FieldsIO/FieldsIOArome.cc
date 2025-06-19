@@ -7,6 +7,7 @@
 
 #include <netcdf.h>
 
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <string>
