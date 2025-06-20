@@ -41,8 +41,8 @@
             "state from template": {
               "template": {
                 "date": "2010-01-01T12:00:00Z",
-                "filepath": "testdata/evil_ens_%member%",
-                "state variables": ["air_temperature"]
+                "state variables": ["air_temperature"],
+                "filepath": "testdata/evil_ens_%member%"
               },
               "pattern": "%member%",
               "zero padding": "6"
@@ -127,15 +127,15 @@
     "ritz vectors": {
       "mpi pattern": "%mpi%",
       "ctlvec": [{
-      "filepath": "testdata/evil_control_3dvar.ritz.%iteration%_%mpi%"
+        "filepath": "testdata/evil_control_3dvar.ritz.%iteration%_%mpi%"
       }]
     },
     "number of ritz pairs": "17"
   },
   "analysis": {
-    "filepath": "testdata/evil_control_3dvar",
+    "date": "2010-01-01T12:00:00Z",
     "variables": ["air_temperature"],
-    "date": "2010-01-01T12:00:00Z"
+    "filepath": "testdata/evil_control_3dvar"
   },
   "ensemble of backgrounds": {
     "members": "50",
@@ -145,6 +145,7 @@
   "ensemble of analyses": {
     "state from template": {
       "template": {
+        "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "filepath": "testdata/evil_control_ens_R_%member%_%mpi%"
       },
@@ -153,6 +154,7 @@
     }
   },
   "variance reduction": {
+    "date": "2010-01-01T12:00:00Z",
     "mpi pattern": "%mpi%",
     "filepath": "testdata/evil_control_variance_R_%iteration%_%mpi%"
   },

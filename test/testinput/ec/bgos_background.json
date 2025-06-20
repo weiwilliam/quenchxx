@@ -58,6 +58,7 @@
       "saber block name": "StdDev",
       "read": {
         "model file": {
+          "date": "2010-01-01T12:00:00Z",
           "filepath": "testdata/bgos_stddev"
         }
       }
@@ -65,8 +66,8 @@
     "randomization size": "1"
   },
   "output states": {
-    "filepath": "testdata/bgos_bkg",
-    "date": "2010-01-01T12:00:00Z"
+    "date": "2010-01-01T12:00:00Z",
+    "filepath": "testdata/bgos_bkg"
   },
   "test": {
     "reference filename": "testref/ec/bgos_background.ref"

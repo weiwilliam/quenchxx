@@ -93,19 +93,27 @@ local ensemble DA:
     mult: 1.1
 output:
   states:
-  - filepath: testdata/glb_letkf_nonlinear_4d_state_12
-  - filepath: testdata/glb_letkf_nonlinear_4d_state_18
+  - date: 2010-01-01T12:00:00Z
+    filepath: testdata/glb_letkf_nonlinear_4d_state_12
+  - date: 2010-01-01T18:00:00Z
+    filepath: testdata/glb_letkf_nonlinear_4d_state_18
 output increment:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_nonlinear_4d_increment
 output ensemble increments:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_nonlinear_4d_increment
 output mean prior:
   states:
-  - filepath: testdata/glb_letkf_nonlinear_4d_mean_prior_12
-  - filepath: testdata/glb_letkf_nonlinear_4d_mean_prior_18
+  - date: 2010-01-01T12:00:00Z
+    filepath: testdata/glb_letkf_nonlinear_4d_mean_prior_12
+  - date: 2010-01-01T18:00:00Z
+    filepath: testdata/glb_letkf_nonlinear_4d_mean_prior_18
 output variance prior:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_nonlinear_4d_var_prior
 output variance posterior:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_nonlinear_4d_var_posterior
 test:
   reference filename: testref/jedi/glb_letkf_nonlinear_4d.ref

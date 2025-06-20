@@ -104,19 +104,27 @@ local ensemble DA:
   use linear observer: true
 output:
   states:
-  - filepath: testdata/reg_letkf_linear_4d_12_state
-  - filepath: testdata/reg_letkf_linear_4d_18_state
+  - date: 2010-01-01T12:00:00Z
+    filepath: testdata/reg_letkf_linear_4d_12_state
+  - date: 2010-01-01T18:00:00Z
+    filepath: testdata/reg_letkf_linear_4d_18_state
 output increment:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_4d_increment
 output ensemble increments:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_4d_increment
 output mean prior:
   states:
-  - filepath: testdata/reg_letkf_linear_4d_12_mean_prior
-  - filepath: testdata/reg_letkf_linear_4d_18_mean_prior
+  - date: 2010-01-01T12:00:00Z
+    filepath: testdata/reg_letkf_linear_4d_12_mean_prior
+  - date: 2010-01-01T18:00:00Z
+    filepath: testdata/reg_letkf_linear_4d_18_mean_prior
 output variance prior:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_4d_var_prior
 output variance posterior:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_4d_var_posterior
 test:
   reference filename: testref/jedi/reg_letkf_linear_4d.ref

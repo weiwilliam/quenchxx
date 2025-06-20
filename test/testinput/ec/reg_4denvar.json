@@ -322,8 +322,8 @@
     "algorithm": "DRIPCG"
   },
   "output": {
-    "filepath": "testdata/reg_4densvar",
-    "date": "2010-01-01T06:00:00Z"
+    "date": "2010-01-01T06:00:00Z",
+    "filepath": "testdata/reg_4densvar"
   },
   "variational": {
     "iteration": [

@@ -1030,6 +1030,12 @@ void Fields::synchronizeFields() {
 void Fields::read(const eckit::Configuration & config) {
   oops::Log::trace() << classname() << "::read starting" << std::endl;
 
+  // Check date
+  util::DateTime dateTime(config.getString("date"));
+  if (dateTime != time_) {
+    return;
+  }
+
   // Update variables names
   varns::Variables vars_in_file;
   for (const auto & var : vars_) {
@@ -1072,6 +1078,12 @@ void Fields::read(const eckit::Configuration & config) {
 
 void Fields::write(const eckit::Configuration & config) const {
   oops::Log::trace() << classname() << "::write starting" << std::endl;
+
+  // Check date
+  util::DateTime dateTime(config.getString("date"));
+  if (dateTime != time_) {
+    return;
+  }
 
   // Copy fieldset
   atlas::FieldSet fset = util::copyFieldSet(fset_);

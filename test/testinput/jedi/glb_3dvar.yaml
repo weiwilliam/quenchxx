@@ -45,6 +45,7 @@ cost function:
     - saber block name: StdDev
       read:
         model file:
+          date: 2010-01-01T12:00:00Z
           filepath: testdata/glb_stddev
   observations:
     observers:
@@ -82,8 +83,10 @@ final:
     geometry: *geom
     output:
       state component:
+        date: 2010-01-01T12:00:00Z
         filepath: testdata/glb_3dvar_incr
 output:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_3dvar_analysis
 test:
   reference filename: testref/jedi/glb_3dvar.ref

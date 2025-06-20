@@ -55,6 +55,7 @@ cost function:
     - saber block name: StdDev
       read:
         model file:
+          date: 2010-01-01T12:00:00Z
           filepath: testdata/reg_stddev
   observations:
     observers:
@@ -92,8 +93,10 @@ final:
     geometry: *geom
     output:
       state component:
+        date: 2010-01-01T12:00:00Z
         filepath: testdata/reg_3dvar_incr
 output:
+  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_3dvar_analysis
 test:
   reference filename: testref/jedi/reg_3dvar.ref

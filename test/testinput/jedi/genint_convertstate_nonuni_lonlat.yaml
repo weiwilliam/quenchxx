@@ -41,8 +41,9 @@ states:
     - air_pressure_at_surface
     filepath: testdata/camchem_N30x20_subset
     netcdf extension: nc
-    date: '2021-08-01T00:00:00Z'
+    date: 2021-08-01T00:00:00Z
   output:
     filepath: testdata/camchem_N10
+    date: 2021-08-01T00:00:00Z
 test:
   reference filename: testref/jedi/genint_convertstate_nonuni_lonlat.ref

@@ -42,7 +42,8 @@ State::State(const Geometry & geom,
   const std::vector<std::string> varNames = file.has("state variables") ?
     file.getStringVector("state variables") : file.getStringVector("variables");
   const varns::Variables vars(varNames);
-  fields_.reset(new Fields(geom, vars, util::DateTime()));
+  const util::DateTime vt(file.getString("date"));
+  fields_.reset(new Fields(geom, vars, vt));
   if (file.has("filepath")) {
     oops::Log::info() << "Info     : Create state from file" << std::endl;
     fields_->read(file);
@@ -60,8 +61,6 @@ State::State(const Geometry & geom,
     oops::Log::info() << "Info     : Create empty state" << std::endl;
     fields_->zero();
   }
-  const util::DateTime vt(file.getString("date"));
-  fields_->time() = vt;
 
   oops::Log::trace() << classname() << "::State done" << std::endl;
 }
