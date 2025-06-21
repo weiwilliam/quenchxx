@@ -38,10 +38,11 @@ background error:
   - saber block name: StdDev
     read:
       model file:
+        date: 2010-01-01T18:00:00Z
         filepath: testdata/glb_stddev
   randomization size: 1
 output states:
-  filepath: testdata/glb_bkg_18
   date: 2010-01-01T18:00:00Z
+  filepath: testdata/glb_bkg_18
 test:
   reference filename: testref/glb_background_18.ref

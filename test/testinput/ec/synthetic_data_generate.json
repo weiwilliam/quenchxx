@@ -67,6 +67,7 @@
           "saber block name": "StdDev",
           "read": {
             "model file": {
+              "date": "2010-01-01T12:00:00Z",
               "filepath": "testdata/synthetic_data_stddev"
             }
           }
@@ -129,6 +130,7 @@
     ]
   },
   "background perturbation": {
+    "date": "2010-01-01T12:00:00Z",
     "filepath": "testdata/synthetic_data_background_perturbation"
   },
   "first-guess departure": {

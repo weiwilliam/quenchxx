@@ -152,6 +152,7 @@ final:
         - date: 2010-01-01T18:00:00Z
           filepath: testdata/glb_4densvar_incr_18
 output:
+  date: 2010-01-01T06:00:00Z
   filepath: testdata/glb_4densvar_analysis
 test:
   reference filename: testref/jedi/glb_4densvar.ref

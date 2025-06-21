@@ -41,8 +41,8 @@
             "state from template": {
               "template": {
                 "date": "2010-01-01T12:00:00Z",
-                "filepath": "testdata/evil_ens_%member%",
-                "state variables": ["air_temperature"]
+                "state variables": ["air_temperature"],
+                "filepath": "testdata/evil_ens_%member%"
               },
               "pattern": "%member%",
               "zero padding": "6"
@@ -125,15 +125,16 @@
     "solver space": "primal",
     "eigenvalues": "testdata/evil_primal_3dvar.eigenvalues.txt",
     "ritz vectors": {
+      "date": "2010-01-01T12:00:00Z",
       "mpi pattern": "%mpi%",
       "filepath": "testdata/evil_primal_3dvar.ritz.%pattern%.%iteration%_%mpi%"
     },
     "number of ritz pairs": "17"
   },
   "analysis": {
-    "filepath": "testdata/evil_primal_3dvar",
+    "date": "2010-01-01T12:00:00Z",
     "variables": ["air_temperature"],
-    "date": "2010-01-01T12:00:00Z"
+    "filepath": "testdata/evil_primal_3dvar"
   },
   "ensemble of backgrounds": {
     "members": "50",
@@ -142,8 +143,8 @@
     "state from template": {
       "template": {
         "date": "2010-01-01T12:00:00Z",
-        "filepath": "testdata/evil_ens_%member%",
-        "state variables": ["air_temperature"]
+        "state variables": ["air_temperature"],
+        "filepath": "testdata/evil_ens_%member%"
       },
       "pattern": "%member%",
       "zero padding": "6"
@@ -152,6 +153,7 @@
   "ensemble of analyses": {
     "state from template": {
       "template": {
+        "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "filepath": "testdata/evil_primal_ens_S_%member%_%mpi%"
       },
@@ -160,6 +162,7 @@
     }
   },
   "variance reduction": {
+    "date": "2010-01-01T12:00:00Z",
     "mpi pattern": "%mpi%",
     "filepath": "testdata/evil_primal_variance_S_%iteration%_%mpi%"
   },

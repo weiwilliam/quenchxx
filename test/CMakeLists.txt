@@ -172,6 +172,7 @@ testinput/jedi/genint_hofx3d_regular_lonlat.yaml
 testinput/jedi/glb_3dvar.yaml
 testinput/jedi/glb_3densvar.yaml
 testinput/jedi/glb_4densvar.yaml
+testinput/jedi/glb_4densvar_parallel.yaml
 testinput/jedi/glb_background_06.yaml
 testinput/jedi/glb_background_12.yaml
 testinput/jedi/glb_background_18.yaml
@@ -196,6 +197,7 @@ testinput/jedi/glb_truth_18.yaml
 testinput/jedi/reg_3dvar.yaml
 testinput/jedi/reg_3densvar.yaml
 testinput/jedi/reg_4densvar.yaml
+testinput/jedi/reg_4densvar_parallel.yaml
 testinput/jedi/reg_background_06.yaml
 testinput/jedi/reg_background_12.yaml
 testinput/jedi/reg_background_18.yaml
@@ -338,6 +340,7 @@ testref/jedi/genint_hofx3d_lambertCC.ref
 testref/jedi/glb_3dvar.ref
 testref/jedi/glb_3densvar.ref
 testref/jedi/glb_4densvar.ref
+testref/jedi/glb_4densvar_parallel.ref
 testref/jedi/glb_getkf_nonlinear.ref
 testref/jedi/glb_letkf_linear.ref
 testref/jedi/glb_letkf_linear_4d.ref
@@ -349,6 +352,7 @@ testref/jedi/glb_letkf_read_members.ref
 testref/jedi/reg_3dvar.ref
 testref/jedi/reg_3densvar.ref
 testref/jedi/reg_4densvar.ref
+testref/jedi/reg_4densvar_parallel.ref
 testref/jedi/reg_getkf_nonlinear.ref
 testref/jedi/reg_letkf_linear.ref
 testref/jedi/reg_letkf_linear_4d.ref
@@ -412,6 +416,9 @@ if( ( NOT ECSABER ) AND ENABLE_OBS )
 endif()
 
 foreach( mpi "1" "4" )
+    # Number of tasks for the parallel 4denvar
+    math( EXPR mpi_par "${mpi}*3" )
+
     # GLOBAL and REGIONAL tests
     foreach( domain "glb" "reg" )
         create_test( ${domain}_stddev ${mpi} convertstate )
@@ -434,6 +441,8 @@ foreach( mpi "1" "4" )
             create_test( ${domain}_4densvar ${mpi} variational )
             if( ECSABER )
                 create_test( ${domain}_4denvar ${mpi} variational )
+            else()
+                create_test( ${domain}_4densvar_parallel ${mpi_par} variational )
             endif()
             if( NOT ECSABER)
                 create_test( ${domain}_getkf_nonlinear ${mpi} letkf )

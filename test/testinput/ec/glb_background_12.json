@@ -53,6 +53,7 @@
       "saber block name": "StdDev",
       "read": {
         "model file": {
+          "date": "2010-01-01T12:00:00Z",
           "filepath": "testdata/glb_stddev"
         }
       }
@@ -60,8 +61,8 @@
     "randomization size": "1"
   },
   "output states": {
-    "filepath": "testdata/glb_bkg_12",
-    "date": "2010-01-01T12:00:00Z"
+    "date": "2010-01-01T12:00:00Z",
+    "filepath": "testdata/glb_bkg_12"
   },
   "test": {
     "reference filename": "testref/glb_background_12.ref"

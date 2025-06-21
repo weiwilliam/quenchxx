@@ -4,23 +4,12 @@ cost function:
     begin: 2010-01-01T06:00:00Z
     length: PT12H
   subwindow: PT6H
-  parallel subwindows: false
   analysis variables: [air_temperature]
   geometry: &geom
     function space: StructuredColumns
     grid:
-      type: regional
-      nx: 71
-      ny: 53
-      dx: 2.5e3
-      dy: 2.5e3
-      lonlat(centre): [9.9, 56.3]
-      projection:
-        type: lambert_conformal_conic
-        latitude0: 56.3
-        longitude0: 0.0
-      y_numbering: 1
-    partitioner: checkerboard
+      type: regular_lonlat
+      N: 10
     groups:
     - variables:
        - air_temperature
@@ -32,15 +21,15 @@ cost function:
     - date: 2010-01-01T06:00:00Z
       state variables:
       - air_temperature
-      filepath: testdata/reg_bkg_06_000001
+      filepath: testdata/glb_bkg_06_000001
     - date: 2010-01-01T12:00:00Z
       state variables:
       - air_temperature
-      filepath: testdata/reg_bkg_12_000001
+      filepath: testdata/glb_bkg_12_000001
     - date: 2010-01-01T18:00:00Z
       state variables:
       - air_temperature
-      filepath: testdata/reg_bkg_18_000001
+      filepath: testdata/glb_bkg_18_000001
   background error:
     covariance model: ensemble
     localization:
@@ -59,7 +48,7 @@ cost function:
             horizontal length-scale:
             - groups:
               - air_temperature
-              value: 3.0e4
+              value: 4.0e6
             vertical length-scale:
             - groups:
               - air_temperature
@@ -70,15 +59,15 @@ cost function:
         - date: 2010-01-01T06:00:00Z
           state variables:
           - air_temperature
-          filepath: testdata/reg_ens_06_%mem%
+          filepath: testdata/glb_ens_06_%mem%
         - date: 2010-01-01T12:00:00Z
           state variables:
           - air_temperature
-          filepath: testdata/reg_ens_12_%mem%
+          filepath: testdata/glb_ens_12_%mem%
         - date: 2010-01-01T18:00:00Z
           state variables:
           - air_temperature
-          filepath: testdata/reg_ens_18_%mem%
+          filepath: testdata/glb_ens_18_%mem%
       pattern: %mem%
       zero padding: 6
       nmembers: 10
@@ -90,11 +79,11 @@ cost function:
         obsdatain:
           engine:
             type: H5File
-            obsfile: testdata/reg_obs_06.nc
+            obsfile: testdata/glb_obs_06.nc
         obsdataout:
           engine:
             type: H5File
-            obsfile: testdata/reg_obs_4densvar.nc
+            obsfile: testdata/glb_obs_4densvar_parallel.nc
       obs operator:
         name: VertInterp
         constant vertical coordinate values: *vert_coord
@@ -108,11 +97,11 @@ cost function:
         obsdatain:
           engine:
             type: H5File
-            obsfile: testdata/reg_obs_12.nc
+            obsfile: testdata/glb_obs_12.nc
         obsdataout:
           engine:
             type: H5File
-            obsfile: testdata/reg_obs_4densvar.nc
+            obsfile: testdata/glb_obs_4densvar_parallel.nc
       obs operator:
         name: VertInterp
         constant vertical coordinate values: *vert_coord
@@ -126,11 +115,11 @@ cost function:
         obsdatain:
           engine:
             type: H5File
-            obsfile: testdata/reg_obs_18.nc
+            obsfile: testdata/glb_obs_18.nc
         obsdataout:
           engine:
             type: H5File
-            obsfile: testdata/reg_obs_4densvar.nc
+            obsfile: testdata/glb_obs_4densvar_parallel.nc
       obs operator:
         name: VertInterp
         constant vertical coordinate values: *vert_coord
@@ -156,13 +145,13 @@ final:
       state component:
         states:
         - date: 2010-01-01T06:00:00Z
-          filepath: testdata/reg_4densvar_incr_06
+          filepath: testdata/glb_4densvar_parallel_incr_06
         - date: 2010-01-01T12:00:00Z
-          filepath: testdata/reg_4densvar_incr_12
+          filepath: testdata/glb_4densvar_parallel_incr_12
         - date: 2010-01-01T18:00:00Z
-          filepath: testdata/reg_4densvar_incr_18
+          filepath: testdata/glb_4densvar_parallel_incr_18
 output:
   date: 2010-01-01T06:00:00Z
-  filepath: testdata/reg_4densvar_analysis
+  filepath: testdata/glb_4densvar_parallel_analysis
 test:
-  reference filename: testref/jedi/reg_4densvar.ref
+  reference filename: testref/jedi/glb_4densvar_parallel.ref
