@@ -36,10 +36,6 @@ set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
 set( ENABLE_OMP ON CACHE BOOL "Compile with OpenMP" )
 set( ENABLE_CUDA OFF CACHE BOOL "Compile with CUDA" )
 
-# Depend path for non-ecbuild packages
-set(DEPEND_LIB_ROOT ${CMAKE_CURRENT_BINARY_DIR}/Depends)
-list(APPEND CMAKE_PREFIX_PATH ${DEPEND_LIB_ROOT})
-
 # Library path for non-ecbuild packages
 link_directories(${CMAKE_CURRENT_BINARY_DIR}/lib)
 

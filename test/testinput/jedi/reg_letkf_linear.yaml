@@ -74,22 +74,16 @@ local ensemble DA:
     mult: 1.1
   use linear observer: true
 output:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_state
 output increment:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_increment
 output ensemble increments:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_increment
 output mean prior:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_mean_prior
 output variance prior:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_var_prior
 output variance posterior:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_letkf_linear_var_posterior
 test:
   reference filename: testref/jedi/reg_letkf_linear.ref

@@ -1030,10 +1030,10 @@ void Fields::synchronizeFields() {
 void Fields::read(const eckit::Configuration & config) {
   oops::Log::trace() << classname() << "::read starting" << std::endl;
 
-  // Check date
-  util::DateTime dateTime(config.getString("date"));
-  if (dateTime != time_) {
-    return;
+  // Check date if present
+  if (config.has("date")) {
+    const util::DateTime dateTime(config.getString("date"));
+    ASSERT(dateTime == time_);
   }
 
   // Update variables names
@@ -1079,10 +1079,25 @@ void Fields::read(const eckit::Configuration & config) {
 void Fields::write(const eckit::Configuration & config) const {
   oops::Log::trace() << classname() << "::write starting" << std::endl;
 
-  // Check date
-  util::DateTime dateTime(config.getString("date"));
-  if (dateTime != time_) {
-    return;
+  // Prepare updated configuration
+  eckit::LocalConfiguration updatedConfig(config);
+
+  if (config.has("states")) {
+    for (const auto & confItem : config.getSubConfigurations("states")) {
+      // Get date
+      const util::DateTime dateTime(confItem.getString("date"));
+
+      // Copy configuration
+      if (dateTime == time_) {
+        updatedConfig = confItem;
+      }
+    }
+  } else {
+    // Check date if present
+    if (config.has("date")) {
+      const util::DateTime dateTime(config.getString("date"));
+      ASSERT(dateTime == time_);
+    }
   }
 
   // Copy fieldset
@@ -1099,14 +1114,14 @@ void Fields::write(const eckit::Configuration & config) const {
 
   // Get output formats
   const std::vector<std::string> ioFormats =
-    config.getStringVector("formats", std::vector<std::string>({"default"}));
+    updatedConfig.getStringVector("formats", std::vector<std::string>({"default"}));
 
   for (const auto & ioFormat : ioFormats) {
     // Set FieldsIO list
     std::unique_ptr<FieldsIOBase> fieldsIO(FieldsIOFactory::create(ioFormat));
 
     // Write fields
-    fieldsIO->write(*geom_, config, fset);
+    fieldsIO->write(*geom_, updatedConfig, fset);
   }
 
   oops::Log::trace() << classname() << "::write done" << std::endl;

@@ -51,6 +51,5 @@ states:
   output:
     filepath: testdata/geos_cf_N20_varcha.20210801_0000z
     netcdf extension: nc
-    date: 2010-01-01T12:00:00Z
 test:
   reference filename: testref/jedi/genint_convertstate_varcha_regular_lonlat.ref

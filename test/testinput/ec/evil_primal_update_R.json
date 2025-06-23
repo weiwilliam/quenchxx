@@ -125,7 +125,6 @@
     "solver space": "primal",
     "eigenvalues": "testdata/evil_primal_3dvar.eigenvalues.txt",
     "ritz vectors": {
-      "date": "2010-01-01T12:00:00Z",
       "mpi pattern": "%mpi%",
       "filepath": "testdata/evil_primal_3dvar.ritz.%pattern%.%iteration%_%mpi%"
     },
@@ -144,7 +143,6 @@
   "ensemble of analyses": {
     "state from template": {
       "template": {
-        "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "filepath": "testdata/evil_primal_ens_R_%member%_%mpi%"
       },
@@ -153,7 +151,6 @@
     }
   },
   "variance reduction": {
-    "date": "2010-01-01T12:00:00Z",
     "mpi pattern": "%mpi%",
     "filepath": "testdata/evil_primal_variance_R_%iteration%_%mpi%"
   },

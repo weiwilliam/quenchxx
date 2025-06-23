@@ -48,7 +48,6 @@ background error:
   - saber block name: StdDev
     read:
       model file:
-        date: 2010-01-01T18:00:00Z
         filepath: testdata/reg_stddev
   randomization size: 1
 output states:
