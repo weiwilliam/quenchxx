@@ -77,22 +77,16 @@ local ensemble DA:
     rtpp: 0.5
     mult: 1.1
 output:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_getkf_nonlinear_state
 output increment:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_getkf_nonlinear_increment
 output ensemble increments:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_getkf_nonlinear_increment
 output mean prior:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_getkf_nonlinear_mean_prior
 output variance prior:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_getkf_nonlinear_var_prior
 output variance posterior:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/reg_getkf_nonlinear_var_posterior
 test:
   float relative tolerance: 5.0e-3

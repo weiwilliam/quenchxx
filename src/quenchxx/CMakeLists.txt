@@ -167,8 +167,7 @@ if( eccodes_FOUND )
     target_link_libraries( quenchxx PUBLIC eccodes )
 endif()
 if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
-    target_link_libraries( quenchxx PUBLIC trans_dp )
-    target_link_libraries( quenchxx PUBLIC fa_dp )
+    target_link_libraries( quenchxx PUBLIC trans_dp transi_dp fa_dp )
 endif()
 
 #Configure include directory layout for build-tree to match install-tree

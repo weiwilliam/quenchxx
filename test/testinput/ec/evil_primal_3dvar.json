@@ -100,14 +100,12 @@
       "mpi pattern": "%mpi%",
       "increment": [
         {
-          "date": "2010-01-01T12:00:00Z",
           "filepath": "testdata/evil_primal_3dvar.ritz.%pattern%.%iteration%_%mpi%"
         }
       ]
     }
   },
   "output": {
-    "date": "2010-01-01T12:00:00Z",
     "filepath": "testdata/evil_primal_3dvar"
   },
   "variational": {

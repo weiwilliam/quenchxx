@@ -171,10 +171,8 @@ list( APPEND QUENCHXX_TPLS atlas atlas_f oops saber )
 
 set( QUENCHXX_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                            ${CMAKE_CURRENT_BINARY_DIR}/src
-                           ${DEPEND_LIB_ROOT}/include
-                           ${DEPEND_LIB_ROOT}/mod
-                           ${DEPEND_LIB_ROOT}/include/quenchxx
-                           ${CMAKE_Fortran_MODULE_DIRECTORY})
+                           ${CMAKE_Fortran_MODULE_DIRECTORY} )
+
 set( QUENCHXX_LIBRARIES quenchxx )
 
 get_directory_property( QUENCH_DEFINITIONS COMPILE_DEFINITIONS )

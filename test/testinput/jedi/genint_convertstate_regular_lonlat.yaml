@@ -42,6 +42,5 @@ states:
     date: 2021-08-01T00:00:00Z
   output:
     filepath: testdata/geos_cf_N20.20210801_0000z
-    date: 2021-08-01T00:00:00Z
 test:
   reference filename: testref/jedi/genint_convertstate_regular_lonlat.ref

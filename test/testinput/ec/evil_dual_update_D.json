@@ -152,7 +152,6 @@
   "ensemble of analyses": {
     "state from template": {
       "template": {
-        "date": "2010-01-01T12:00:00Z",
         "mpi pattern": "%mpi%",
         "filepath": "testdata/evil_dual_ens_D_%member%_%mpi%"
       },
@@ -161,7 +160,6 @@
     }
   },
   "variance reduction": {
-    "date": "2010-01-01T12:00:00Z",
     "mpi pattern": "%mpi%",
     "filepath": "testdata/evil_dual_variance_D_%iteration%_%mpi%"
   },

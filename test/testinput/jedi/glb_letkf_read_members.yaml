@@ -62,22 +62,16 @@ local ensemble DA:
     rtpp: 0.5
     mult: 1.1
 output:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_read_members_state
 output increment:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_read_members_increment
 output ensemble increments:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_read_members_increment
 output mean prior:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_read_members_mean_prior
 output variance prior:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_read_members_var_prior
 output variance posterior:
-  date: 2010-01-01T12:00:00Z
   filepath: testdata/glb_letkf_read_members_var_posterior
 test:
   reference filename: testref/jedi/glb_letkf_read_members.ref

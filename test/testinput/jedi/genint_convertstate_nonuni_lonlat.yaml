@@ -44,6 +44,5 @@ states:
     date: 2021-08-01T00:00:00Z
   output:
     filepath: testdata/camchem_N10
-    date: 2021-08-01T00:00:00Z
 test:
   reference filename: testref/jedi/genint_convertstate_nonuni_lonlat.ref

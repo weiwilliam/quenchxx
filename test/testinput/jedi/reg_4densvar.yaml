@@ -94,7 +94,7 @@ cost function:
         obsdataout:
           engine:
             type: H5File
-            obsfile: testdata/reg_obs_4densvar.nc
+            obsfile: testdata/reg_obs_4densvar_06.nc
       obs operator:
         name: VertInterp
         constant vertical coordinate values: *vert_coord
@@ -112,7 +112,7 @@ cost function:
         obsdataout:
           engine:
             type: H5File
-            obsfile: testdata/reg_obs_4densvar.nc
+            obsfile: testdata/reg_obs_4densvar_12.nc
       obs operator:
         name: VertInterp
         constant vertical coordinate values: *vert_coord
@@ -130,7 +130,7 @@ cost function:
         obsdataout:
           engine:
             type: H5File
-            obsfile: testdata/reg_obs_4densvar.nc
+            obsfile: testdata/reg_obs_4densvar_18.nc
       obs operator:
         name: VertInterp
         constant vertical coordinate values: *vert_coord
@@ -162,7 +162,12 @@ final:
         - date: 2010-01-01T18:00:00Z
           filepath: testdata/reg_4densvar_incr_18
 output:
-  date: 2010-01-01T06:00:00Z
-  filepath: testdata/reg_4densvar_analysis
+  states:
+  - date: 2010-01-01T06:00:00Z
+    filepath: testdata/reg_4densvar_analysis_06
+  - date: 2010-01-01T12:00:00Z
+    filepath: testdata/reg_4densvar_analysis_12
+  - date: 2010-01-01T18:00:00Z
+    filepath: testdata/reg_4densvar_analysis_18
 test:
   reference filename: testref/jedi/reg_4densvar.ref

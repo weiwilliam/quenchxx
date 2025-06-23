@@ -58,7 +58,6 @@
       "saber block name": "StdDev",
       "read": {
         "model file": {
-          "date": "2010-01-01T12:00:00Z",
           "filepath": "testdata/bgos_stddev"
         }
       }
