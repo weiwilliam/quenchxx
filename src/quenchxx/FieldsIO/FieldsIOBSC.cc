@@ -418,6 +418,9 @@ void FieldsIOBSC::write(const Geometry & geom,
       strcpy(str_att, "layer id");
       if ((retval = nc_put_att_text(ncid, vLm_id, "long_name", strlen(str_att), &str_att[0])))
         ERR(retval, "Attr: lm long_name");
+      strcpy(str_att, "down");
+      if ((retval = nc_put_att_text(ncid, vLm_id, "positive", strlen(str_att), &str_att[0])))
+        ERR(retval, "Attr: lm positive");
       // Rotated pole
       if ((retval = nc_def_var(ncid, "rotated_pole", NC_CHAR, 0, dLm_id, &vrp_id))) ERR(retval,
        "rotated_pole");
