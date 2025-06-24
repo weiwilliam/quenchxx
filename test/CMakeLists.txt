@@ -406,10 +406,10 @@ endif()
 
 if( ( NOT ECSABER ) AND ENABLE_OBS )
     # MONARCH BSC tests
-    #create_test( monarch_state 8 state )
+    create_test( monarch_state 8 state )
     create_test( monarch_convertstate 8 convertstate )
     create_test( monarch_convertstate_levsel 8 convertstate )
-    #create_test( monarch_increment 8 increment )
+    create_test( monarch_increment 8 increment )
     create_test( monarch_ens_mean_variance 8 ens_mean_variance )
     create_test( monarch_dirac_no_loc_3d 8 error_covariance_toolbox )
     create_test( monarch_dirac_no_loc_4d 12 error_covariance_toolbox )
