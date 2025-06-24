@@ -253,18 +253,39 @@ void FieldsIOBSC::write(const Geometry & geom,
   // Get levels selection (from geometry section)
   const bool hasLevelsSelection = geom.io().has("levels selection");
 
-  // Get file initial time
-  const util::DateTime initialTime(geom.io().getString("initial date"));
+  // Get write time
+  const util::DateTime validTime(conf.getString("date"));
 
-  // Get file final time
-  const util::DateTime finalTime(geom.io().getString("final date"));
+  // Get timeseries mode
+  const bool singleDate = conf.getBool("single date", false);
+
+  // Get file initial and final time
+  util::DateTime initialTime;
+  util::DateTime finalTime;
+  size_t timeOffset;
+  
+  if (!singleDate) {
+  
+    // Get file initial time
+    initialTime = util::DateTime(geom.io().getString("initial date"));
+    
+    // Get file final time
+    finalTime = util::DateTime(geom.io().getString("final date"));
+
+    // Reference for time coordinate
+    timeOffset = 0;
+
+  } else {
+
+    initialTime = validTime;
+    finalTime = validTime;
+    timeOffset = (initialTime- util::DateTime(geom.io().getString("initial date"))).toSeconds()/3600;
+
+  }
 
   // Get total number of hours
   ASSERT(finalTime >= initialTime);
   const size_t timeMax = (finalTime-initialTime).toSeconds()/3600+1;
-
-  // Get write time
-  const util::DateTime validTime(conf.getString("date"));
 
   // Difference in hours
   ASSERT(validTime >= initialTime);
@@ -620,7 +641,7 @@ void FieldsIOBSC::write(const Geometry & geom,
       // Create time
       std::vector<int> zTime(timeMax);
       for (size_t jTime = 0; jTime < timeMax; ++jTime) {
-        zTime[jTime] = jTime;
+        zTime[jTime] = jTime + timeOffset;
       }
 
       // Write coordinates

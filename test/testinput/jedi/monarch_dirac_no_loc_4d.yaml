@@ -26,6 +26,7 @@ _memo:
     date: 2022-07-01T00:00:00Z
     filepath: testdata/monarch_D4reg_20220701.nc
     formats: [bsc]
+    single date: false
 
 geometry:
   function space: StructuredColumns
