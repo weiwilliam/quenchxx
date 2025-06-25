@@ -1,0 +1,74 @@
+Input Dirac increment:
+- Valid time: 2022-07-01T00:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 0.0000000000000000e+00
+    carbon_monoxyde: 0.0000000000000000e+00
+    pm10: 0.0000000000000000e+00
+- Valid time: 2022-07-01T01:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 0.0000000000000000e+00
+    carbon_monoxyde: 0.0000000000000000e+00
+    pm10: 0.0000000000000000e+00
+- Valid time: 2022-07-01T02:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 0.0000000000000000e+00
+    carbon_monoxyde: 0.0000000000000000e+00
+    pm10: 0.0000000000000000e+00
+- Valid time: 2022-07-01T03:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 0.0000000000000000e+00
+    carbon_monoxyde: 0.0000000000000000e+00
+    pm10: 0.0000000000000000e+00
+- Valid time: 2022-07-01T04:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 0.0000000000000000e+00
+    carbon_monoxyde: 1.0000000000000000e+00
+    pm10: 0.0000000000000000e+00
+- Valid time: 2022-07-01T05:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 0.0000000000000000e+00
+    carbon_monoxyde: 0.0000000000000000e+00
+    pm10: 0.0000000000000000e+00
+Covariance(ensemble) * Increment:
+- Valid time: 2022-07-01T00:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 5.4153962617201708e-04
+    carbon_monoxyde: 1.0535931511955398e-03
+    pm10: 1.4550591457263634e-08
+- Valid time: 2022-07-01T01:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 5.3364101867915800e-04
+    carbon_monoxyde: 1.0605415962430338e-03
+    pm10: 1.4118687629095418e-08
+- Valid time: 2022-07-01T02:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 5.2688210789227324e-04
+    carbon_monoxyde: 1.0811143391547449e-03
+    pm10: 1.3735862660547004e-08
+- Valid time: 2022-07-01T03:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 5.2037013752374828e-04
+    carbon_monoxyde: 1.1336391937975363e-03
+    pm10: 1.3413224539228746e-08
+- Valid time: 2022-07-01T04:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 5.1402305706878563e-04
+    carbon_monoxyde: 1.2268337756747697e-03
+    pm10: 1.3253780937141288e-08
+- Valid time: 2022-07-01T05:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 5.1098907082571204e-04
+    carbon_monoxyde: 1.2328295912620245e-03
+    pm10: 1.3255235884661159e-08

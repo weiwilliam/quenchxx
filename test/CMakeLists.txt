@@ -229,6 +229,8 @@ testinput/jedi/monarch_increment.yaml
 testinput/jedi/monarch_ens_mean_variance.yaml
 testinput/jedi/monarch_dirac_no_loc_3d.yaml
 testinput/jedi/monarch_dirac_no_loc_4d.yaml
+testinput/jedi/monarch_dirac_3d.yaml
+testinput/jedi/monarch_dirac_4d.yaml
 )
 
 # Test output references
@@ -371,6 +373,8 @@ testref/jedi/monarch_increment.ref
 testref/jedi/monarch_ens_mean_variance.ref
 testref/jedi/monarch_dirac_no_loc_3d.ref
 testref/jedi/monarch_dirac_no_loc_4d.ref
+testref/jedi/monarch_dirac_3d.ref
+testref/jedi/monarch_dirac_4d.ref
 )
 
 # Link input configurations and output references
@@ -413,6 +417,8 @@ if( ( NOT ECSABER ) AND ENABLE_OBS )
     create_test( monarch_ens_mean_variance 8 ens_mean_variance )
     create_test( monarch_dirac_no_loc_3d 8 error_covariance_toolbox )
     create_test( monarch_dirac_no_loc_4d 12 error_covariance_toolbox )
+    create_test( monarch_dirac_3d 8 error_covariance_toolbox )
+    create_test( monarch_dirac_4d 12 error_covariance_toolbox )
 endif()
 
 foreach( mpi "1" "4" )

@@ -152,9 +152,10 @@ void FieldsIOBSC::read(const Geometry & geom,
 
         // Deserialize data to view
         for (atlas::idx_t j = 0; j < ny; ++j) {
-          for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
-            atlas::gidx_t gidx = grid.index(i, ny-1-j);
-            varView(gidx, 0) = zvar[j*nx+i];
+          const atlas::idx_t jj = ny-1-j;
+          for (atlas::idx_t i = 0; i < grid.nx(jj); ++i) {
+            atlas::gidx_t gidx = grid.index(i, jj);
+            varView(gidx, 0) = zvar[jj*nx+i];
           }
         }
       } else {
@@ -181,12 +182,12 @@ void FieldsIOBSC::read(const Geometry & geom,
                                              zvar.data()))) ERR(retval, vars[jvar].name());
             }
 
-
             // Deserialize data to view
             for (atlas::idx_t j = 0; j < ny; ++j) {
-              for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
-                atlas::gidx_t gidx = grid.index(i, ny-1-j);
-                varView(gidx, k) = zvar[j*nx+i];
+              const atlas::idx_t jj = ny-1-j;
+              for (atlas::idx_t i = 0; i < grid.nx(jj); ++i) {
+                atlas::gidx_t gidx = grid.index(i, jj);
+                varView(gidx, k) = zvar[jj*nx+i];
               }
             }
           }
@@ -201,9 +202,10 @@ void FieldsIOBSC::read(const Geometry & geom,
 
             // Deserialize data to view
             for (atlas::idx_t j = 0; j < ny; ++j) {
-              for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
-                atlas::gidx_t gidx = grid.index(i, ny-1-j);
-                varView(gidx, k) = zvar[j*nx+i];
+              const atlas::idx_t jj = ny-1-j;
+              for (atlas::idx_t i = 0; i < grid.nx(jj); ++i) {
+                atlas::gidx_t gidx = grid.index(i, jj);
+                varView(gidx, k) = zvar[jj*nx+i];
               }
             }
           }
@@ -607,10 +609,11 @@ void FieldsIOBSC::write(const Geometry & geom,
       std::vector<float> zlon(ny*nx);
       std::vector<float> zlat(ny*nx);
       for (atlas::idx_t j = 0; j < ny; ++j) {
-        for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
-          atlas::gidx_t gidx = grid.index(i, ny-1-j);
-          zlon[j*nx + i] = lonViewGlobal(gidx);
-          zlat[j*nx + i] = latViewGlobal(gidx);
+        const atlas::idx_t jj = ny-1-j;
+        for (atlas::idx_t i = 0; i < grid.nx(jj); ++i) {
+          atlas::gidx_t gidx = grid.index(i, jj);
+          zlon[jj*nx+i] = lonViewGlobal(gidx);
+          zlat[jj*nx+i] = latViewGlobal(gidx);
         }
       }
 
@@ -664,9 +667,10 @@ void FieldsIOBSC::write(const Geometry & geom,
         // Copy data
         std::vector<float> zvar(ny*nx);
         for (atlas::idx_t j = 0; j < ny; ++j) {
-          for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
-            atlas::gidx_t gidx = grid.index(i, ny-1-j);
-            zvar[j*nx + i] = varView(gidx, 0);
+          const atlas::idx_t jj = ny-1-j;
+          for (atlas::idx_t i = 0; i < grid.nx(jj); ++i) {
+            atlas::gidx_t gidx = grid.index(i, jj);
+            zvar[jj*nx+i] = varView(gidx, 0);
           }
         }
 
@@ -680,9 +684,10 @@ void FieldsIOBSC::write(const Geometry & geom,
           // Copy data
           std::vector<float> zvar(ny*nx);
           for (atlas::idx_t j = 0; j < ny; ++j) {
-            for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
-              atlas::gidx_t gidx = grid.index(i, ny-1-j);
-              zvar[j*nx + i] = varView(gidx, k);
+            const atlas::idx_t jj = ny-1-j;
+            for (atlas::idx_t i = 0; i < grid.nx(jj); ++i) {
+              atlas::gidx_t gidx = grid.index(i, jj);
+              zvar[jj*nx+i] = varView(gidx, k);
             }
           }
 
