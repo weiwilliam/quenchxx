@@ -82,7 +82,7 @@ background error:
       state variables: *chemvars
     pattern: %mem%
     zero padding: 3
-    nmembers: 5
+    nmembers: 6
 
 # Identity block (for projection testing)    
 #background error:
