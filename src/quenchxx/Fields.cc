@@ -1184,6 +1184,7 @@ size_t Fields::serialSize() const {
       nn += field.shape(0)*field.shape(1);
     }
   }
+  nn += time_.serialSize();
 
   oops::Log::trace() << classname() << "::serialSize done" << std::endl;
   return nn;
@@ -1205,6 +1206,7 @@ void Fields::serialize(std::vector<double> & vect)  const {
       }
     }
   }
+  time_.serialize(vect);
 
   oops::Log::trace() << classname() << "::serialize done" << std::endl;
 }
@@ -1227,6 +1229,7 @@ void Fields::deserialize(const std::vector<double> & vect,
       }
     }
   }
+  time_.deserialize(vect, index);
 
   oops::Log::trace() << classname() << "::deserialize done" << std::endl;
 }
