@@ -9,6 +9,6 @@ Covariance(ensemble) * Increment:
 - Valid time: 2022-07-01T12:00:00Z
   Geometry: structured [95121]
   Fields:
-    ozone: 8.1319893519726978e-04
-    carbon_monoxyde: 8.3290334920270632e-04
-    pm10: 1.5982389675644534e-08
+    ozone: 6.5665297973576211e-04
+    carbon_monoxyde: 6.8895735274539119e-04
+    pm10: 1.4106149865535889e-08

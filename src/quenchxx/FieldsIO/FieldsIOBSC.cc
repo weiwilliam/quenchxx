@@ -481,7 +481,7 @@ void FieldsIOBSC::write(const Geometry & geom,
       strcpy(str_att, "longitude");
       if ((retval = nc_put_att_text(ncid, lon_id, "long_name", strlen(str_att), &str_att[0])))
         ERR(retval, "Attr: lon long_name");
-      strcpy(str_att, "degrees_north");
+      strcpy(str_att, "degrees_east");
       if ((retval = nc_put_att_text(ncid, lon_id, "units", strlen(str_att), &str_att[0])))
         ERR(retval, "Attr: lon units");
       strcpy(str_att, "longitude");
@@ -501,7 +501,7 @@ void FieldsIOBSC::write(const Geometry & geom,
       strcpy(str_att, "latitude");
       if ((retval = nc_put_att_text(ncid, lat_id, "long_name", strlen(str_att), &str_att[0])))
         ERR(retval, "Attr: lat long_name");
-      strcpy(str_att, "degrees_east");
+      strcpy(str_att, "degrees_north");
       if ((retval = nc_put_att_text(ncid, lat_id, "units", strlen(str_att), &str_att[0])))
         ERR(retval, "Attr: lat units");
       strcpy(str_att, "latitude");

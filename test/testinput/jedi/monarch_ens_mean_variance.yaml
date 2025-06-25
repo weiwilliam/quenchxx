@@ -81,7 +81,7 @@ ensemble:
       state variables: *chemvars
     pattern: %mem%
     zero padding: 3
-    nmembers: 5
+    nmembers: 6
 
 variance output:
   filepath: testdata/monarch_variance.nc
