@@ -171,15 +171,16 @@ void FieldsIOBSC::read(const Geometry & geom,
             std::vector<double> zvar(nx*ny);
             const std::vector<size_t> countp({1, 1, ny, nx});
             if (vars[jvar].name() == "interface_pressure") {
-              const std::vector<size_t> plevels = geom.io().getUnsignedVector("pressure levels selection");
+              const std::vector<size_t> plevels =
+                geom.io().getUnsignedVector("pressure levels selection");
               const std::vector<size_t>startp({time, plevels[k]-1, 0, 0});
-              if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
-                                             zvar.data()))) ERR(retval, vars[jvar].name());
+              if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(),
+                NULL, zvar.data()))) ERR(retval, vars[jvar].name());
             } else {
               const std::vector<size_t> levels = geom.io().getUnsignedVector("levels selection");
               const std::vector<size_t>startp({time, levels[k]-1, 0, 0});
-              if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
-                                             zvar.data()))) ERR(retval, vars[jvar].name());
+              if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(),
+                NULL, zvar.data()))) ERR(retval, vars[jvar].name());
             }
 
             // Deserialize data to view
@@ -198,7 +199,7 @@ void FieldsIOBSC::read(const Geometry & geom,
             const std::vector<size_t> startp({time, k, 0, 0});
             const std::vector<size_t> countp({1, 1, ny, nx});
             if ((retval = nc_get_vars_double(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
-                                             zvar.data()))) ERR(retval, vars[jvar].name());
+              zvar.data()))) ERR(retval, vars[jvar].name());
 
             // Deserialize data to view
             for (atlas::idx_t j = 0; j < ny; ++j) {
@@ -265,24 +266,26 @@ void FieldsIOBSC::write(const Geometry & geom,
   util::DateTime initialTime;
   util::DateTime finalTime;
   size_t timeOffset;
-  
+
   if (!singleDate) {
-  
     // Get file initial time
     initialTime = util::DateTime(geom.io().getString("initial date"));
-    
+
     // Get file final time
     finalTime = util::DateTime(geom.io().getString("final date"));
 
     // Reference for time coordinate
     timeOffset = 0;
-
   } else {
-
+    // Set initial time
     initialTime = validTime;
-    finalTime = validTime;
-    timeOffset = (initialTime- util::DateTime(geom.io().getString("initial date"))).toSeconds()/3600;
 
+    // Set final time
+    finalTime = validTime;
+
+    // Reference for time coordinate
+    timeOffset = (initialTime- util::DateTime(geom.io().getString("initial date"))).toSeconds()
+      /3600;
   }
 
   // Get total number of hours
@@ -560,10 +563,10 @@ void FieldsIOBSC::write(const Geometry & geom,
       // Check whether this variable exists
       if (nc_inq_varid(ncid, vars[jvar].c_str(), &var_id[jvar]) != NC_NOERR) {
         // Define variable
-        if (fset[vars[jvar]].shape(1)>1) {
+        if (fset[vars[jvar]].shape(1) > 1) {
           if (vars[jvar] == "interface_pressure") {
-            if ((retval = nc_def_var(ncid, vars[jvar].c_str(), NC_FLOAT, 4, d4Dp_id, &var_id[jvar])))
-              ERR(retval, vars[jvar]);
+            if ((retval = nc_def_var(ncid, vars[jvar].c_str(), NC_FLOAT, 4, d4Dp_id,
+              &var_id[jvar]))) ERR(retval, vars[jvar]);
           } else {
             if ((retval = nc_def_var(ncid, vars[jvar].c_str(), NC_FLOAT, 4, d4D_id, &var_id[jvar])))
               ERR(retval, vars[jvar]);
@@ -695,20 +698,21 @@ void FieldsIOBSC::write(const Geometry & geom,
           const std::vector<size_t> countp({1, 1, ny, nx});
           if (hasLevelsSelection) {
             if (vars[jvar] == "interface_pressure") {
-              const std::vector<size_t> plevels = geom.io().getUnsignedVector("pressure levels selection");
+              const std::vector<size_t> plevels =
+                geom.io().getUnsignedVector("pressure levels selection");
               const std::vector<size_t> startp({time, plevels[k]-1, 0, 0});
-              if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
-                                              zvar.data()))) ERR(retval, vars[jvar]);
+              if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(),
+                NULL, zvar.data()))) ERR(retval, vars[jvar]);
             } else {
               const std::vector<size_t> levels = geom.io().getUnsignedVector("levels selection");
               const std::vector<size_t> startp({time, levels[k]-1, 0, 0});
-              if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
-                                              zvar.data()))) ERR(retval, vars[jvar]);
+              if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(),
+                NULL, zvar.data()))) ERR(retval, vars[jvar]);
             }
           } else {
             const std::vector<size_t> startp({time, size_t(k), 0, 0});
-            if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(), NULL,
-                                            zvar.data()))) ERR(retval, vars[jvar]);
+            if ((retval = nc_put_vars_float(ncid, var_id[jvar], startp.data(), countp.data(),
+              NULL, zvar.data()))) ERR(retval, vars[jvar]);
           }
         }
       }

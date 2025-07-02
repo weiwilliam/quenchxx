@@ -126,42 +126,42 @@ endif()
 # oops
 if( ECSABER )
     find_package( oops REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" )
     find_package( oops_patch REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "oops_patch" )
 else()
     find_package( oops 1.10.0 REQUIRED )
-endif()
-
-# saber
-find_package( saber 1.10.0 REQUIRED )
-
-if( ( NOT ECSABER ) AND ENABLE_OBS )
-    # crtm
-    find_package( crtm 2.2.3 REQUIRED )
-
-    # ufo
-    find_package( ufo 1.10.0 REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" )
 endif()
 
 # vader
 find_package( vader 1.7.0 REQUIRED )
+list( APPEND QUENCHXX_PUBLIC_LIBS "vader" )
 
-# OpenMP
-if(OPENMP)
-  find_package( OpenMP COMPONENTS Fortran )
+# saber
+if( ENABLE_SABER )
+    find_package( saber 1.10.0 REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "saber" )
+endif()
+
+if( ( NOT ECSABER ) AND ENABLE_CRTM )
+    # crtm
+    find_package( crtm 2.2.3 REQUIRED )
+endif()
+
+if( ( NOT ECSABER ) AND ENABLE_OBS )
+    # ufo
+    find_package( ufo 1.10.0 REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "ufo" )
+endif()
+
+if( OPENMP )
+    # OpenMP
+    find_package( OpenMP COMPONENTS CXX Fortran )
 endif()
 
 # MPI
 ecbuild_find_mpi( COMPONENTS CXX Fortran REQUIRED )
-
-# QUENCHXX required public libraries
-if( ECSABER )
-    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "oops_patch" "saber" "vader" )
-else()
-    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "saber" "vader" )
-    if( ENABLE_OBS )
-        list( APPEND QUENCHXX_PUBLIC_LIBS "ufo" )
-    endif()
-endif()
 
 ################################################################################
 # Export package info
@@ -189,7 +189,10 @@ endforeach()
 ################################################################################
 
 if( ECSABER )
-    add_definitions(-DECSABER)
+    add_definitions( -DECSABER )
+endif()
+if( ENABLE_SABER )
+    add_definitions( -DENABLE_SABER )
 endif()
 
 add_subdirectory( tools )

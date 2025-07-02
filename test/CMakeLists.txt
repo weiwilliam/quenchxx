@@ -29,34 +29,41 @@ macro( create_test name mpi exec )
     endif()
 endmacro()
 
-# Test data
-# ---------
-list( APPEND quenchxx_data
-testdata/geos_cf_N10_subset.20210801_0000z.nc
-testdata/camchem_N30x20_subset.nc
-testdata/wrfout_d01_subset_20230519_000000.nc
-testdata/tropomi_no2_tropo_2020090318_m.nc4
-testdata/tropomi_no2_tropo_2020090318_m_singleobs.nc4
-)
-
-list( APPEND monarch_data
-testdata/000
-testdata/001
-testdata/002
-testdata/003
-testdata/004
-testdata/005
-testdata/006
-)
-
 # Create the testdata directory
 # -----------------------------
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testdata )
 
 # Link test data
 # --------------
-link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${quenchxx_data} )
-link_files( $ENV{MONARCH_DATA_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${monarch_data} )
+if( ENABLE_GENINT_TESTS )
+    list( APPEND genint_data
+
+    testdata/geos_cf_N10_subset.20210801_0000z.nc
+    testdata/camchem_N30x20_subset.nc
+    testdata/wrfout_d01_subset_20230519_000000.nc
+    testdata/tropomi_no2_tropo_2020090318_m.nc4
+    testdata/tropomi_no2_tropo_2020090318_m_singleobs.nc4
+
+    )
+
+    link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${genint_data} )
+endif()
+
+if( ENABLE_MONARCH_TESTS )
+    list( APPEND monarch_data
+
+    testdata/000
+    testdata/001
+    testdata/002
+    testdata/003
+    testdata/004
+    testdata/005
+    testdata/006
+
+    )
+
+    link_files( $ENV{MONARCH_DATA_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${monarch_data} )
+endif()
 
 # Create the input/output directories
 # -----------------------------------
@@ -386,55 +393,68 @@ link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${quenchxx_t
 link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${monarch_testinput} )
 link_files( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${monarch_testref} )
 
-# Interface tests
-# ---------------
+# Tests parameters
+# ----------------
 
-if( ( NOT ECSABER ) AND ENABLE_OBS )
-    # GENINT
+if( ENABLE_GLB_TESTS )
+    list( APPEND domain_list "glb" )
+endif()
+if( ENABLE_REG_TESTS )
+    list( APPEND domain_list "reg" )
+endif()
+list( APPEND mpi_list "1" "4" )
+list( APPEND hh_list "06" "12" "18" )
+
+# Tests
+# -----
+
+if( ( NOT ECSABER ) AND ENABLE_GENINT_TESTS )
+    # GENINT tests
     create_test( genint_geometry_regular_lonlat 6 geometry )
     create_test( genint_geometry_lambertCC 6 geometry )
-    create_test( monarch_geometry_rotated 8 geometry )
-endif()
-
-# Integration tests
-# -----------------
-
-if( ( NOT ECSABER ) AND ENABLE_OBS )
-    # GENINT tests
     create_test( genint_convertstate_regular_lonlat 6 convertstate )
     create_test( genint_convertstate_nonuni_lonlat 6 convertstate )
     create_test( genint_convertstate_varcha_regular_lonlat 6 convertstate )
     create_test( genint_convertstate_varcha_nonuni_lonlat 6 convertstate )
-    create_test( genint_hofx3d_regular_lonlat 6 hofx3d )
-    create_test( genint_hofx3d_nonuni_lonlat 6 hofx3d )
-    create_test( genint_hofx3d_lambertCC 6 hofx3d )
+
+    if( ENABLE_OBS )
+        create_test( genint_hofx3d_regular_lonlat 6 hofx3d )
+        create_test( genint_hofx3d_nonuni_lonlat 6 hofx3d )
+        create_test( genint_hofx3d_lambertCC 6 hofx3d )
+    endif()
 endif()
 
-if( ( NOT ECSABER ) AND ENABLE_OBS )
+if( ( NOT ECSABER ) AND ENABLE_MONARCH_TESTS )
     # MONARCH BSC tests
+    create_test( monarch_geometry_rotated 8 geometry )
     create_test( monarch_state 8 state )
     create_test( monarch_convertstate 8 convertstate )
     create_test( monarch_convertstate_levsel 8 convertstate )
     create_test( monarch_increment 8 increment )
     create_test( monarch_ens_mean_variance 8 ens_mean_variance )
-    create_test( monarch_dirac_no_loc_3d 8 error_covariance_toolbox )
-    create_test( monarch_dirac_no_loc_4d_id 12 error_covariance_toolbox )
-    create_test( monarch_dirac_no_loc_4d 12 error_covariance_toolbox )
-    create_test( monarch_dirac_3d 8 error_covariance_toolbox )
-    create_test( monarch_dirac_4d 12 error_covariance_toolbox )
+
+    if( ENABLE_SABER )
+        create_test( monarch_dirac_no_loc_3d 8 error_covariance_toolbox )
+        create_test( monarch_dirac_no_loc_4d_id 12 error_covariance_toolbox )
+        create_test( monarch_dirac_no_loc_4d 12 error_covariance_toolbox )
+        create_test( monarch_dirac_3d 8 error_covariance_toolbox )
+        create_test( monarch_dirac_4d 12 error_covariance_toolbox )
+    endif()
 endif()
 
-foreach( mpi "1" "4" )
-    # Number of tasks for the parallel 4denvar
-    math( EXPR mpi_par "${mpi}*3" )
-
+foreach( mpi ${mpi_list} )
     # GLOBAL and REGIONAL tests
-    foreach( domain "glb" "reg" )
+    foreach( domain ${domain_list} )
         create_test( ${domain}_stddev ${mpi} convertstate )
-        foreach( hh "06" "12" "18" )
+
+        foreach( hh ${hh_list} )
             create_test( ${domain}_truth_${hh} ${mpi} convertstate )
-            create_test( ${domain}_background_${hh} ${mpi} error_covariance_toolbox )
-            create_test( ${domain}_ensemble_${hh} ${mpi} error_covariance_toolbox )
+
+            if( ENABLE_SABER )
+                create_test( ${domain}_background_${hh} ${mpi} error_covariance_toolbox )
+                create_test( ${domain}_ensemble_${hh} ${mpi} error_covariance_toolbox )
+            endif()
+
             if( ENABLE_OBS )
                 if( ECSABER )
                     create_test( ${domain}_makeobs_${hh} ${mpi} makeobs_patched )
@@ -444,16 +464,16 @@ foreach( mpi "1" "4" )
             endif()
         endforeach()
 
-        if( ENABLE_OBS )
+        if( ENABLE_SABER AND ENABLE_OBS )
             create_test( ${domain}_3dvar ${mpi} variational )
             create_test( ${domain}_3densvar ${mpi} variational )
             create_test( ${domain}_4densvar ${mpi} variational )
+
             if( ECSABER )
                 create_test( ${domain}_4denvar ${mpi} variational )
             else()
+                math( EXPR mpi_par "${mpi}*3" )
                 create_test( ${domain}_4densvar_parallel ${mpi_par} variational )
-            endif()
-            if( NOT ECSABER)
                 create_test( ${domain}_getkf_nonlinear ${mpi} letkf )
                 create_test( ${domain}_letkf_linear ${mpi} letkf )
                 create_test( ${domain}_letkf_linear_4d ${mpi} letkf )
@@ -464,43 +484,73 @@ foreach( mpi "1" "4" )
         endif()
     endforeach()
 
-    if( ECSABER AND ENABLE_OBS )
-        # BGOS tests
-        create_test( bgos_truth ${mpi} convertstate )
-        create_test( bgos_stddev ${mpi} convertstate )
-        create_test( bgos_background ${mpi} error_covariance_toolbox )
-        create_test( bgos_ensemble ${mpi} error_covariance_toolbox )
-        create_test( bgos_makeobs ${mpi} makeobs_patched )
-        create_test( bgos_linear_ensemble ${mpi} bgos )
-        create_test( bgos_linear_randomized ${mpi} bgos )
-        create_test( bgos_nonlinear_ensemble ${mpi} bgos )
-        create_test( bgos_nonlinear_randomized ${mpi} bgos )
+    if( ECSABER )
+        if( ENABLE_BGOS_TESTS )
+            # BGOS tests
+            create_test( bgos_truth ${mpi} convertstate )
+            create_test( bgos_stddev ${mpi} convertstate )
 
-        # EVIL tests
-        create_test( evil_truth ${mpi} convertstate )
-        create_test( evil_stddev ${mpi} convertstate )
-        create_test( evil_background ${mpi} error_covariance_toolbox )
-        create_test( evil_ensemble ${mpi} error_covariance_toolbox )
-        create_test( evil_makeobs ${mpi} makeobs_patched )
-        create_test( evil_control_3dvar ${mpi} variational )
-        create_test( evil_control_update_D ${mpi} evil_update )
-        create_test( evil_control_update_R ${mpi} evil_update )
-        create_test( evil_control_update_S ${mpi} evil_update )
-        create_test( evil_dual_3dvar ${mpi} variational )
-        create_test( evil_dual_update_D ${mpi} evil_update )
-        create_test( evil_dual_update_R ${mpi} evil_update )
-        create_test( evil_dual_update_S ${mpi} evil_update )
-        create_test( evil_primal_3dvar ${mpi} variational )
-        create_test( evil_primal_update_D ${mpi} evil_update )
-        create_test( evil_primal_update_R ${mpi} evil_update )
-        create_test( evil_primal_update_S ${mpi} evil_update )
-        create_test( evil_assim_ensemble ${mpi} assim_ensemble_patched )
-        create_test( evil_ensemble_variance ${mpi} ensemble_variance )
+            if( ENABLE_SABER )
+                create_test( bgos_background ${mpi} error_covariance_toolbox )
+                create_test( bgos_ensemble ${mpi} error_covariance_toolbox )
+            endif()
 
-        # SYNTHETIC DATA tests
-        create_test( synthetic_data_truth ${mpi} convertstate )
-        create_test( synthetic_data_stddev ${mpi} convertstate )
-        create_test( synthetic_data_makeobs ${mpi} makeobs_patched )
-        create_test( synthetic_data_generate ${mpi} synthetic_data )
+            if( ENABLE_OBS )
+                create_test( bgos_makeobs ${mpi} makeobs_patched )
+            endif()
+
+            if( ENABLE_SABER AND ENABLE_OBS )
+                create_test( bgos_linear_ensemble ${mpi} bgos )
+                create_test( bgos_linear_randomized ${mpi} bgos )
+                create_test( bgos_nonlinear_ensemble ${mpi} bgos )
+                create_test( bgos_nonlinear_randomized ${mpi} bgos )
+            endif()
+        endif()
+
+        if( ENABLE_EVIL_TESTS )
+            # EVIL tests
+            create_test( evil_truth ${mpi} convertstate )
+            create_test( evil_stddev ${mpi} convertstate )
+
+            if( ENABLE_SABER )
+                create_test( evil_background ${mpi} error_covariance_toolbox )
+                create_test( evil_ensemble ${mpi} error_covariance_toolbox )
+            endif()
+
+            if( ENABLE_OBS )
+                create_test( evil_makeobs ${mpi} makeobs_patched )
+            endif()
+
+            if( ENABLE_SABER AND ENABLE_OBS )
+                create_test( evil_control_3dvar ${mpi} variational )
+                create_test( evil_control_update_D ${mpi} evil_update )
+                create_test( evil_control_update_R ${mpi} evil_update )
+                create_test( evil_control_update_S ${mpi} evil_update )
+                create_test( evil_dual_3dvar ${mpi} variational )
+                create_test( evil_dual_update_D ${mpi} evil_update )
+                create_test( evil_dual_update_R ${mpi} evil_update )
+                create_test( evil_dual_update_S ${mpi} evil_update )
+                create_test( evil_primal_3dvar ${mpi} variational )
+                create_test( evil_primal_update_D ${mpi} evil_update )
+                create_test( evil_primal_update_R ${mpi} evil_update )
+                create_test( evil_primal_update_S ${mpi} evil_update )
+                create_test( evil_assim_ensemble ${mpi} assim_ensemble_patched )
+                create_test( evil_ensemble_variance ${mpi} ensemble_variance )
+            endif()
+        endif()
+
+        if( ENABLE_SYNTHETIC_DATA_TESTS )
+            # SYNTHETIC DATA tests
+            create_test( synthetic_data_truth ${mpi} convertstate )
+            create_test( synthetic_data_stddev ${mpi} convertstate )
+
+            if( ENABLE_OBS )
+                create_test( synthetic_data_makeobs ${mpi} makeobs_patched )
+            endif()
+
+            if( ENABLE_SABER AND ENABLE_OBS )
+                create_test( synthetic_data_generate ${mpi} synthetic_data )
+            endif()
+        endif()
     endif()
 endforeach()

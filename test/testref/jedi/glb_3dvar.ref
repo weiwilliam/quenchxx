@@ -1,6 +1,6 @@
+CostJo   : Nonlinear Jo(air_temperature) = 2.7771223054791207e+01, nobs = 30, Jo/n = 9.2570743515970688e-01, err = 1.0000000149011612e-01
 Norm of input parameter StdDev: 4.0987803063838184e+00
 CostJb   : Nonlinear Jb = 0.0000000000000000e+00
-CostJo   : Nonlinear Jo(air_temperature) = 2.7771223054791207e+01, nobs = 30, Jo/n = 9.2570743515970688e-01, err = 1.0000000149011612e-01
 CostFunction: Nonlinear J = 2.7771223054791207e+01
 DRIPCGMinimizer: reduction in residual norm = 6.9924847110208946e-11
 CostFunction::addIncrement: Analysis: 
@@ -8,6 +8,6 @@ CostFunction::addIncrement: Analysis:
   Geometry: L40x21 [840]
   Fields:
     air_temperature: 4.1068727206434119e+01
-CostJb   : Nonlinear Jb = 6.5481130581581226e+00
 CostJo   : Nonlinear Jo(air_temperature) = 9.7625432536351582e+00, nobs = 30, Jo/n = 3.2541810845450525e-01, err = 1.0000000149011612e-01
+CostJb   : Nonlinear Jb = 6.5481130581581226e+00
 CostFunction: Nonlinear J = 1.6310656311793281e+01

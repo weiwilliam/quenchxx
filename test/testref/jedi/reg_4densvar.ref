@@ -1,7 +1,7 @@
-CostJb   : Nonlinear Jb = 0.0000000000000000e+00
 CostJo   : Nonlinear Jo(air_temperature_06) = 0.0000000000000000e+00 --- No Observations
 CostJo   : Nonlinear Jo(air_temperature_12) = 1.8871656300580810e+01, nobs = 15, Jo/n = 1.2581104200387208e+00, err = 1.0000000149011612e-01
 CostJo   : Nonlinear Jo(air_temperature_18) = 1.6251224336944617e+01, nobs = 15, Jo/n = 1.0834149557963078e+00, err = 1.0000000149011612e-01
+CostJb   : Nonlinear Jb = 0.0000000000000000e+00
 CostFunction: Nonlinear J = 3.5122880637525427e+01
 DRIPCGMinimizer: reduction in residual norm = 1.2473116488690189e-08
 CostFunction::addIncrement: Analysis: 
@@ -17,8 +17,8 @@ CostFunction::addIncrement: Analysis:
   Geometry: structured [3763]
   Fields:
     air_temperature: 9.6354350583151870e+01
-CostJb   : Nonlinear Jb = 7.3027323667642410e+00
 CostJo   : Nonlinear Jo(air_temperature_06) = 0.0000000000000000e+00 --- No Observations
 CostJo   : Nonlinear Jo(air_temperature_12) = 7.2762745882060633e+00, nobs = 15, Jo/n = 4.8508497254707089e-01, err = 1.0000000149011612e-01
 CostJo   : Nonlinear Jo(air_temperature_18) = 7.9881538778847352e+00, nobs = 15, Jo/n = 5.3254359185898237e-01, err = 1.0000000149011612e-01
+CostJb   : Nonlinear Jb = 7.3027323667642410e+00
 CostFunction: Nonlinear J = 2.2567160832855038e+01
