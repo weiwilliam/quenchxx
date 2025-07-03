@@ -47,7 +47,8 @@ class Fields : public util::Printable,
   // Constructors/destructor
   Fields(const Geometry &,
          const varns::Variables &,
-         const util::DateTime &);
+         const util::DateTime &,
+         const bool &);
   Fields(const Fields &,
          const Geometry &);
   Fields(const Fields &,
@@ -55,6 +56,10 @@ class Fields : public util::Printable,
   Fields(const Fields &);
   ~Fields()
     {}
+
+  // State flag accessor
+  const bool & isState() const
+    {return isState_;}
 
   // Basic operators
   void zero();
@@ -147,6 +152,9 @@ class Fields : public util::Printable,
 
   // Fieldset
   mutable atlas::FieldSet fset_;
+
+  // State flag (false if Increment)
+  const bool isState_;
 };
 
 // -----------------------------------------------------------------------------

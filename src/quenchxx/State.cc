@@ -24,7 +24,7 @@ namespace quenchxx {
 State::State(const Geometry & geom,
              const varns::Variables & vars,
              const util::DateTime & vt)
-  : fields_(new Fields(geom, vars, vt)) {
+  : fields_(new Fields(geom, vars, vt, true)) {
   oops::Log::trace() << classname() << "::State starting" << std::endl;
 
   fields_->zero();
@@ -43,7 +43,7 @@ State::State(const Geometry & geom,
     file.getStringVector("state variables") : file.getStringVector("variables");
   const varns::Variables vars(varNames);
   const util::DateTime vt(file.getString("date"));
-  fields_.reset(new Fields(geom, vars, vt));
+  fields_.reset(new Fields(geom, vars, vt, true));
   if (file.has("filepath")) {
     oops::Log::info() << "Info     : Create state from file" << std::endl;
     fields_->read(file);

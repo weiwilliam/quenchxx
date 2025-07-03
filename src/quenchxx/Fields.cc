@@ -52,8 +52,9 @@ std::vector<quenchxx::Interpolation>& Fields::interpolations() {
 
 Fields::Fields(const Geometry & geom,
                const varns::Variables & vars,
-               const util::DateTime & time)
-  : geom_(new Geometry(geom)), vars_(vars), time_(time) {
+               const util::DateTime & time,
+               const bool & isState)
+  : geom_(new Geometry(geom)), vars_(vars), time_(time), isState_(isState) {
   oops::Log::trace() << classname() << "::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -84,7 +85,7 @@ Fields::Fields(const Geometry & geom,
 
 Fields::Fields(const Fields & other,
                const Geometry & geom)
-  : geom_(new Geometry(geom)), vars_(other.vars_), time_(other.time_) {
+  : geom_(new Geometry(geom)), vars_(other.vars_), time_(other.time_), isState_(other.isState_) {
   oops::Log::trace() << classname() << "::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -134,7 +135,7 @@ Fields::Fields(const Fields & other,
 
 Fields::Fields(const Fields & other,
                const bool copy)
-  : geom_(other.geom_), vars_(other.vars_), time_(other.time_) {
+  : geom_(other.geom_), vars_(other.vars_), time_(other.time_), isState_(other.isState_) {
   oops::Log::trace() << classname() << "::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -181,7 +182,7 @@ Fields::Fields(const Fields & other,
 // -----------------------------------------------------------------------------
 
 Fields::Fields(const Fields & other)
-  : geom_(other.geom_), vars_(other.vars_), time_(other.time_) {
+  : geom_(other.geom_), vars_(other.vars_), time_(other.time_), isState_(other.isState_) {
   oops::Log::trace() << classname() << "::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset

@@ -394,7 +394,7 @@ void Geometry::setupVertCoord(groupData & group) {
       groupIndex_[varName] = group.index_;
 
       // Create field
-      Fields field(*this, vertCoordVars, util::DateTime());
+      Fields field(*this, vertCoordVars, util::DateTime(), false);
 
       // Read field
       field.read(*vertCoordConf);
@@ -680,7 +680,7 @@ void Geometry::checkLonLat(const eckit::Configuration & checkLonLatConf) {
   groups_.push_back(coordGroup);
 
   // Create field
-  Fields field(*this, lonLatVars, util::DateTime());
+  Fields field(*this, lonLatVars, util::DateTime(), false);
 
   // Read field
   field.read(checkLonLatConf);
