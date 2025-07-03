@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include "eckit/exception/Exceptions.h"
+
 #include "oops/util/DateTime.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
@@ -136,6 +138,11 @@ class State : public util::Printable,
   void deserialize(const std::vector<double> & vect,
                    size_t & index)
     {fields_->deserialize(vect, index);}
+  void transpose(const State &,
+                 const eckit::mpi::Comm &,
+                 const int,
+                 const int)
+    {throw eckit::Exception("not implemented yet", Here());}
 
  private:
   // Print

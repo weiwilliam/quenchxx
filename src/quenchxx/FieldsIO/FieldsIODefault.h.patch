@@ -1,0 +1,22 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIODefault.h.tmp.bak	2025-05-20 11:20:17.036440605 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/FieldsIO/FieldsIODefault.h	2025-05-20 11:23:23.213603227 +0200
+@@ -12,9 +12,8 @@
+ 
+ #include "atlas/field.h"
+ 
+-#include "oops/base/Variables.h"
+-
+ #include "quenchxx/FieldsIO/FieldsIOBase.h"
++#include "quenchxx/VariablesSwitch.h"
+ 
+ namespace quenchxx {
+   class Geometry;
+@@ -33,7 +32,7 @@
+ 
+   // Read
+   void read(const Geometry &,
+-            const oops::Variables &,
++            const varns::Variables &,
+             const eckit::Configuration &,
+             atlas::FieldSet &) const override;
+ 

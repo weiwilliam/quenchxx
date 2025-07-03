@@ -40,8 +40,8 @@
             "state from template": {
               "template": {
                 "date": "2010-01-01T12:00:00Z",
-                "filepath": "testdata/evil_ens_%member%",
-                "state variables": ["air_temperature"]
+                "state variables": ["air_temperature"],
+                "filepath": "testdata/evil_ens_%member%"
               },
               "pattern": "%member%",
               "zero padding": "6"
@@ -100,7 +100,6 @@
       "mpi pattern": "%mpi%",
       "increment": [
         {
-
           "filepath": "testdata/evil_primal_3dvar.ritz.%pattern%.%iteration%_%mpi%"
         }
       ]

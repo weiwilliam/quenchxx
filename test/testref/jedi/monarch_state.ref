@@ -1,0 +1,40 @@
+Input state:
+- Valid time: 2022-07-01T00:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 2.6156792427860559e+01
+    carbon_monoxyde: 6.7028121697021803e+01
+    pm10: 5.3395294200749936e-05
+    air_pressure: 6.6135145827532589e+07
+    air_pressure_levels: 7.2292572276550204e+07
+    surface_geopotential: 1.5771927632027608e+06
+Output state:
+- Valid time: 2022-07-01T00:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 2.6156792427860559e+01
+    carbon_monoxyde: 6.7028121697021803e+01
+    pm10: 5.3395294200749936e-05
+    air_pressure: 6.6135145827532589e+07
+    air_pressure_levels: 7.2292572276550204e+07
+    surface_geopotential: 1.5771927632027608e+06
+Input state:
+- Valid time: 2022-07-01T12:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 2.7941336294210455e+01
+    carbon_monoxyde: 6.5847642418455351e+01
+    pm10: 5.5954909728815107e-05
+    air_pressure: 6.6173790287695386e+07
+    air_pressure_levels: 7.2334757701659307e+07
+    surface_geopotential: 1.5771927632027608e+06
+Output state:
+- Valid time: 2022-07-01T12:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 2.7941336294210455e+01
+    carbon_monoxyde: 6.5847642418455351e+01
+    pm10: 5.5954909728815107e-05
+    air_pressure: 6.6173790287695386e+07
+    air_pressure_levels: 7.2334757701659307e+07
+    surface_geopotential: 1.5771927632027608e+06

@@ -1,7 +1,10 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Traits.h.tmp.bak	2024-11-27 13:23:55.531743590 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Traits.h	2024-11-26 14:58:10.128932607 +0100
-@@ -10,9 +10,28 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Traits.h.tmp.bak	2025-04-03 09:21:49.596729598 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Traits.h	2025-04-03 09:19:32.413308091 +0200
+@@ -8,11 +8,31 @@
  
+ #pragma once
+ 
++#include "oops/generic/AtlasInterpolator.h"
  #include "quenchxx/Covariance.h"
  #include "quenchxx/Geometry.h"
 +#include "quenchxx/GeometryIterator.h"

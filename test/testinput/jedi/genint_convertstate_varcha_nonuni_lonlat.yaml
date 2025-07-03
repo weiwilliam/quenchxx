@@ -81,7 +81,7 @@ states:
     - air_pressure_at_surface
     filepath: testdata/camchem_N30x20_subset
     netcdf extension: nc
-    date: '2021-08-01T00:00:00Z'
+    date: 2021-08-01T00:00:00Z
   output:
     filepath: testdata/camchem_varcha_N15x10
 test:

@@ -8,13 +8,6 @@
 
 #include "quenchxx/Fields.h"
 
-#ifdef ECCODES_FOUND
-#include <eccodes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#endif
-#include <netcdf.h>
-
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -26,7 +19,6 @@
 
 #include "atlas/field.h"
 #include "atlas/functionspace.h"
-#include "atlas/output/Gmsh.h"
 #include "atlas/util/Config.h"
 #include "atlas/util/KDTree.h"
 #include "atlas/util/Point.h"
@@ -41,10 +33,8 @@
 #include "oops/util/Logger.h"
 #include "oops/util/Random.h"
 
+#include "quenchxx/FieldsIO/FieldsIOBase.h"
 #include "quenchxx/Geometry.h"
-
-#define ERR(e, msg) {std::string s(nc_strerror(e)); \
-  throw eckit::Exception(s + " : " + msg, Here());}
 
 namespace quenchxx {
 
@@ -62,8 +52,9 @@ std::vector<quenchxx::Interpolation>& Fields::interpolations() {
 
 Fields::Fields(const Geometry & geom,
                const varns::Variables & vars,
-               const util::DateTime & time)
-  : geom_(new Geometry(geom)), vars_(vars), time_(time) {
+               const util::DateTime & time,
+               const bool & isState)
+  : geom_(new Geometry(geom)), vars_(vars), time_(time), isState_(isState) {
   oops::Log::trace() << classname() << "::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -94,7 +85,7 @@ Fields::Fields(const Geometry & geom,
 
 Fields::Fields(const Fields & other,
                const Geometry & geom)
-  : geom_(new Geometry(geom)), vars_(other.vars_), time_(other.time_) {
+  : geom_(new Geometry(geom)), vars_(other.vars_), time_(other.time_), isState_(other.isState_) {
   oops::Log::trace() << classname() << "::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -144,7 +135,7 @@ Fields::Fields(const Fields & other,
 
 Fields::Fields(const Fields & other,
                const bool copy)
-  : geom_(other.geom_), vars_(other.vars_), time_(other.time_) {
+  : geom_(other.geom_), vars_(other.vars_), time_(other.time_), isState_(other.isState_) {
   oops::Log::trace() << classname() << "::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -191,7 +182,7 @@ Fields::Fields(const Fields & other,
 // -----------------------------------------------------------------------------
 
 Fields::Fields(const Fields & other)
-  : geom_(other.geom_), vars_(other.vars_), time_(other.time_) {
+  : geom_(other.geom_), vars_(other.vars_), time_(other.time_), isState_(other.isState_) {
   oops::Log::trace() << classname() << "::Fields starting" << std::endl;
 
   // Reset ATLAS fieldset
@@ -529,7 +520,6 @@ void Fields::schur_product_with(const Fields & fld2) {
 void Fields::random() {
   oops::Log::trace() << classname() << "::random starting" << std::endl;
 
-  fset_.clear();
   for (size_t groupIndex = 0; groupIndex < geom_->groups(); ++groupIndex) {
     // Mask and ghost points fields
     const std::string gmaskName = "gmask_" + std::to_string(groupIndex);
@@ -538,14 +528,14 @@ void Fields::random() {
 
     // Total size
     size_t n = 0;
-    std::vector<std::string> groupVars;
+    varns::Variables groupVars;
     for (const auto & var : vars_) {
       if (geom_->groupIndex(var.name()) == groupIndex) {
-        groupVars.push_back(var.name());
+        groupVars.push_back(var);
       }
     }
     for (const auto & var : groupVars) {
-      const atlas::Field field = fset_[var];
+      const atlas::Field field = fset_[var.name()];
       if (field.rank() == 2) {
         for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
           for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
@@ -573,13 +563,11 @@ void Fields::random() {
 
     // Global data
     atlas::FieldSet globalData;
-    for (const auto & var : vars_) {
-      if (geom_->groupIndex(var.name()) == groupIndex) {
-        atlas::Field field = geom_->functionSpace().createField<double>(
-          atlas::option::name(var.name())
-          | atlas::option::levels(geom_->levels(var.name())) | atlas::option::global());
-        globalData.add(field);
-      }
+    for (const auto & var : groupVars) {
+      atlas::Field field = geom_->functionSpace().createField<double>(
+        atlas::option::name(var.name())
+        | atlas::option::levels(geom_->levels(var.name())) | atlas::option::global());
+      globalData.add(field);
     }
 
     // Gather masks on main processor
@@ -610,19 +598,17 @@ void Fields::random() {
       // Copy random values
       n = 0;
       const auto ghostView = atlas::array::make_view<int, 1>(globalMasks["ghost"]);
-      for (const auto & var : vars_) {
-        if (geom_->groupIndex(var.name()) == groupIndex) {
-          atlas::Field field = globalData[var.name()];
-          const std::string gmaskName = "gmask_" + std::to_string(groupIndex);
-          const auto gmaskView = atlas::array::make_view<int, 2>(globalMasks[gmaskName]);
-          if (field.rank() == 2) {
-            auto view = atlas::array::make_view<double, 2>(field);
-            for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
-              for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
-                if (gmaskView(jnode, jlevel) == 1 && ghostView(jnode) == 0) {
-                  view(jnode, jlevel) = rand_vec[n];
-                  ++n;
-                }
+      for (const auto & var : groupVars) {
+        atlas::Field field = globalData[var.name()];
+        const std::string gmaskName = "gmask_" + std::to_string(groupIndex);
+        const auto gmaskView = atlas::array::make_view<int, 2>(globalMasks[gmaskName]);
+        if (field.rank() == 2) {
+          auto view = atlas::array::make_view<double, 2>(field);
+          for (atlas::idx_t jnode = 0; jnode < field.shape(0); ++jnode) {
+            for (atlas::idx_t jlevel = 0; jlevel < field.shape(1); ++jlevel) {
+              if (gmaskView(jnode, jlevel) == 1 && ghostView(jnode) == 0) {
+                view(jnode, jlevel) = rand_vec[n];
+                ++n;
               }
             }
           }
@@ -632,12 +618,10 @@ void Fields::random() {
 
     // Local data
     atlas::FieldSet localData;
-    for (const auto & var : vars_) {
-      if (geom_->groupIndex(var.name()) == groupIndex) {
-        atlas::Field field = geom_->functionSpace().createField<double>(
-          atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
-        localData.add(field);
-      }
+    for (const auto & var : groupVars) {
+      atlas::Field field = geom_->functionSpace().createField<double>(
+        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
+      localData.add(field);
     }
 
     // Scatter data from main processor
@@ -661,20 +645,30 @@ void Fields::random() {
         " function space not supported yet", Here());
     }
 
+    // Remove fields for this group
+    util::removeFieldsFromFieldSet(fset_, groupVars.variables());
+
     // Copy data
-    for (const auto & var : vars_) {
-      if (geom_->groupIndex(var.name()) == groupIndex) {
-        fset_.add(localData[var.name()]);
-      }
+    for (const auto & var : groupVars) {
+      fset_.add(localData[var.name()]);
     }
   }
 
-  fset_.set_dirty();  // code is too complicated, mark dirty to be safe
+  // Code is too complicated, mark dirty to be safe
+  fset_.set_dirty();
 
   // Set duplicate points to the same value
   resetDuplicatePoints();
 
   oops::Log::trace() << "Fields::random done" << std::endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void Fields::sqrt() {
+  oops::Log::trace() << classname() << "::sqrt starting" << std::endl;
+  util::sqrtFieldSet(fset_);
+  oops::Log::trace() << classname() << "::sqrt done" << std::endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -897,9 +891,9 @@ void Fields::interpolate(const Locations & locs,
 
     // Create observation fieldset
     atlas::FieldSet obsFieldSet;
-    for (const auto & var : vars_.variables()) {
+    for (const auto & var : vars_) {
       atlas::Field obsField = interpolation->tgtFspace().createField<double>(
-        atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
+        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
       obsFieldSet.add(obsField);
     }
 
@@ -928,9 +922,9 @@ void Fields::interpolateAD(const Locations & locs,
 
     // Create observation fieldset
     atlas::FieldSet obsFieldSet;
-    for (const auto & var : vars_.variables()) {
+    for (const auto & var : vars_) {
       atlas::Field obsField = interpolation->tgtFspace().createField<double>(
-        atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
+        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
       obsFieldSet.add(obsField);
     }
 
@@ -1037,6 +1031,12 @@ void Fields::synchronizeFields() {
 void Fields::read(const eckit::Configuration & config) {
   oops::Log::trace() << classname() << "::read starting" << std::endl;
 
+  // Check date if present
+  if (config.has("date")) {
+    const util::DateTime dateTime(config.getString("date"));
+    ASSERT(dateTime == time_);
+  }
+
   // Update variables names
   varns::Variables vars_in_file;
   for (const auto & var : vars_) {
@@ -1049,278 +1049,14 @@ void Fields::read(const eckit::Configuration & config) {
     vars_in_file.push_back({newVar, var.metaData(), var.getLevels()});
   }
 
-  // Get IO format
+  // Get input format
   const std::string ioFormat = config.getString("format", "default");
 
-  // Read with specified IO format
-  if (ioFormat == "default") {
-    // Default OOPS writer
+  // Set FieldsIO
+  std::unique_ptr<FieldsIOBase> fieldsIO(FieldsIOFactory::create(ioFormat));
 
-    // Create variableSizes
-    std::vector<size_t> variableSizes;
-    for (const auto & var : vars_in_file) {
-      variableSizes.push_back(var.getLevels());
-    }
-
-    // Update configuration
-    eckit::LocalConfiguration conf(config);
-    if (!conf.has("latitude south to north")) {
-      conf.set("latitude south to north", geom_->latSouthToNorth());
-    }
-
-    // Read fieldset
-    util::readFieldSet(geom_->getComm(),
-                       geom_->functionSpace(),
-                       variableSizes,
-                       vars_in_file.variables(),
-                       conf,
-                       fset_);
-  } else if (ioFormat == "grib") {
-#ifdef ECCODES_FOUND
-    // GRIB format
-
-    // Build filepath
-    std::string filepath = config.getString("filepath");
-    if (config.has("member")) {
-      std::ostringstream out;
-      out << std::setfill('0') << std::setw(6) << config.getInt("member");
-      filepath.append("_");
-      filepath.append(out.str());
-    }
-
-    // Grib file path
-    std::string gribfilepath = filepath;
-    gribfilepath.append(".");
-    gribfilepath.append(config.getString("grib extension", "grib2"));
-
-    // Get levels
-    std::vector<size_t> levels;
-    if (!config.get("levels", levels)) {
-      size_t levelMax = 0;
-      for (const auto & var : vars_in_file) {
-        levelMax = std::max(levelMax, geom_->levels(var.name()));
-      }
-      for (size_t k = 0; k < levelMax; ++k) {
-        levels.push_back(k+1);
-      }
-    }
-
-    // Clear local fieldset
-    fset_.clear();
-
-    // Create local fieldset
-    for (const auto & var : vars_in_file) {
-      atlas::Field field = geom_->functionSpace().createField<double>(
-        atlas::option::name(var.name()) | atlas::option::levels(geom_->levels(var.name())));
-      fset_.add(field);
-    }
-
-    // Initialize local fieldset
-    for (auto & field : fset_) {
-      auto view = atlas::array::make_view<double, 2>(field);
-      view.assign(0.0);
-    }
-
-    // Global data
-    atlas::FieldSet globalData;
-    for (const auto & var : vars_in_file) {
-      atlas::Field field = geom_->functionSpace().createField<double>(
-        atlas::option::name(var.name())
-        | atlas::option::levels(geom_->levels(var.name())) | atlas::option::global());
-      globalData.add(field);
-    }
-
-    // Grib input
-    if (geom_->getComm().rank() == 0) {
-      oops::Log::info() << "Info     : Reading file: " << gribfilepath << std::endl;
-
-      // Initialization
-      int ret;
-      codes_index* index;
-      codes_handle* h;
-
-      // Create index of file contents for cfVarName, typeOfLevel and level
-      index = codes_index_new_from_file(0, gribfilepath.c_str(), "cfVarName,typeOfLevel,level",
-        &ret);
-      CODES_CHECK(ret, 0);
-
-      for (const auto & var : vars_in_file) {
-        // Get field view
-        auto varView = atlas::array::make_view<double, 2>(globalData[var.name()]);
-
-        // Select variable and type of level
-        CODES_CHECK(codes_index_select_string(index, "cfVarName", var.name().c_str()), 0);
-        CODES_CHECK(codes_index_select_string(index, "typeOfLevel", "hybrid"), 0);
-
-        for (size_t k = 0; k < geom_->levels(var.name()); ++k) {
-          // Select level
-          CODES_CHECK(codes_index_select_long(index, "level", levels[k]), 0);
-
-          // Create handle
-          h = codes_handle_new_from_index(index, &ret);
-          CODES_CHECK(ret, 0);
-
-          // Print all available keys
-          codes_keys_iterator *kit = codes_keys_iterator_new(h, 0, NULL);
-          while (codes_keys_iterator_next(kit) == 1) {
-            oops::Log::debug() << "Key: " << codes_keys_iterator_get_name(kit) << std::endl;
-          }
-
-          // Get the data size
-          size_t values_len = 0;
-          CODES_CHECK(codes_get_size(h, "values", &values_len), 0);
-
-          // Allocate data
-          std::vector<double> values;
-          values.resize(values_len);
-
-          // Get data
-          CODES_CHECK(codes_get_double_array(h, "values", values.data(), &values_len), 0);
-
-          // Copy data to FieldSet
-          for (size_t jnode = 0; jnode < values_len; ++jnode) {
-            varView(jnode, k) = values[jnode];
-          }
-
-          // Delete handle
-          CODES_CHECK(codes_handle_delete(h), 0);
-        }
-      }
-
-      // Check number of levels
-      h = codes_handle_new_from_index(index, &ret);
-      if (ret == 0) {
-        throw eckit::Exception("Mismatch between level numbers in file and geometry", Here());
-      }
-
-      // Delete index
-      codes_index_delete(index);
-    }
-
-    // Scatter data from main processor
-    if (geom_->functionSpace().type() == "StructuredColumns") {
-      // StructuredColumns
-      atlas::functionspace::StructuredColumns fs(geom_->functionSpace());
-      fs.scatter(globalData, fset_);
-    } else if (geom_->functionSpace().type() == "NodeColumns") {
-      // NodeColumns
-      atlas::functionspace::NodeColumns fs(geom_->functionSpace());
-      fs.scatter(globalData, fset_);
-    }
-
-    fset_.set_dirty();  // code is too complicated, mark dirty to be safe
-#else
-    throw eckit::UserError("ECCODES not available", Here());
-#endif
-  } else if (ioFormat == "arome") {
-    // AROME data at NetCDF format (converted from epygram)
-
-    // Build filepath
-    std::string filepath = config.getString("filepath");
-    if (config.has("member")) {
-      std::ostringstream out;
-      out << std::setfill('0') << std::setw(6) << config.getInt("member");
-      filepath.append("_");
-      filepath.append(out.str());
-    }
-
-    // NetCDF file path
-    std::string ncFilePath = filepath + ".nc";
-
-    // Clear local fieldset
-    fset_.clear();
-
-    // Create local fieldset
-    for (size_t jvar = 0; jvar < vars_in_file.size(); ++jvar) {
-      atlas::Field field = geom_->functionSpace().createField<double>(
-        atlas::option::name(vars_in_file[jvar].name()) |
-        atlas::option::levels(vars_in_file[jvar].getLevels()));
-      fset_.add(field);
-    }
-
-    // Initialize local fieldset
-    for (auto & field : fset_) {
-      auto view = atlas::array::make_view<double, 2>(field);
-      view.assign(0.0);
-    }
-
-    // NetCDF IDs
-    size_t nVarLev = 0;
-    std::vector<std::string> varLevName;
-    for (size_t jvar = 0; jvar < vars_in_file.size(); ++jvar) {
-      for (int k = 0; k < vars_in_file[jvar].getLevels(); ++k) {
-        const std::string level = std::to_string(k+40);
-        varLevName.push_back("S" + std::string(3-level.length(), '0') + level
-          + vars_in_file[jvar].name());
-        ++nVarLev;
-      }
-    }
-    int ncid, retval, var_id[nVarLev];
-
-    // Global data
-    atlas::FieldSet globalData;
-    for (size_t jvar = 0; jvar < vars_in_file.size(); ++jvar) {
-      atlas::Field field = geom_->functionSpace().createField<double>(
-        atlas::option::name(vars_in_file[jvar].name())
-        | atlas::option::levels(vars_in_file[jvar].getLevels()) | atlas::option::global());
-      globalData.add(field);
-    }
-
-    // StructuredColumns
-    atlas::functionspace::StructuredColumns fs(geom_->functionSpace());
-
-    if (geom_->getComm().rank() == 0) {
-      // Get grid
-      atlas::StructuredGrid grid = fs.grid();
-
-      // Get sizes
-      atlas::idx_t nx = grid.nxmax();
-      atlas::idx_t ny = grid.ny();
-
-      oops::Log::info() << "Info     : Reading file: " << ncFilePath << std::endl;
-
-      // Open NetCDF file
-      if ((retval = nc_open(ncFilePath.c_str(), NC_NOWRITE, &ncid))) ERR(retval, ncFilePath);
-
-      // Get variables
-      for (size_t jVarLev = 0; jVarLev < nVarLev; ++jVarLev) {
-        if ((retval = nc_inq_varid(ncid, varLevName[jVarLev].c_str(), &var_id[jVarLev]))) {
-          ERR(retval, varLevName[jVarLev]);
-        }
-      }
-
-      size_t iVarLev = 0;
-      for (size_t jvar = 0; jvar < vars_in_file.size(); ++jvar) {
-        auto varView = atlas::array::make_view<double, 2>(globalData[vars_in_file[jvar].name()]);
-        for (int k = 0; k < vars_in_file[jvar].getLevels(); ++k) {
-          // Read data
-          std::vector<double> zvar(ny * nx);
-          if ((retval = nc_get_var_double(ncid, var_id[iVarLev], zvar.data()))) {
-            ERR(retval, varLevName[iVarLev]);
-          }
-          ++iVarLev;
-
-          // Copy data
-          for (atlas::idx_t j = 0; j < ny; ++j) {
-            for (atlas::idx_t i = 0; i < grid.nx(ny-1-j); ++i) {
-              atlas::gidx_t gidx = grid.index(i, ny-1-j);
-              varView(gidx, k) = zvar[j*nx + i];
-            }
-          }
-        }
-      }
-
-      // Close file
-      if ((retval = nc_close(ncid))) ERR(retval, ncFilePath);
-    }
-
-    // Scatter data from main processor
-    fs.scatter(globalData, fset_);
-
-    fset_.set_dirty();  // code is too complicated, mark dirty to be safe
-  } else {
-    throw eckit::UserError("Unknown I/O format", Here());
-  }
+  // Read fieldset
+  fieldsIO->read(*geom_, vars_in_file, config, fset_);
 
   // Rename fields
   for (auto & field : fset_) {
@@ -1344,6 +1080,27 @@ void Fields::read(const eckit::Configuration & config) {
 void Fields::write(const eckit::Configuration & config) const {
   oops::Log::trace() << classname() << "::write starting" << std::endl;
 
+  // Prepare updated configuration
+  eckit::LocalConfiguration updatedConfig(config);
+
+  if (config.has("states")) {
+    for (const auto & confItem : config.getSubConfigurations("states")) {
+      // Get date
+      const util::DateTime dateTime(confItem.getString("date"));
+
+      // Copy configuration
+      if (dateTime == time_) {
+        updatedConfig = confItem;
+      }
+    }
+  } else {
+    // Check date if present
+    if (config.has("date")) {
+      const util::DateTime dateTime(config.getString("date"));
+      ASSERT(dateTime == time_);
+    }
+  }
+
   // Copy fieldset
   atlas::FieldSet fset = util::copyFieldSet(fset_);
 
@@ -1356,44 +1113,16 @@ void Fields::write(const eckit::Configuration & config) const {
     }
   }
 
-  // Get IO format
-  const std::string ioFormat = config.getString("format", "default");
+  // Get output formats
+  const std::vector<std::string> ioFormats =
+    updatedConfig.getStringVector("formats", std::vector<std::string>({"default"}));
 
-  // Write with specified IO format
-  if (ioFormat == "default") {
-    // Update configuration
-    eckit::LocalConfiguration conf(config);
-    if (!conf.has("latitude south to north")) {
-      conf.set("latitude south to north", geom_->latSouthToNorth());
-    }
+  for (const auto & ioFormat : ioFormats) {
+    // Set FieldsIO list
+    std::unique_ptr<FieldsIOBase> fieldsIO(FieldsIOFactory::create(ioFormat));
 
-    // Default OOPS writer
-    util::writeFieldSet(geom_->getComm(), conf, fset);
-  } else if (ioFormat == "grib") {
-    // GRIB format
-    throw eckit::NotImplemented("GRIB output not implemented yet", Here());
-  } else if (ioFormat == "arome") {
-    // Default OOPS writer
-    util::writeFieldSet(geom_->getComm(), config, fset);
-  } else {
-    throw eckit::UserError("Unknown I/O format", Here());
-  }
-
-  if (geom_->mesh().generated() && config.getBool("write gmsh", false)) {
-    // GMSH file path
-    std::string gmshfilepath = config.getString("filepath");;
-    gmshfilepath.append(".msh");
-    oops::Log::info() << "Info     : Writing file: " << gmshfilepath << std::endl;
-
-    // GMSH configuration
-    const auto gmshConfig =
-    atlas::util::Config("coordinates", "xyz") | atlas::util::Config("ghost", true) |
-    atlas::util::Config("info", true);
-    atlas::output::Gmsh gmsh(gmshfilepath, gmshConfig);
-
-     // Write GMSH
-    gmsh.write(geom_->mesh());
-    gmsh.write(fset, fset[0].functionspace());
+    // Write fields
+    fieldsIO->write(*geom_, updatedConfig, fset);
   }
 
   oops::Log::trace() << classname() << "::write done" << std::endl;
@@ -1412,12 +1141,13 @@ void Fields::print(std::ostream & os) const {
   oops::Log::trace() << classname() << "::print starting" << std::endl;
 
   os << std::endl;
-  os << *geom_;
   std::string prefix;
   if (os.rdbuf() == oops::Log::info().rdbuf()) {
     prefix = "Info     : ";
   }
-  os << prefix << "Fields:";
+  os << prefix << "  Geometry: " << geom_->grid().name() << " [" << geom_->grid().size() << "]"
+    << std::endl;
+  os << prefix << "  Fields:";
   const auto ghostView = atlas::array::make_view<int, 1>(geom_->functionSpace().ghost());
   for (const auto & var : vars_) {
     os << std::endl;
@@ -1436,8 +1166,8 @@ void Fields::print(std::ostream & os) const {
       }
     }
     geom_->getComm().allReduceInPlace(zz, eckit::mpi::sum());
-    zz = sqrt(zz);
-    os << prefix << "  " << var.name() << ": " << zz;
+    zz = std::sqrt(zz);
+    os << prefix << "    " << var.name() << ": " << zz;
   }
 
   oops::Log::trace() << classname() << "::print done" << std::endl;
@@ -1455,6 +1185,7 @@ size_t Fields::serialSize() const {
       nn += field.shape(0)*field.shape(1);
     }
   }
+  nn += time_.serialSize();
 
   oops::Log::trace() << classname() << "::serialSize done" << std::endl;
   return nn;
@@ -1476,6 +1207,7 @@ void Fields::serialize(std::vector<double> & vect)  const {
       }
     }
   }
+  time_.serialize(vect);
 
   oops::Log::trace() << classname() << "::serialize done" << std::endl;
 }
@@ -1498,6 +1230,7 @@ void Fields::deserialize(const std::vector<double> & vect,
       }
     }
   }
+  time_.deserialize(vect, index);
 
   oops::Log::trace() << classname() << "::deserialize done" << std::endl;
 }
@@ -1562,7 +1295,7 @@ std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geomet
                               geomUid);
 
   // Insert new interpolation
-  interpolations().push_back(interpolation);
+  interpolations().emplace_back(interpolation);
 
   oops::Log::trace() << classname() << "::setupGridInterpolation done" << std::endl;
   return std::prev(interpolations().end());
@@ -1626,22 +1359,21 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
   // Interpolate vertical coordinate
   atlas::FieldSet fset;
   atlas::FieldSet fsetInterp;
-  for (const auto & field : fset_) {
-    const std::string vertCoordName = "vert_coord_"
-      + std::to_string(geom_->groupIndex(field.name()));
+  for (const auto & var : vars_) {
+    const std::string vertCoordName = geom_->vertCoord(var.name()).name();
     if (!fset.has(vertCoordName)) {
-      fset.add(geom_->fields()[vertCoordName]);
+      fset.add(geom_->vertCoord(var.name()));
       atlas::Field fieldInterp = fspace->createField<double>(
-        atlas::option::name(vertCoordName) | atlas::option::levels(field.levels()));
+        atlas::option::name(vertCoordName) | atlas::option::levels(var.getLevels()));
       fsetInterp.add(fieldInterp);
     }
   }
   interpolation.execute(fset, fsetInterp);
 
   // Setup vertical interpolation
-  for (const auto & var : vars_.variables()) {
-    const std::string vertCoordName = "vert_coord_" + std::to_string(geom_->groupIndex(var));
-    const auto vert_coordView = atlas::array::make_view<double, 2>(fsetInterp[vertCoordName]);
+  for (const auto & var : vars_) {
+    const std::string vertCoordName = geom_->vertCoord(var.name()).name();
+    const auto vertCoordView = atlas::array::make_view<double, 2>(fsetInterp[vertCoordName]);
     std::vector<std::array<size_t, 2>> verStencil;
     std::vector<std::array<double, 2>> verWeights;
     std::vector<size_t> verStencilSize;
@@ -1649,7 +1381,7 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
     verWeights.resize(locs.size());
     verStencilSize.resize(locs.size());
     for (int jo = 0; jo < locs.size(); ++jo) {
-      if (geom_->levels(var) == 1) {
+      if (var.getLevels() == 1) {
         // No vertical interpolation
         verStencil[jo][0] = 0;
         verWeights[jo][0] = 1.0;
@@ -1659,9 +1391,9 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
         const double z = locs[jo][2];
         double bottom = std::numeric_limits<double>::max();
         double top = -std::numeric_limits<double>::max();
-        for (size_t k = 0; k < geom_->levels(var); ++k) {
-          bottom = std::min(bottom, vert_coordView(jo, k));
-          top = std::max(top, vert_coordView(jo, k));
+        for (size_t jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+          bottom = std::min(bottom, vertCoordView(jo, jlevel));
+          top = std::max(top, vertCoordView(jo, jlevel));
         }
         ASSERT(z >= bottom);
         ASSERT(z <= top);
@@ -1669,21 +1401,21 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
         double zsup = std::numeric_limits<double>::max();
         size_t kinf = 0;
         size_t ksup = std::numeric_limits<size_t>::max();
-        for (size_t k = 0; k < geom_->levels(var); ++k) {
-          const double level = vert_coordView(jo, k);
+        for (size_t jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
+          const double level = vertCoordView(jo, jlevel);
           if (level == z) {
             zinf = level;
             zsup = level;
-            kinf = k;
-            ksup = k;
+            kinf = jlevel;
+            ksup = jlevel;
           } else {
             if (z > level && zinf < level) {
               zinf = level;
-              kinf = k;
+              kinf = jlevel;
             }
             if (z < level && zsup > level) {
               zsup = level;
-              ksup = k;
+              ksup = jlevel;
             }
           }
         }
@@ -1700,7 +1432,7 @@ std::vector<Interpolation>::iterator Fields::setupObsInterpolation(const Locatio
         }
       }
     }
-    interpolation.insertVerticalInterpolation(var,
+    interpolation.insertVerticalInterpolation(var.name(),
                                               verStencil,
                                               verWeights,
                                               verStencilSize);

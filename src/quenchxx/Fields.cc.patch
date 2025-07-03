@@ -1,6 +1,6 @@
---- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.cc.tmp.bak	2025-01-18 06:56:55.542721666 +0100
-+++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.cc	2025-01-18 05:14:46.947299717 +0100
-@@ -21,6 +21,7 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.cc.tmp.bak	2025-05-20 11:20:17.204441662 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Fields.cc	2025-05-20 11:27:31.775132738 +0200
+@@ -14,10 +14,12 @@
  #include <iterator>
  #include <limits>
  #include <string>
@@ -8,7 +8,12 @@
  #include <vector>
  
  #include "atlas/field.h"
-@@ -59,7 +60,7 @@
+ #include "atlas/functionspace.h"
++#include "atlas/util/Config.h"
+ #include "atlas/util/KDTree.h"
+ #include "atlas/util/Point.h"
+ 
+@@ -49,7 +51,7 @@
  // -----------------------------------------------------------------------------
  
  Fields::Fields(const Geometry & geom,
@@ -17,7 +22,7 @@
                 const util::DateTime & time)
    : geom_(new Geometry(geom)), vars_(vars), time_(time) {
    oops::Log::trace() << classname() << "::Fields starting" << std::endl;
-@@ -829,6 +830,155 @@
+@@ -827,6 +829,155 @@
  
  // -----------------------------------------------------------------------------
  
@@ -87,9 +92,9 @@
 +
 +    // Create observation fieldset
 +    atlas::FieldSet obsFieldSet;
-+    for (const auto & var : vars_.variables()) {
++    for (const auto & var : vars_) {
 +      atlas::Field obsField = interpolation->tgtFspace().createField<double>(
-+        atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
++        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
 +      obsFieldSet.add(obsField);
 +    }
 +
@@ -118,9 +123,9 @@
 +
 +    // Create observation fieldset
 +    atlas::FieldSet obsFieldSet;
-+    for (const auto & var : vars_.variables()) {
++    for (const auto & var : vars_) {
 +      atlas::Field obsField = interpolation->tgtFspace().createField<double>(
-+        atlas::option::name(var) | atlas::option::levels(geom_->levels(var)));
++        atlas::option::name(var.name()) | atlas::option::levels(var.getLevels()));
 +      obsFieldSet.add(obsField);
 +    }
 +
@@ -173,7 +178,7 @@
  void Fields::toFieldSet(atlas::FieldSet & fset) const {
    oops::Log::trace() << classname() << "::toFieldSet starting" << std::endl;
  
-@@ -859,7 +1009,7 @@
+@@ -857,7 +1008,7 @@
    fset_ = util::shareFields(fset);
  
    // Reset variables
@@ -182,7 +187,7 @@
    for (const auto & field : fset_) {
      vars_[field.name()].setLevels(field.shape(1));
    }
-@@ -872,11 +1022,22 @@
+@@ -870,11 +1021,22 @@
  
  // -----------------------------------------------------------------------------
  
@@ -206,7 +211,7 @@
    for (const auto & var : vars_) {
      std::string newVar = var.name();
      for (const auto & item : geom_->alias()) {
-@@ -1342,6 +1503,40 @@
+@@ -1049,6 +1211,40 @@
  
  // -----------------------------------------------------------------------------
  
@@ -247,7 +252,7 @@
  std::vector<Interpolation>::iterator Fields::setupGridInterpolation(const Geometry & srcGeom)
    const {
    oops::Log::trace() << classname() << "::setupGridInterpolation starting" << std::endl;
-@@ -1374,6 +1569,151 @@
+@@ -1081,6 +1277,150 @@
  
  // -----------------------------------------------------------------------------
  
@@ -307,22 +312,21 @@
 +  // Interpolate vertical coordinate
 +  atlas::FieldSet fset;
 +  atlas::FieldSet fsetInterp;
-+  for (const auto & field : fset_) {
-+    const std::string vertCoordName = "vert_coord_"
-+      + std::to_string(geom_->groupIndex(field.name()));
++  for (const auto & var : vars_) {
++    const std::string vertCoordName = geom_->vertCoord(var.name()).name();
 +    if (!fset.has(vertCoordName)) {
-+      fset.add(geom_->fields()[vertCoordName]);
++      fset.add(geom_->vertCoord(var.name()));
 +      atlas::Field fieldInterp = fspace->createField<double>(
-+        atlas::option::name(vertCoordName) | atlas::option::levels(field.levels()));
++        atlas::option::name(vertCoordName) | atlas::option::levels(var.getLevels()));
 +      fsetInterp.add(fieldInterp);
 +    }
 +  }
 +  interpolation.execute(fset, fsetInterp);
 +
 +  // Setup vertical interpolation
-+  for (const auto & var : vars_.variables()) {
-+    const std::string vertCoordName = "vert_coord_" + std::to_string(geom_->groupIndex(var));
-+    const auto vert_coordView = atlas::array::make_view<double, 2>(fsetInterp[vertCoordName]);
++  for (const auto & var : vars_) {
++    const std::string vertCoordName = geom_->vertCoord(var.name()).name();
++    const auto vertCoordView = atlas::array::make_view<double, 2>(fsetInterp[vertCoordName]);
 +    std::vector<std::array<size_t, 2>> verStencil;
 +    std::vector<std::array<double, 2>> verWeights;
 +    std::vector<size_t> verStencilSize;
@@ -330,7 +334,7 @@
 +    verWeights.resize(locs.size());
 +    verStencilSize.resize(locs.size());
 +    for (int jo = 0; jo < locs.size(); ++jo) {
-+      if (geom_->levels(var) == 1) {
++      if (var.getLevels() == 1) {
 +        // No vertical interpolation
 +        verStencil[jo][0] = 0;
 +        verWeights[jo][0] = 1.0;
@@ -340,9 +344,9 @@
 +        const double z = locs[jo][2];
 +        double bottom = std::numeric_limits<double>::max();
 +        double top = -std::numeric_limits<double>::max();
-+        for (size_t k = 0; k < geom_->levels(var); ++k) {
-+          bottom = std::min(bottom, vert_coordView(jo, k));
-+          top = std::max(top, vert_coordView(jo, k));
++        for (size_t jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
++          bottom = std::min(bottom, vertCoordView(jo, jlevel));
++          top = std::max(top, vertCoordView(jo, jlevel));
 +        }
 +        ASSERT(z >= bottom);
 +        ASSERT(z <= top);
@@ -350,21 +354,21 @@
 +        double zsup = std::numeric_limits<double>::max();
 +        size_t kinf = 0;
 +        size_t ksup = std::numeric_limits<size_t>::max();
-+        for (size_t k = 0; k < geom_->levels(var); ++k) {
-+          const double level = vert_coordView(jo, k);
++        for (size_t jlevel = 0; jlevel < var.getLevels(); ++jlevel) {
++          const double level = vertCoordView(jo, jlevel);
 +          if (level == z) {
 +            zinf = level;
 +            zsup = level;
-+            kinf = k;
-+            ksup = k;
++            kinf = jlevel;
++            ksup = jlevel;
 +          } else {
 +            if (z > level && zinf < level) {
 +              zinf = level;
-+              kinf = k;
++              kinf = jlevel;
 +            }
 +            if (z < level && zsup > level) {
 +              zsup = level;
-+              ksup = k;
++              ksup = jlevel;
 +            }
 +          }
 +        }
@@ -381,7 +385,7 @@
 +        }
 +      }
 +    }
-+    interpolation.insertVerticalInterpolation(var,
++    interpolation.insertVerticalInterpolation(var.name(),
 +                                              verStencil,
 +                                              verWeights,
 +                                              verStencilSize);
@@ -399,7 +403,7 @@
  void Fields::resetDuplicatePoints() {
    oops::Log::trace() << classname() << "::resetDuplicatePoints starting" << std::endl;
  
-@@ -1437,5 +1777,75 @@
+@@ -1144,5 +1484,75 @@
  }
  
  // -----------------------------------------------------------------------------

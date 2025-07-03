@@ -48,8 +48,8 @@
     "randomization size": "50"
   },
   "output states": {
-    "filepath": "testdata/evil_ens",
-    "date": "2010-01-01T12:00:00Z"
+    "date": "2010-01-01T12:00:00Z",
+    "filepath": "testdata/evil_ens"
   },
   "test": {
     "reference filename": "testref/ec/evil_ensemble.ref"

@@ -55,6 +55,8 @@ class ObsVector : public util::Printable,
 
   size_t size() const
     {return obsSpace_.sizeGlb();}
+  size_t serialSize() const
+    {return obsSpace_.sizeLoc();}
   size_t sizeLoc() const
     {return obsSpace_.sizeLoc();}
   size_t nvars() const
@@ -65,8 +67,8 @@ class ObsVector : public util::Printable,
   void set(const size_t &,
            const size_t &,
            const double &);
-  const double operator() (const size_t & jvar,
-                           const size_t & jo) const
+  double operator() (const size_t & jvar,
+                     const size_t & jo) const
     {double value; this->get(jvar, jo, value); return value;}
 
   void read(const std::string & name)
@@ -74,8 +76,12 @@ class ObsVector : public util::Printable,
   void save(const std::string & name) const
     {data_.name() = name; obsSpace_.putdb(data_);}
 
-  Eigen::VectorXd packEigen(const ObsVector &) const;
-  size_t packEigenSize(const ObsVector &) const;
+  void maskAndSerialize(const ObsVector &,
+                        std::vector<double> &) const;
+
+  std::string info(const std::string &) const;
+//  std::string info(const std::string &,
+//                   const ObsData1D<int> &) const;
 
   void fillHalo() const
     {obsSpace_.fillHalo(data_);}

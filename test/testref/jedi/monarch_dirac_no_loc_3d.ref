@@ -1,0 +1,14 @@
+Input Dirac increment:
+- Valid time: 2022-07-01T12:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 0.0000000000000000e+00
+    carbon_monoxyde: 1.0000000000000000e+00
+    pm10: 1.0000000000000000e+00
+Covariance(ensemble) * Increment:
+- Valid time: 2022-07-01T12:00:00Z
+  Geometry: structured [95121]
+  Fields:
+    ozone: 6.5665297973576211e-04
+    carbon_monoxyde: 6.8895735274539119e-04
+    pm10: 1.4106149865535889e-08

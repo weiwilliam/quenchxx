@@ -115,8 +115,8 @@
     "state from template": {
       "template": {
         "date": "2010-01-01T12:00:00Z",
-        "filepath": "testdata/bgos_ens_%member%",
-        "state variables": ["air_temperature"]
+        "state variables": ["air_temperature"],
+        "filepath": "testdata/bgos_ens_%member%"
       },
       "pattern": "%member%",
       "zero padding": "6"

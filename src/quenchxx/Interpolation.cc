@@ -34,8 +34,12 @@ Interpolation::Interpolation(const Geometry & geom,
 
   // Setup interpolation
   if (type == "atlas interpolation wrapper") {
+#ifdef ENABLE_SABER
     atlasInterpWrapper_ = std::make_shared<saber::interpolation::AtlasInterpWrapper>(
       geom.partitioner(), geom.functionSpace(), tgtGrid, tgtFspace_);
+#else
+    throw eckit::Exception("SABER required for AtlasInterpWrapper-based interpolation", Here());
+#endif
   } else if (type == "regional") {
     regionalInterp_ = std::make_shared<atlas::Interpolation>(
       atlas::util::Config("type", "regional-linear-2d"),
@@ -70,9 +74,11 @@ void Interpolation::execute(const atlas::FieldSet & srcFieldSet,
                             atlas::FieldSet & tgtFieldSet) const {
   oops::Log::trace() << classname() << "::execute starting" << std::endl;
 
+#ifdef ENABLE_SABER
   if (atlasInterpWrapper_) {
     atlasInterpWrapper_->execute(srcFieldSet, tgtFieldSet);
   }
+#endif
   if (regionalInterp_) {
     regionalInterp_->execute(srcFieldSet, tgtFieldSet);
   }
@@ -113,9 +119,11 @@ void Interpolation::executeAdjoint(atlas::FieldSet & srcFieldSet,
                                    const atlas::FieldSet & tgtFieldSet) const {
   oops::Log::trace() << classname() << "::executeAdjoint starting" << std::endl;
 
+#ifdef ENABLE_SABER
   if (atlasInterpWrapper_) {
     atlasInterpWrapper_->executeAdjoint(srcFieldSet, tgtFieldSet);
   }
+#endif
   if (regionalInterp_) {
     regionalInterp_->execute_adjoint(srcFieldSet, tgtFieldSet);
   }

@@ -1,5 +1,5 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.cc.tmp.bak	2025-02-03 11:29:31.388090557 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/Geometry.cc	2025-02-03 11:30:16.155348984 +0100
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.cc.tmp.bak	2025-05-20 11:20:17.011440447 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/Geometry.cc	2025-05-20 11:22:04.435113460 +0200
 @@ -30,6 +30,7 @@
  #include "oops/util/Logger.h"
  
@@ -8,60 +8,27 @@
  
  #define ERR(e, msg) {std::string s(nc_strerror(e)); throw eckit::Exception(s + ": " + msg, Here());}
  
-@@ -104,7 +105,7 @@
-       // From a file
-       const std::vector<std::string> vert_coordVars =
-         vert_coordParamsFromFile->getStringVector("variables");
--      const oops::Variables vert_coordVar(vert_coordVars);
-+      const varns::Variables vert_coordVar(vert_coordVars);
-       eckit::LocalConfiguration fileGeomConfig(config);
-       std::vector<eckit::LocalConfiguration> groupsConfig(1);
-       groupsConfig[0].set("variables", vert_coordVars);
-@@ -280,6 +281,33 @@
-   comm_.allReduceInPlace(duplicatedPointsCount, eckit::mpi::sum());
-   duplicatePoints_ = (duplicatedPointsCount > 0);
+@@ -148,6 +149,9 @@
+     checkLonLat(*checkLonLatConf);
+   }
  
-+  // Iterator dimension
-+  iteratorDimension_ = config.getInt("iterator dimension", 2);
-+  ASSERT((iteratorDimension_ == 2) || (iteratorDimension_ == 3));
++  // Setup iterator
++  setupIterator(config);
 +
-+  // Domain size
-+  nnodes_ = fields().field("vert_coord_0").shape(0);
-+  nlevs_ = fields().field("vert_coord_0").shape(1);
-+
-+  // Averaged vertical coordinate
-+  const auto vert_coordView = atlas::array::make_view<double, 2>(fields().field("vert_coord_0"));
-+  for (atlas::idx_t jlevel = 0; jlevel < nlevs_; ++jlevel) {
-+    double vert_coord_avg = 0.0;
-+    double counter = 0.0;
-+    for (atlas::idx_t jnode = 0; jnode < nnodes_; ++jnode) {
-+      if (ghostView(jnode) == 0) {
-+        vert_coord_avg += vert_coordView(jnode, jlevel);
-+        counter += 1.0;
-+      }
-+    }
-+    comm.allReduceInPlace(vert_coord_avg, eckit::mpi::sum());
-+    comm.allReduceInPlace(counter, eckit::mpi::sum());
-+    if (counter > 0.0) {
-+      vert_coord_avg /= counter;
-+    }
-+    vert_coord_avg_.push_back(vert_coord_avg);
-+  }
-+
-   // GeometryData
-   if (interpolation_.getString("interpolation type") == "unstructured") {
-     geomData_.reset(new oops::GeometryData(functionSpace_, fields_, levelsAreTopDown_, comm_));
-@@ -298,7 +326,8 @@
+   // Print summary
+   this->print(oops::Log::info());
+ 
+@@ -161,7 +165,8 @@
    partitioner_(other.partitioner_), mesh_(other.mesh_), groupIndex_(other.groupIndex_),
    levelsAreTopDown_(other.levelsAreTopDown_), modelData_(other.modelData_), alias_(other.alias_),
    latSouthToNorth_(other.latSouthToNorth_), interpolation_(other.interpolation_),
 -  duplicatePoints_(other.duplicatePoints_) {
 +  duplicatePoints_(other.duplicatePoints_), iteratorDimension_(other.iteratorDimension_),
-+  nnodes_(other.nnodes_), nlevs_(other.nlevs_), vert_coord_avg_(other.vert_coord_avg_) {
++  nnodes_(other.nnodes_), nlevs_(other.nlevs_), vertCoordAvg_(other.vertCoordAvg_) {
    oops::Log::trace() << classname() << "::Geometry starting" << std::endl;
  
    // Copy function space
-@@ -359,7 +388,7 @@
+@@ -236,7 +241,7 @@
  
  // -----------------------------------------------------------------------------
  
@@ -70,7 +37,7 @@
    oops::Log::trace() << classname() << "::variableSizes starting" << std::endl;
  
    std::vector<size_t> sizes;
-@@ -373,6 +402,18 @@
+@@ -250,6 +255,18 @@
  
  // -----------------------------------------------------------------------------
  
@@ -89,19 +56,78 @@
  void Geometry::print(std::ostream & os) const {
    oops::Log::trace() << classname() << "::print starting" << std::endl;
  
-@@ -456,7 +497,7 @@
-     std::vector<float> zlat(nlat);
-     std::vector<uint8_t> zlsm(nlat*nlon);
-     if ((retval = nc_get_var_float(ncid, lon_id, zlon.data()))) ERR(retval, "lon");
--    if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval, "lon");
-+    if ((retval = nc_get_var_float(ncid, lat_id, zlat.data()))) ERR(retval, "lat");
-     if ((retval = nc_get_var_ubyte(ncid, lsm_id, zlsm.data()))) ERR(retval, "LMASK");
+@@ -371,7 +388,7 @@
+     } else {
+       // Get variable to read
+       const std::string varName = vertCoordConf->getString("variable");
+-      const oops::Variables vertCoordVars(std::vector<std::string>({varName}));
++      const varns::Variables vertCoordVars(std::vector<std::string>({varName}));
  
-     // Copy data
-@@ -542,5 +583,23 @@
+       // Add group index for this variable
+       groupIndex_[varName] = group.index_;
+@@ -653,7 +670,7 @@
+   // Get variable to read
+   const std::string lonName = checkLonLatConf.getString("longitude", "longitude");
+   const std::string latName = checkLonLatConf.getString("latitude", "latitude");
+-  const oops::Variables lonLatVars(std::vector<std::string>({lonName, latName}));
++  const varns::Variables lonLatVars(std::vector<std::string>({lonName, latName}));
+ 
+   // Add new group to read coordinates
+   groupData coordGroup;
+@@ -697,5 +714,73 @@
  }
  
  // -----------------------------------------------------------------------------
++
++void Geometry::setupIterator(const eckit::Configuration & config) {
++  oops::Log::trace() << classname() << "::setupIterator starting" << std::endl;
++
++  // Iterator dimension
++  iteratorDimension_ = config.getInt("iterator dimension", 2);
++  ASSERT((iteratorDimension_ == 2) || (iteratorDimension_ == 3));
++
++  // First group vertical coordinate field
++  const auto vertCoord = groups_[0].vertCoord_;
++
++  // Domain size
++  nnodes_ = vertCoord.shape(0);
++  nlevs_ = vertCoord.shape(1);
++
++  // Get ghost view
++  const auto ghostView = atlas::array::make_view<int, 1>(functionSpace_.ghost());
++
++  // Averaged vertical coordinate
++  const auto vertCoordView = atlas::array::make_view<double, 2>(vertCoord);
++  for (atlas::idx_t jlevel = 0; jlevel < nlevs_; ++jlevel) {
++    // Initialization
++    double vertCoordAvg = 0.0;
++    double counter = 0.0;
++
++    // Accumulation
++    for (atlas::idx_t jnode = 0; jnode < nnodes_; ++jnode) {
++      if (ghostView(jnode) == 0) {
++        vertCoordAvg += vertCoordView(jnode, jlevel);
++        counter += 1.0;
++      }
++    }
++
++    // Communication
++    comm_.allReduceInPlace(vertCoordAvg, eckit::mpi::sum());
++    comm_.allReduceInPlace(counter, eckit::mpi::sum());
++
++    // Normalization
++    if (counter > 0.0) {
++      vertCoordAvg /= counter;
++    }
++
++    // Update profile
++    vertCoordAvg_.push_back(vertCoordAvg);
++  }
++
++  oops::Log::trace() << classname() << "::setupIterator done" << std::endl;
++}
++
++// -----------------------------------------------------------------------------
 +
 +GeometryIterator Geometry::begin() const {
 +  return GeometryIterator(*this, 0, 0);
@@ -116,7 +142,7 @@
 +// -----------------------------------------------------------------------------
 +
 +std::vector<double> Geometry::verticalCoord(std::string & vcUnits) const {
-+  return vert_coord_avg_;
++  return vertCoordAvg_;
 +}
 +
 +// -----------------------------------------------------------------------------

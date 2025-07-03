@@ -86,23 +86,27 @@ driver:
   save posterior variance: true
   update obs config with geometry info: true
 local ensemble DA:
-  solver: LETKF
+  solver: Deterministic LETKF
   inflation:
     rtps: 0.5
     rtpp: 0.5
     mult: 1.1
 output:
   states:
-  - filepath: testdata/glb_letkf_nonlinear_4d_state_12
-  - filepath: testdata/glb_letkf_nonlinear_4d_state_18
+  - date: 2010-01-01T12:00:00Z
+    filepath: testdata/glb_letkf_nonlinear_4d_state_12
+  - date: 2010-01-01T18:00:00Z
+    filepath: testdata/glb_letkf_nonlinear_4d_state_18
 output increment:
   filepath: testdata/glb_letkf_nonlinear_4d_increment
 output ensemble increments:
   filepath: testdata/glb_letkf_nonlinear_4d_increment
 output mean prior:
   states:
-  - filepath: testdata/glb_letkf_nonlinear_4d_mean_prior_12
-  - filepath: testdata/glb_letkf_nonlinear_4d_mean_prior_18
+  - date: 2010-01-01T12:00:00Z
+    filepath: testdata/glb_letkf_nonlinear_4d_mean_prior_12
+  - date: 2010-01-01T18:00:00Z
+    filepath: testdata/glb_letkf_nonlinear_4d_mean_prior_18
 output variance prior:
   filepath: testdata/glb_letkf_nonlinear_4d_var_prior
 output variance posterior:

@@ -47,7 +47,7 @@ states:
     - air_pressure_thickness
     filepath: testdata/geos_cf_N10_subset.20210801_0000z
     netcdf extension: nc
-    date: '2021-08-01T00:00:00Z'
+    date: 2021-08-01T00:00:00Z
   output:
     filepath: testdata/geos_cf_N20_varcha.20210801_0000z
     netcdf extension: nc

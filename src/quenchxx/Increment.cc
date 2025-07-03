@@ -18,10 +18,10 @@ namespace quenchxx {
 
 // -----------------------------------------------------------------------------
 
-Increment::Increment(const Geometry & resol,
+Increment::Increment(const Geometry & geom,
                      const varns::Variables & vars,
                      const util::DateTime & vt)
-  : fields_(new Fields(resol, vars, vt)) {
+  : fields_(new Fields(geom, vars, vt, false)) {
   oops::Log::trace() << classname() << "::Increment starting" << std::endl;
 
   fields_->zero();
@@ -31,11 +31,11 @@ Increment::Increment(const Geometry & resol,
 
 // -----------------------------------------------------------------------------
 
-Increment::Increment(const Geometry & resol,
+Increment::Increment(const Geometry & geom,
                      const varns::Variables & vars,
                      const util::DateTime &,
                      const util::DateTime & vt)
-  : fields_(new Fields(resol, vars, vt)) {
+  : fields_(new Fields(geom, vars, vt, false)) {
   oops::Log::trace() << classname() << "::Increment starting" << std::endl;
 
   fields_->zero();
@@ -45,9 +45,9 @@ Increment::Increment(const Geometry & resol,
 
 // -----------------------------------------------------------------------------
 
-Increment::Increment(const Geometry & resol,
+Increment::Increment(const Geometry & geom,
                      const Increment & other)
-  : fields_(new Fields(*other.fields_, resol)) {
+  : fields_(new Fields(*other.fields_, geom)) {
   oops::Log::trace() << classname() << "::Increment starting" << std::endl;
 
   fields_->zero();
@@ -230,7 +230,7 @@ void Increment::setLocal(const oops::LocalIncrement & localIncrement,
 void Increment::print(std::ostream & os) const {
   oops::Log::trace() << classname() << "::print starting" << std::endl;
 
-  os << std::endl << "Valid time: " << this->validTime();
+  os << std::endl << "- Valid time: " << this->validTime();
   os << *fields_;
 
   oops::Log::trace() << classname() << "::print done" << std::endl;

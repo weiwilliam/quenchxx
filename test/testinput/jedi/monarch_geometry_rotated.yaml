@@ -1,0 +1,34 @@
+geometry:
+  function space: StructuredColumns
+  partitioner: "checkerboard"
+  grid:
+    type: structured
+    xspace:
+      type: linear
+      N : 351
+      start : -35.0
+      end :  35.0
+    yspace:
+      type: linear
+      N: 271
+      start: -27.0
+      end : 27.0
+    projection :
+      type: rotated_lonlat
+      north_pole: [190, 39]
+    y_numbering: -1
+  groups:
+  - variables:
+    - lev_height
+    - ozone
+    - carbon_monoxyde
+    - pm10
+    levels: 5
+  - variables:
+    - PSFC
+    levels: 1
+  levels are top down: true
+  model data:
+    top pressure: 5000
+test:
+  reference filename: testref/jedi/monarch_geometry_rotated.ref

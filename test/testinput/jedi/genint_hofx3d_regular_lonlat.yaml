@@ -32,7 +32,7 @@ state:
   - air_pressure_thickness
   filepath: testdata/geos_cf_N10_subset.20210801_0000z
   netcdf extension: nc
-  date: '2020-09-03T21:00:00Z'
+  date: 2020-09-03T21:00:00Z
 observations:
   observers:
   - obs space:

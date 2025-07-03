@@ -70,6 +70,7 @@ set( ECBUILD_DEFAULT_BUILD_TYPE Release )
 set( ENABLE_OS_TESTS           OFF CACHE BOOL "Disable OS tests" FORCE )
 set( ENABLE_LARGE_FILE_SUPPORT OFF CACHE BOOL "Disable testing of large file support" FORCE )
 set( ENABLE_MPI ON CACHE BOOL "Compile with MPI" )
+set( ENABLE_OBS ON CACHE BOOL "Enable observations" )
 
 include( ecbuild_system NO_POLICY_SCOPE )
 
@@ -112,42 +113,55 @@ find_package( NetCDF REQUIRED COMPONENTS C Fortran )
 # atlas
 find_package( atlas 0.35.0 REQUIRED )
 
+# eccodes
+find_package( eccodes QUIET )
+
+# ectrans and falfilfa
+find_package( ECTRANS 1.6.0 COMPONENTS etrans double QUIET )
+find_package( falfilfa QUIET )
+if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS AND ectrans_HAVE_TRANSI ) AND falfilfa_FOUND )
+    add_definitions( -DREADFA )
+endif()
+
 # oops
 if( ECSABER )
     find_package( oops REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" )
     find_package( oops_patch REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "oops_patch" )
 else()
     find_package( oops 1.10.0 REQUIRED )
-endif()
-
-# saber
-find_package( saber 1.10.0 REQUIRED )
-
-if( NOT ECSABER )
-    # crtm
-    find_package( crtm 2.2.3 QUIET )
-
-    # ufo
-    find_package( ufo 1.10.0 REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" )
 endif()
 
 # vader
 find_package( vader 1.7.0 REQUIRED )
+list( APPEND QUENCHXX_PUBLIC_LIBS "vader" )
 
-# OpenMP
-if(OPENMP)
-  find_package( OpenMP COMPONENTS Fortran )
+# saber
+if( ENABLE_SABER )
+    find_package( saber 1.10.0 REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "saber" )
+endif()
+
+if( ( NOT ECSABER ) AND ENABLE_CRTM )
+    # crtm
+    find_package( crtm 2.2.3 REQUIRED )
+endif()
+
+if( ( NOT ECSABER ) AND ENABLE_OBS )
+    # ufo
+    find_package( ufo 1.10.0 REQUIRED )
+    list( APPEND QUENCHXX_PUBLIC_LIBS "ufo" )
+endif()
+
+if( OPENMP )
+    # OpenMP
+    find_package( OpenMP COMPONENTS CXX Fortran )
 endif()
 
 # MPI
 ecbuild_find_mpi( COMPONENTS CXX Fortran REQUIRED )
-
-# QUENCHXX required public libraries
-if( ECSABER )
-    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "oops_patch" "saber" "vader" )
-else()
-    list( APPEND QUENCHXX_PUBLIC_LIBS "oops" "saber" "ufo" "vader" )
-endif()
 
 ################################################################################
 # Export package info
@@ -157,10 +171,8 @@ list( APPEND QUENCHXX_TPLS atlas atlas_f oops saber )
 
 set( QUENCHXX_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                            ${CMAKE_CURRENT_BINARY_DIR}/src
-                           ${DEPEND_LIB_ROOT}/include
-                           ${DEPEND_LIB_ROOT}/mod
-                           ${DEPEND_LIB_ROOT}/include/quenchxx
-                           ${CMAKE_Fortran_MODULE_DIRECTORY})
+                           ${CMAKE_Fortran_MODULE_DIRECTORY} )
+
 set( QUENCHXX_LIBRARIES quenchxx )
 
 get_directory_property( QUENCH_DEFINITIONS COMPILE_DEFINITIONS )
@@ -177,7 +189,10 @@ endforeach()
 ################################################################################
 
 if( ECSABER )
-    add_definitions(-DECSABER)
+    add_definitions( -DECSABER )
+endif()
+if( ENABLE_SABER )
+    add_definitions( -DENABLE_SABER )
 endif()
 
 add_subdirectory( tools )

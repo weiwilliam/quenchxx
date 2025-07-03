@@ -1,9 +1,16 @@
 # (C) Copyright 2022 UCAR.
-# (C) Copyright 2023-2024 Meteorologisk Institutt
+# (C) Copyright 2025 Meteorologisk Institutt
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
+message( STATUS "Found quenchxx I/O formats:" )
+message( STATUS "- AROME-NetCDF" )
+message( STATUS "- BSC" )
+message( STATUS "- Default (NetCDF)" )
+message( STATUS "- GMSH" )
+
+# Common sources, not obs-related
 list( APPEND quenchxx_src_files
 
 Constants.cc
@@ -15,8 +22,6 @@ Geometry.cc
 Geometry.h
 GeometryIterator.cc
 GeometryIterator.h
-GeoVaLs.cc
-GeoVaLs.h
 Increment.cc
 Increment.h
 Interpolation.cc
@@ -26,10 +31,6 @@ LinearVariableChange.cc
 LinearVariableChange.h
 LinearVariableChangeParameters.h
 ModelData.h
-ObsSpace.cc
-ObsSpace.h
-ObsVector.cc
-ObsVector.h
 State.cc
 State.h
 Traits.h
@@ -42,9 +43,21 @@ VariableChange.h
 VariableChangeParameters.h
 VariablesSwitch.h
 
+FieldsIO/FieldsIOArome.cc
+FieldsIO/FieldsIOArome.h
+FieldsIO/FieldsIOBase.cc
+FieldsIO/FieldsIOBase.h
+FieldsIO/FieldsIOBSC.cc
+FieldsIO/FieldsIOBSC.h
+FieldsIO/FieldsIODefault.cc
+FieldsIO/FieldsIODefault.h
+FieldsIO/FieldsIOGmsh.cc
+FieldsIO/FieldsIOGmsh.h
+
 )
 
 if( ECSABER )
+    # ECSABER-specific sources, not obs-related
     list( APPEND quenchxx_src_files
 
     HorizScaleDecomposition.h
@@ -53,11 +66,7 @@ if( ECSABER )
     IncrEnsCtlVec.h
     instantiateQuenchMatrices.h
     Interpolator.h
-    LinearObsOperator.cc
-    LinearObsOperator.h
     LocalizationMatrix.h
-    Locations.cc
-    Locations.h
     Logbook.cc
     Logbook.h
     LinearModel.cc
@@ -69,29 +78,77 @@ if( ECSABER )
     ModelAuxCtlVec.h
     ModelAuxControlEstimator.h
     ModelAuxIncrement.h
-    ObsAuxControl.cc
-    ObsAuxControl.h
-    ObsAuxCovariance.cc
-    ObsAuxCovariance.h
-    ObsAuxCtlVec.cc
-    ObsAuxCtlVec.h
-    ObsAuxIncrement.cc
-    ObsAuxIncrement.h
-    ObsError.cc
-    ObsError.h
-    ObsLocalizationEC.cc
-    ObsLocalizationEC.h
-    ObsOperator.cc
-    ObsOperator.h
     Variables.h
     Variables.cc
 
     )
-else()
+endif()
+
+if( ENABLE_OBS )
+    # Common sources, obs-related
     list( APPEND quenchxx_src_files
 
-    ObsLocalizationJEDI.cc
-    ObsLocalizationJEDI.h
+    GeoVaLs.cc
+    GeoVaLs.h
+    ObsSpace.cc
+    ObsSpace.h
+    ObsVector.cc
+    ObsVector.h
+
+    )
+
+    if( ECSABER )
+        # ECSABER-specific sources, obs-related
+        list( APPEND quenchxx_src_files  
+
+        LinearObsOperator.cc
+        LinearObsOperator.h
+        Locations.cc
+        Locations.h
+        ObsAuxControl.cc
+        ObsAuxControl.h
+        ObsAuxCovariance.cc
+        ObsAuxCovariance.h
+        ObsAuxCtlVec.cc
+        ObsAuxCtlVec.h
+        ObsAuxIncrement.cc
+        ObsAuxIncrement.h
+        ObsError.cc
+        ObsError.h
+        ObsOperator.cc
+        ObsOperator.h
+
+        )
+    else()
+        # JEDI-specific sources, obs-related
+        list( APPEND quenchxx_src_files
+
+        ObsLocalizationJEDI.cc
+        ObsLocalizationJEDI.h
+
+        )
+    endif()
+endif()
+
+if( eccodes_FOUND )
+    # GRIB IO-specific sources
+    message( STATUS "- GRIB" )
+    list( APPEND quenchxx_src_files
+
+    FieldsIO/FieldsIOGrib.cc
+    FieldsIO/FieldsIOGrib.h
+
+    )
+endif()
+
+if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS AND ectrans_HAVE_TRANSI ) AND falfilfa_FOUND )
+    # AROME FA IO-specific sources
+    message( STATUS "- AROME-FA" )
+    list( APPEND quenchxx_src_files
+
+    FieldsIO/fieldsio_arome_fa.h
+    FieldsIO/fieldsio_arome_fa_interface.F90
+    FieldsIO/fieldsio_arome_fa_mod.F90
 
     )
 endif()
@@ -108,6 +165,9 @@ target_include_directories( quenchxx PUBLIC "$<BUILD_INTERFACE:${QUENCHXX_INCLUD
 target_link_libraries( quenchxx PUBLIC NetCDF::NetCDF_Fortran NetCDF::NetCDF_C )
 if( eccodes_FOUND )
     target_link_libraries( quenchxx PUBLIC eccodes )
+endif()
+if( ( ECTRANS_FOUND AND ectrans_HAVE_ETRANS ) AND falfilfa_FOUND )
+    target_link_libraries( quenchxx PUBLIC trans_dp transi_dp fa_dp )
 endif()
 
 #Configure include directory layout for build-tree to match install-tree

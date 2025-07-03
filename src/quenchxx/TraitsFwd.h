@@ -10,6 +10,10 @@
 
 #include <string>
 
+namespace oops {
+class AtlasInterpolator;
+}  // namespace oops
+
 namespace quenchxx {
 
 class Covariance;
@@ -55,6 +59,7 @@ struct Traits {
   using IncrModCtlVec = quenchxx::IncrModCtlVec;
   using Interpolator = quenchxx::Interpolator;
   using LinearVariableChange = quenchxx::LinearVariableChange;
+//  using LocalInterpolator = oops::AtlasInterpolator;  // TODO(Benjamin)
   using LocalizationMatrix = quenchxx::LocalizationMatrix;
   using Locations = quenchxx::Locations;
   using Model = quenchxx::Model;

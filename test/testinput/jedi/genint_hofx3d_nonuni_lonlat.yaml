@@ -64,7 +64,7 @@ state:
   - air_pressure_at_surface
   filepath: testdata/camchem_N30x20_subset
   netcdf extension: nc
-  date: '2020-09-03T21:00:00Z'
+  date: 2020-09-03T21:00:00Z
 observations:
   observers:
   - obs space:

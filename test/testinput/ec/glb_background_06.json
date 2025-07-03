@@ -60,8 +60,8 @@
     "randomization size": "1"
   },
   "output states": {
-    "filepath": "testdata/glb_bkg_06",
-    "date": "2010-01-01T06:00:00Z"
+    "date": "2010-01-01T06:00:00Z",
+    "filepath": "testdata/glb_bkg_06"
   },
   "test": {
     "reference filename": "testref/glb_background_06.ref"

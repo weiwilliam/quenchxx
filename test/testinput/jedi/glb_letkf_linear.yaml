@@ -57,7 +57,7 @@ driver:
   save posterior variance: true
   update obs config with geometry info: true
 local ensemble DA:
-  solver: LETKF
+  solver: Deterministic LETKF
   inflation:
     rtps: 0.5
     rtpp: 0.5

@@ -71,8 +71,8 @@
     "randomization size": "10"
   },
   "output states": {
-    "filepath": "testdata/reg_ens_18",
-    "date": "2010-01-01T18:00:00Z"
+    "date": "2010-01-01T18:00:00Z",
+    "filepath": "testdata/reg_ens_18"
   },
   "test": {
     "reference filename": "testref/reg_ensemble_18.ref"

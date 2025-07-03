@@ -1,6 +1,6 @@
---- /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/CMakeLists.txt.tmp.bak	2025-01-28 14:34:26.724292836 +0100
-+++ /home/benjaminm/code/oops-bundle/quenchxx/src/quenchxx/CMakeLists.txt	2025-01-28 14:22:02.681202066 +0100
-@@ -4,45 +4,117 @@
+--- /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/CMakeLists.txt.tmp.bak	2025-05-20 13:21:59.727830377 +0200
++++ /home/benjaminm/code/jedi-bundle/quenchxx/src/quenchxx/CMakeLists.txt	2025-05-20 13:20:59.990431297 +0200
+@@ -4,52 +4,128 @@
  # This software is licensed under the terms of the Apache Licence Version 2.0
  # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  
@@ -44,6 +44,17 @@
 +VariableChange.h
 +VariableChangeParameters.h
 +VariablesSwitch.h
+ 
++FieldsIO/FieldsIOArome.cc
++FieldsIO/FieldsIOArome.h
+ FieldsIO/FieldsIOBase.cc
+ FieldsIO/FieldsIOBase.h
+ FieldsIO/FieldsIODefault.cc
+ FieldsIO/FieldsIODefault.h
+ FieldsIO/FieldsIOGmsh.cc
+ FieldsIO/FieldsIOGmsh.h
++FieldsIO/FieldsIOGrib.cc
++FieldsIO/FieldsIOGrib.h
  
  )
  

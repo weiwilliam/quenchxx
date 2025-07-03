@@ -109,8 +109,8 @@
     "algorithm": "DRIPCG"
   },
   "output": {
-    "filepath": "testdata/reg_3dvar",
-    "date": "2010-01-01T12:00:00Z"
+    "date": "2010-01-01T12:00:00Z",
+    "filepath": "testdata/reg_3dvar"
   },
   "variational": {
     "iteration": [

@@ -22,7 +22,9 @@
 #include "oops/util/Logger.h"
 #include "oops/util/ObjectCounter.h"
 
+#ifdef ENABLE_SABER
 #include "saber/interpolation/AtlasInterpWrapper.h"
+#endif
 
 #include "quenchxx/Geometry.h"
 
@@ -83,8 +85,10 @@ class Interpolation {
   // Destination function space
   atlas::FunctionSpace tgtFspace_;
 
+#ifdef ENABLE_SABER
   // ATLAS interpolation wrapper from SABER
   std::shared_ptr<saber::interpolation::AtlasInterpWrapper> atlasInterpWrapper_;
+#endif
 
   // Regional ATLAS interpolation
   std::shared_ptr<atlas::Interpolation> regionalInterp_;
