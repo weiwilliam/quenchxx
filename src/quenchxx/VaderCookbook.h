@@ -19,21 +19,26 @@ namespace quenchxx {
 static std::map<std::string, std::vector<std::string>> vaderQuenchxxCustomCookbook() {
   return
     // pt: from t and pkz
-    {{"potential_temperature",        {"AirPotentialTemperature_B"}},
+    {{"airpotential_temperature",        {"AirPotentialTemperature_B"}},
     // P: from delp, from ps (and ak/bk)
     {"air_pressure_levels",          {"AirPressureAtInterface_B", "AirPressureAtInterface_A"}},
     // t: from p-pt and pt-base, from pt
     {"air_temperature",              {"AirTemperature_C", "AirTemperature_A"}},
     // p: from pe, from p-p and p-base
-    {"air_pressure",                 {"AirPressure_A", "AirPressure_B"}},
+    {"air_pressure",                 {"AirPressure_A"}},
     // rh:
     {"relative_humidity",            {"RelativeHumidity_A"}},
     // mr: from spfh
-    {"humidity_mixing_ratio",        {"HumidityMixingRatio_A", "HumidityMixingRatio_B"}},
+    {"water_vapor_mixing_ratio_wrt_dry_air", {"WaterVaporMixingRatioWrtDryAir_C"}},
     // sulfmf:
     {"mass_fraction_of_sulfate_in_air",  {"SulfateMassFraction_A"}},
     // spfh: from mr
-    {"specific_humidity",            {"WaterVaporMixingRatioWrtMoistAir_A"}},
+    {"water_vapor_mixing_ratio_wrt_moist_air",   {"WaterVaporMixingRatioWrtMoistAir_A"}},
+    // total_water_mixing_ratio_wrt_dry_air
+    {"total_water_mixing_ratio_wrt_dry_air", {"TotalWaterMixingRatioWrtDryAir_A"}},
+    // total_water_mixing_ratio_wrt_moist_air_and_condensed_water
+    {"total_water_mixing_ratio_wrt_moist_air_and_condensed_water",
+               {"TotalWaterMixingRatioWrtWetAir_A"}},
     // ln(p) from pe
     {"ln_air_pressure_at_interface", {"LnAirPressureAtInterface_A"}},
     // qsat
@@ -49,7 +54,7 @@ static std::map<std::string, std::vector<std::string>> vaderQuenchxxCustomCookbo
     // pt: from t and ps
     {"potential_temperature",        {"AirPotentialTemperature_A"}},
     // ps: from delp
-    {"surface_pressure",             {"SurfaceAirPressure_A"}},
+    {"air_pressure_at_surface",             {"SurfaceAirPressure_A"}},
     // tv: from t and q
     {"virtual_temperature",          {"AirVirtualTemperature_A"}}};
 }
