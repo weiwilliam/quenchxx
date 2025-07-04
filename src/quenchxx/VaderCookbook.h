@@ -19,7 +19,7 @@ namespace quenchxx {
 static std::map<std::string, std::vector<std::string>> vaderQuenchxxCustomCookbook() {
   return
     // pt: from t and pkz
-    {{"airpotential_temperature",        {"AirPotentialTemperature_B"}},
+    {{"air_potential_temperature",        {"AirPotentialTemperature_B"}},
     // P: from delp, from ps (and ak/bk)
     {"air_pressure_levels",          {"AirPressureAtInterface_B", "AirPressureAtInterface_A"}},
     // t: from p-pt and pt-base, from pt
@@ -28,10 +28,10 @@ static std::map<std::string, std::vector<std::string>> vaderQuenchxxCustomCookbo
     {"air_pressure",                 {"AirPressure_A"}},
     // rh:
     {"relative_humidity",            {"RelativeHumidity_A"}},
-    // mr: from spfh
-    {"water_vapor_mixing_ratio_wrt_dry_air", {"WaterVaporMixingRatioWrtDryAir_C"}},
     // sulfmf:
     {"mass_fraction_of_sulfate_in_air",  {"SulfateMassFraction_A"}},
+    // mr: from spfh
+    {"water_vapor_mixing_ratio_wrt_dry_air", {"WaterVaporMixingRatioWrtDryAir_C"}},
     // spfh: from mr
     {"water_vapor_mixing_ratio_wrt_moist_air",   {"WaterVaporMixingRatioWrtMoistAir_A"}},
     // total_water_mixing_ratio_wrt_dry_air
