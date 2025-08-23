@@ -36,6 +36,9 @@ static std::map<std::string, std::vector<std::string>> vaderQuenchxxCustomCookbo
     {"water_vapor_mixing_ratio_wrt_moist_air",   {"WaterVaporMixingRatioWrtMoistAir_A"}},
     // total_water_mixing_ratio_wrt_dry_air
     {"total_water_mixing_ratio_wrt_dry_air", {"TotalWaterMixingRatioWrtDryAir_A"}},
+    // water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water
+    {"water_vapor_mixing_ratio_wrt_moist_air_and_condensed_water",
+               {"WaterVaporMixingRatioWrtWetAir_A"}},
     // total_water_mixing_ratio_wrt_moist_air_and_condensed_water
     {"total_water_mixing_ratio_wrt_moist_air_and_condensed_water",
                {"TotalWaterMixingRatioWrtWetAir_A"}},
